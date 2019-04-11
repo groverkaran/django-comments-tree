@@ -17,7 +17,8 @@ A Django pluggable application that adds comments to your project. It extends th
 .. index::
    single: Features
 
-#. Thread support, so comments can be nested.
+#. Comments model based on `django-treebeard <https://pypi.python.org/pypi/django-treebeard>`_ to provide a robust and fast threaded and nested comment structure.
+#. Efficiently associate a comment tree with any model through a link table which avoids populating each comment with extra link data.
 #. Customizable maximum thread level, either for all models or on a per app.model basis.
 #. Optional notifications on follow-up comments via email.
 #. Mute links to allow cancellation of follow-up notifications.

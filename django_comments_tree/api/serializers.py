@@ -1,4 +1,5 @@
 import hashlib
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -19,10 +20,9 @@ from rest_framework import serializers
 from django_comments_tree import signed, views
 from django_comments_tree.conf import settings
 from django_comments_tree.models import (TmpXtdComment, XtdComment,
-                                        LIKEDIT_FLAG, DISLIKEDIT_FLAG)
+                                         LIKEDIT_FLAG, DISLIKEDIT_FLAG)
 from django_comments_tree.signals import confirmation_received
 from django_comments_tree.utils import has_app_model_option
-
 
 COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 3000)
 

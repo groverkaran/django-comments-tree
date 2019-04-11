@@ -19,7 +19,6 @@ from django_comments_tree.api import frontend
 
 XtdComment = get_comment_model()
 
-
 register = Library()
 
 
@@ -91,10 +90,9 @@ class RenderLastXtdCommentsNode(BaseLastXtdCommentsNode):
         if not isinstance(self.count, int):
             self.count = int(self.count.resolve(context))
 
-        self.qs = XtdComment.objects\
-                            .for_content_types(self.content_types,
-                                               site=settings.SITE_ID)\
-                            .order_by('submit_date')[:self.count]
+        self.qs = XtdComment.objects.for_content_types(
+            self.content_types,
+            site=settings.SITE_ID).order_by('submit_date')[:self.count]
 
         strlist = []
         context_dict = context.flatten()
@@ -124,10 +122,10 @@ class GetLastXtdCommentsNode(BaseLastXtdCommentsNode):
     def render(self, context):
         if not isinstance(self.count, int):
             self.count = int(self.count.resolve(context))
-        self.qs = XtdComment.objects\
-                            .for_content_types(self.content_types,
-                                               site=settings.SITE_ID)\
-                            .order_by('submit_date')[:self.count]
+        self.qs = XtdComment.objects.for_content_types(
+            self.content_types,
+            site=settings.SITE_ID)
+        self.qs = self.qs.order_by('submit_date')[:self.count]
         context[self.as_varname] = self.qs
         return ''
 
@@ -482,7 +480,7 @@ def comments_xtd_api_list_url(obj):
     ctype = ContentType.objects.get_for_model(obj)
     ctype_slug = "%s-%s" % (ctype.app_label, ctype.model)
     return reverse('comments-tree-api-list', kwargs={'content_type': ctype_slug,
-                                                    'object_pk': obj.id})
+                                                     'object_pk': obj.id})
 
 
 # ----------------------------------------------------------------------

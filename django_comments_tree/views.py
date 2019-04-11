@@ -14,19 +14,17 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView
 
-
 from django_comments.models import CommentFlag
 from django_comments.views.moderation import perform_flag
 from django_comments.views.utils import next_redirect, confirmation_view
 
 from django_comments_tree import (get_form, comment_was_posted, signals, signed,
-                                 get_model as get_comment_model)
+                                  get_model as get_comment_model)
 from django_comments_tree.conf import settings
 from django_comments_tree.models import (TmpXtdComment,
-                                        MaxThreadLevelExceededException,
-                                        LIKEDIT_FLAG, DISLIKEDIT_FLAG)
+                                         MaxThreadLevelExceededException,
+                                         LIKEDIT_FLAG, DISLIKEDIT_FLAG)
 from django_comments_tree.utils import send_mail, has_app_model_option
-
 
 XtdComment = get_comment_model()
 
@@ -104,7 +102,7 @@ def on_comment_was_posted(sender, comment, request, **kwargs):
     else:
         user_is_authenticated = False
 
-    if (not settings.COMMENTS_XTD_CONFIRM_EMAIL or user_is_authenticated):
+    if not settings.COMMENTS_XTD_CONFIRM_EMAIL or user_is_authenticated:
         if not _comment_exists(comment):
             new_comment = _create_comment(comment)
             comment.xtd_comment = new_comment
@@ -195,9 +193,9 @@ def notify_comment_followers(comment):
               'object_pk': comment.object_pk,
               'is_public': True,
               'followup': True}
-    previous_comments = XtdComment.objects\
-                                  .filter(**kwargs)\
-                                  .exclude(user_email=comment.user_email)
+    previous_comments = XtdComment.objects \
+        .filter(**kwargs) \
+        .exclude(user_email=comment.user_email)
 
     for instance in previous_comments:
         followers[instance.user_email] = (
@@ -450,11 +448,11 @@ class XtdCommentListView(ListView):
         content_types = self.get_content_types()
         if content_types is None:
             return None
-        return XtdComment.objects\
-                         .for_content_types(content_types,
-                                            site=settings.SITE_ID)\
-                         .filter(is_removed=False)\
-                         .order_by('submit_date')
+        return XtdComment.objects \
+            .for_content_types(content_types,
+                               site=settings.SITE_ID) \
+            .filter(is_removed=False) \
+            .order_by('submit_date')
 
     def get_context_data(self, **kwargs):
         context = super(XtdCommentListView, self).get_context_data(**kwargs)
