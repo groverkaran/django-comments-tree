@@ -4,7 +4,7 @@
 Templates
 =========
 
-This page details the list of templates provided by django-comments-xtd. They are located under the ``django_comments_xtd/`` templates directory.
+This page details the list of templates provided by django-comments-tree. They are located under the ``django_comments_tree/`` templates directory.
 
 .. contents:: Table of Contents
    :depth: 1
@@ -22,7 +22,7 @@ As ``.html`` and ``.txt``, this template represents the confirmation message sen
 
 In the context of the template the following objects are expected:
 
- * The ``site`` object (django-contrib-comments, and in turn django-comments-xtd, use the `Django Sites Framework <https://docs.djangoproject.com/en/1.11/ref/contrib/sites/>`_).
+ * The ``site`` object (django-contrib-comments, and in turn django-comments-tree, use the `Django Sites Framework <https://docs.djangoproject.com/en/1.11/ref/contrib/sites/>`_).
  * The ``comment`` object.
  * The ``confirmation_url`` the user has to click on to confirm the comment.
 
@@ -60,7 +60,7 @@ Optionally the following objects can be present in the template:
 ``user_feedback.html``
 ----------------------
 
-This template is expected to be in the directory ``includes/django_comments_xtd/``, and it provides a way to customized the look of the like and dislike buttons as long as the list of users who clicked on them. It is included from ``comment_tree.html``. The template is rendered only when the :ref:`render-xtdcomment-tree` is used with the argument ``allow_feedback``.
+This template is expected to be in the directory ``includes/django_comments_tree/``, and it provides a way to customized the look of the like and dislike buttons as long as the list of users who clicked on them. It is included from ``comment_tree.html``. The template is rendered only when the :ref:`render-xtdcomment-tree` is used with the argument ``allow_feedback``.
 
 In the context of the template is expected:
 

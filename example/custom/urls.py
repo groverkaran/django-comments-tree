@@ -9,7 +9,7 @@ if django.VERSION[:2] < (2, 0):
 else:
     from django.urls import include, re_path
 
-from django_comments_xtd import LatestCommentFeed
+from django_comments_tree import LatestCommentFeed
 
 from custom import views
 
@@ -21,7 +21,7 @@ urlpatterns = [
     re_path(r'^$', views.HomepageView.as_view(), name='homepage'),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^articles/', include('custom.articles.urls')),
-    re_path(r'^comments/', include('django_comments_xtd.urls')),
+    re_path(r'^comments/', include('django_comments_tree.urls')),
     re_path(r'^feeds/comments/$', LatestCommentFeed(), name='comments-feed'),    
 ]
 

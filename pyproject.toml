@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "django-comments-xtd"
-version = "2.3.1"
-description = "Django Comments Framework extension app with thread support, follow up notifications and email confirmations."
-authors = ["Daniel Rus Morales <mbox@danir.us>"]
+name = "django-comments-tree"
+version = "0.1.0"
+description = "Django Comments Framework extension app with django-treebeard tree support, follow up notifications and email confirmations."
+authors = ["Ed Henderson <ed@sharpertool.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.4.0 || ~2.7.0"

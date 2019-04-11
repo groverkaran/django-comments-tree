@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_comments_xtd.models import XtdComment
+from django_comments_tree.models import XtdComment
 
 
 class MyComment(XtdComment):

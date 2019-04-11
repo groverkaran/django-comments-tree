@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# django-comments-xtd documentation build configuration file, created by
+# django-comments-tree documentation build configuration file, created by
 # sphinx-quickstart on Mon Dec 19 19:20:12 2011.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -46,14 +46,14 @@ source_encoding = 'utf-8'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-comments-xtd'
+project = u'django-comments-tree'
 copyright = u'2018, Daniel Rus Morales'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# import django_comments_xtd
+# import django_comments_tree
 # The short X.Y version.
 version = '2.4'
 # The full version, including alpha/beta/rc tags.
@@ -171,7 +171,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'django-comments-xtddoc'
+htmlhelp_basename = 'django-comments-treedoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -185,7 +185,7 @@ htmlhelp_basename = 'django-comments-xtddoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'django-comments-xtd.tex', u'django-comments-xtd Documentation',
+  ('index', 'django-comments-tree.tex', u'django-comments-tree Documentation',
    u'Daniel Rus Morales', 'manual'),
 ]
 
@@ -218,7 +218,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'django-comments-xtd', u'django-comments-xtd Documentation',
+    ('index', 'django-comments-tree', u'django-comments-tree Documentation',
      [u'Daniel Rus Morales'], 1)
 ]
 

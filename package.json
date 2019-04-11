@@ -1,7 +1,7 @@
 {
-    "name": "django-comments-xtd-plugins",
+    "name": "django-comments-tree-plugins",
     "version": "2.4.0",
-    "description": "Provides django-comments-xtd reactjs plugin",
+    "description": "Provides django-comments-tree reactjs plugin",
     "main": "app.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",

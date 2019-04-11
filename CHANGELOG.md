@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.1.0] - 2019-04-11
+
+    Revert the changes back to a pre-release version since I've forked the repo,
+    changed the name, and will be replacing the core models with a new approach.
+    
+    * Renamed all django-comments-xtd (etc.) to django-comments-tree
+    * Changed Author to Ed Henderson, moved @danirus to lead contributor
+     
+
 ## [2.4.0] - 2019-02-19
 
     New minor release thanks to Mandeep Gill with the following changes:
@@ -116,16 +125,16 @@
 	* Setting `COMMENTS_XTD_APP_MODEL_PERMISSIONS` to explicitly define what
 	  commenting features are enabled on per app.model basis.
 	* Templates `comments/delete.html` and `comments/deleted.html` matching
-	  django-comments-xtd default twitter-bootstrap styling.
+	  django-comments-tree default twitter-bootstrap styling.
 	* Dependencies on Python packages: djangorestframework.
 	* Supports i18n for English and Spanish.
 	* All settings namespaced inside the COMMENTS_XTD setting.
 	* Management command to migrate comments from django-contrib-comments to
-	  django-comments-xtd.
-	* Enable removal link in `django_comments_xtd/comment_tree.html` when the
+	  django-comments-tree.
+	* Enable removal link in `django_comments_tree/comment_tree.html` when the
 	  user has the permission `django_comments.can_moderate`.
 	* Changed, when the user logged has `django_comments.can_moderate` permission,
-	  template `django_comments_xtd/comment_tree.html` will show the number of
+	  template `django_comments_tree/comment_tree.html` will show the number of
 	  removal suggestions a comment has received.
 	* Changed, when a comment is marked as removed by a moderator
 	  (using django-comments' `comments-delete` url) every nested comment below

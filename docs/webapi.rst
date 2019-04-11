@@ -4,7 +4,7 @@
 Web API
 =======
 
-django-comments-xtd uses `django-rest-framework <http://www.django-rest-framework.org/>`_ to expose a Web API that provides developers with access to the same functionalities offered through the web user interface. The Web API has been designed to cover the needs required by the :doc:`javascript`, and it's open to grow in the future to cover additional functionalities.
+django-comments-tree uses `django-rest-framework <http://www.django-rest-framework.org/>`_ to expose a Web API that provides developers with access to the same functionalities offered through the web user interface. The Web API has been designed to cover the needs required by the :doc:`javascript`, and it's open to grow in the future to cover additional functionalities.
 
 There are 5 methods available to perform the following actions:
 
@@ -14,7 +14,7 @@ There are 5 methods available to perform the following actions:
  #. Post user's like/dislike feedback.
  #. Post user's removal suggestions.
  
-Finally there is the ability to generate a view action in ``django_comments_xtd.api.frontend`` to return the commentbox props as used by the :doc:`javascript` plugin for use with an existing `django-rest-framework <http://www.django-rest-framework.org/>`_ project.
+Finally there is the ability to generate a view action in ``django_comments_tree.api.frontend`` to return the commentbox props as used by the :doc:`javascript` plugin for use with an existing `django-rest-framework <http://www.django-rest-framework.org/>`_ project.
 
 .. contents:: Table of Contents
    :depth: 3
@@ -24,13 +24,13 @@ Finally there is the ability to generate a view action in ``django_comments_xtd.
 Post a new comment
 ==================
 
- | URL name: **comments-xtd-api-create**
+ | URL name: **comments-tree-api-create**
  | Mount point: **<comments-mount-point>/api/comment/**
  | HTTP Methods: POST
  | HTTP Responses: 201, 202, 204, 403
- | Serializer: ``django_comments_xtd.api.serializers.WriteCommentSerializer``
+ | Serializer: ``django_comments_tree.api.serializers.WriteCommentSerializer``
 
-This method expects the same fields submitted in a regular django-comments-xtd form. The serializer uses the function ``django_comments.get_form`` to verify data validity.
+This method expects the same fields submitted in a regular django-comments-tree form. The serializer uses the function ``django_comments.get_form`` to verify data validity.
 
 Meaning of the HTTP Response codes:
 
@@ -43,13 +43,13 @@ Meaning of the HTTP Response codes:
 Retrieve comment list
 =====================
 
- | URL name: **comments-xtd-api-list**
+ | URL name: **comments-tree-api-list**
  | Mount point: **<comments-mount-point>/api/<content-type>/<object-pk>/**
  |        <content-type> is a hyphen separated lowecase pair app_label-model
  |        <object-pk> is an integer representing the object ID.
  | HTTP Methods: GET
  | HTTP Responses: 200
- | Serializer: ``django_comments_xtd.api.serializers.ReadCommentSerializer``
+ | Serializer: ``django_comments_tree.api.serializers.ReadCommentSerializer``
 
 This method retrieves the list of comments posted to a given content type and object ID:
 
@@ -110,13 +110,13 @@ This method retrieves the list of comments posted to a given content type and ob
 Retrieve comments count
 =======================
 
- | URL name: **comments-xtd-api-count**
+ | URL name: **comments-tree-api-count**
  | Mount point: **<comments-mount-point>/api/<content-type>/<object-pk>/count/**
  |        <content-type> is a hyphen separated lowecase pair app_label-model
  |        <object-pk> is an integer representing the object ID.
  | HTTP Methods: GET
  | HTTP Responses: 200
- | Serializer: ``django_comments_xtd.api.serializers.ReadCommentSerializer``
+ | Serializer: ``django_comments_tree.api.serializers.ReadCommentSerializer``
 
 This method retrieves the number of comments posted to a given content type and object ID:
 
@@ -141,11 +141,11 @@ This method retrieves the number of comments posted to a given content type and 
 Post like/dislike feedback
 ==========================
 
- | URL name: **comments-xtd-api-feedback**
+ | URL name: **comments-tree-api-feedback**
  | Mount point: **<comments-mount-point>/api/feedback/**
  | HTTP Methods: POST
  | HTTP Responses: 201, 204, 403
- | Serializer: ``django_comments_xtd.api.serializers.FlagSerializer``
+ | Serializer: ``django_comments_tree.api.serializers.FlagSerializer``
 
 This method toggles flags like/dislike for a comment. Successive calls set/unset the like/dislike flag:
 
@@ -204,11 +204,11 @@ It requires the user to be logged in:
 Post removal suggestions
 ========================
 
- | URL name: **comments-xtd-api-flag**
+ | URL name: **comments-tree-api-flag**
  | Mount point: **<comments-mount-point>/api/flag/**
  | HTTP Methods: POST
  | HTTP Responses: 201, 403
- | Serializer: ``django_comments_xtd.api.serializers.FlagSerializer``
+ | Serializer: ``django_comments_tree.api.serializers.FlagSerializer``
 
 This method sets the *removal suggestion* flag on a comment. Once created for a given user successive calls return 201 but the flag object is not created again.
 

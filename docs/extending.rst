@@ -1,12 +1,12 @@
 .. _ref-extending:
 
 ===============================
-Customizing django-comments-xtd
+Customizing django-comments-tree
 ===============================
 
-django-comments-xtd can be extended in the same way as django-contrib-comments. There are three points to observe:
+django-comments-tree can be extended in the same way as django-contrib-comments. There are three points to observe:
 
- 1. The setting ``COMMENTS_APP`` must be ``'django_comments_xtd'``.
+ 1. The setting ``COMMENTS_APP`` must be ``'django_comments_tree'``.
  2. The setting ``COMMENTS_XTD_MODEL`` must be your model class name, i.e.: ``'mycomments.models.MyComment'``.
  3. The setting ``COMMENTS_XTD_FORM_CLASS`` must be your form class name, i.e.: ``'mycomments.forms.MyCommentForm'``.
 
@@ -17,7 +17,7 @@ In addition to that, write an ``admin.py`` module to see the new comment class i
 Custom Comments Demo
 ====================
 
-The demo site ``custom_comments`` available with the `source code in GitHub <https://github.com/danirus/django-comments-xtd>`_ (directory ``django_comments_xtd\demos\custom_comments``) implements a sample Django project with comments that extend django_comments_xtd with an additional field, a title.
+The demo site ``custom_comments`` available with the `source code in GitHub <https://github.com/sharpertool/django-comments-tree>`_ (directory ``django_comments_tree\demos\custom_comments``) implements a sample Django project with comments that extend django_comments_tree with an additional field, a title.
 
 
 ``settings`` Module
@@ -27,24 +27,24 @@ The ``settings.py`` module contains the following customizations::
 
   INSTALLED_APPS = (
     # ...
-    'django_comments_xtd',
+    'django_comments_tree',
     'django_comments',
     'articles',
     'mycomments',
     # ...
   )
 
-  COMMENTS_APP = "django_comments_xtd"
+  COMMENTS_APP = "django_comments_tree"
   COMMENTS_XTD_MODEL = 'mycomments.models.MyComment'
   COMMENTS_XTD_FORM_CLASS = 'mycomments.forms.MyCommentForm'
 
 ``models`` Module
 -----------------
 
-The new class ``MyComment`` extends django_comments_xtd's ``XtdComment`` with a title field::
+The new class ``MyComment`` extends django_comments_tree's ``XtdComment`` with a title field::
 
   from django.db import models
-  from django_comments_xtd.models import XtdComment
+  from django_comments_tree.models import XtdComment
 
 
   class MyComment(XtdComment):
@@ -59,8 +59,8 @@ The forms module extends ``XtdCommentForm`` and rewrites the method ``get_commen
   from django import forms
   from django.utils.translation import ugettext_lazy as _
 
-  from django_comments_xtd.forms import XtdCommentForm
-  from django_comments_xtd.models import TmpXtdComment
+  from django_comments_tree.forms import XtdCommentForm
+  from django_comments_tree.models import TmpXtdComment
 
 
   class MyCommentForm(XtdCommentForm):
@@ -83,7 +83,7 @@ The admin module provides a new class MyCommentAdmin that inherits from XtdComme
   from django.contrib import admin
   from django.utils.translation import ugettext_lazy as _
 
-  from django_comments_xtd.admin import XtdCommentsAdmin
+  from django_comments_tree.admin import XtdCommentsAdmin
   from custom_comments.mycomments.models import MyComment
 
 
@@ -110,9 +110,9 @@ You will need to customize the following templates:
 
     * ``comments/form.html`` to include new fields.
     * ``comments/preview.html`` to preview new fields.
-    * ``django_comments_xtd/email_confirmation_request.{txt|html}`` to add the new fields to the confirmation request, if it was necessary. This demo overrides them to include the ``title`` field in the mail.
-    * ``django_comments_xtd/comments_tree.html`` to show the new field when displaying the comments. If your project doesn't allow nested comments you can use either this template or `comments/list.html``.
-    * ``django_comments_xtd/reply.html`` to show the new field when displaying the comment the user is replying to.
+    * ``django_comments_tree/email_confirmation_request.{txt|html}`` to add the new fields to the confirmation request, if it was necessary. This demo overrides them to include the ``title`` field in the mail.
+    * ``django_comments_tree/comments_tree.html`` to show the new field when displaying the comments. If your project doesn't allow nested comments you can use either this template or `comments/list.html``.
+    * ``django_comments_tree/reply.html`` to show the new field when displaying the comment the user is replying to.
 
 
 Modifying comments with code
@@ -120,7 +120,7 @@ Modifying comments with code
 
 Here's an example of how to access the underlying model storing your comments::
 
-    from django_comments_xtd.models import XtdComment
+    from django_comments_tree.models import XtdComment
     from django.contrib.contenttypes.models import ContentType
     
     def unbsubscribe_everyone(model_instance):

@@ -17,7 +17,7 @@ echo "Checking Django version... "
 version=`python -c 'import django; print("%d.%02d" % django.VERSION[:2])'`
 if [[ ${version} < "1.07" ]]; then
     python manage.py syncdb --noinput || check_ret
-    python manage.py migrate django_comments_xtd || check_ret
+    python manage.py migrate django_comments_tree || check_ret
 else
     python manage.py migrate --noinput || check_ret
 fi

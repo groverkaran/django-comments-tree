@@ -27,7 +27,7 @@
                         {% render_last_xtdcomments 5 for articles.article quotes.quote %}
                     </div>
                     <div class="text-right">
-                        <a class="card-link" href="{% url 'comments-xtd-list' %}">comment list</a>
+                        <a class="card-link" href="{% url 'comments-tree-list' %}">comment list</a>
                     </div>
                     {% else %}
                     <p class="text-center text-muted">No comments yet.</p>

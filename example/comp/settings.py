@@ -130,7 +130,7 @@ INSTALLED_APPS = (
     'rosetta',
     'rest_framework',
     'django_markdown2',
-    'django_comments_xtd',
+    'django_comments_tree',
     'django_comments',
 
     'comp',
@@ -152,7 +152,7 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # following line to let this django demo sending emails
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-COMMENTS_APP = "django_comments_xtd"
+COMMENTS_APP = "django_comments_tree"
 COMMENTS_XTD_CONFIRM_EMAIL = True   # Set to False to disable confirmation
 COMMENTS_XTD_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
 COMMENTS_XTD_FROM_EMAIL = 'noreply@example.com'

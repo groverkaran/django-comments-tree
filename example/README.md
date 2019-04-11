@@ -17,10 +17,10 @@ The Simple demo site is a project with an 'articles' application and an 'Article
 
 ### Custom ###
 
-The Custom demo exhibits how to extend django-comments-xtd. It uses the same **articles** app present in the other demos, plus:
+The Custom demo exhibits how to extend django-comments-tree. It uses the same **articles** app present in the other demos, plus:
 
- * A new application, called `mycomments`, with a model `MyComment` that extends the `django_comments_xtd.models.MyComment` model with a field `title`.
- * Checkout the [custom](https://github.com/danirus/django-comments-xtd/example/custom/) demo directory and [Customizing django-comments-xtd](http://django-comments-xtd.readthedocs.io/en/latest/extending.html) in the documentation.
+ * A new application, called `mycomments`, with a model `MyComment` that extends the `django_comments_tree.models.MyComment` model with a field `title`.
+ * Checkout the [custom](https://github.com/sharpertool/django-comments-tree/example/custom/) demo directory and [Customizing django-comments-tree](http://django-comments-tree.readthedocs.io/en/latest/extending.html) in the documentation.
 
 
 ### Comp ###

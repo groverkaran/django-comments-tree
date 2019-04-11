@@ -1,13 +1,13 @@
-.. django-comments-xtd documentation master file, created by
+.. django-comments-tree documentation master file, created by
    sphinx-quickstart on Mon Dec 19 19:20:12 2011.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 ===================   
-django-comments-xtd
+django-comments-tree
 ===================
 
-.. module:: django_comments_xtd
+.. module:: django_comments_tree
    :synopsis: django-comments-extended.
 
 .. highlightlang:: html+django

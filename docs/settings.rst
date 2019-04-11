@@ -1,14 +1,14 @@
-.. _settings-comments-xtd:
+.. _settings-comments-tree:
 
 ========
 Settings
 ========
 
-To use django-comments-xtd it is necessary to declare the :setting:`COMMENTS_APP` setting in your project's settings module as::
+To use django-comments-tree it is necessary to declare the :setting:`COMMENTS_APP` setting in your project's settings module as::
 
-    COMMENTS_APP = "django_comments_xtd"
+    COMMENTS_APP = "django_comments_tree"
 
-A number of additional settings are available to customize django-comments-xtd behaviour. 
+A number of additional settings are available to customize django-comments-tree behaviour.
 
 .. contents:: Table of Contents
    :depth: 1
@@ -92,7 +92,7 @@ It defaults to ``settings.DEFAULT_FROM_EMAIL``.
 ``COMMENTS_XTD_CONTACT_EMAIL``
 ==============================
 
-**Optional. It specifies a **contact mail address** the user could use to get in touch with a helpdesk or support personnel. It's used in both templates, **email_confirmation_request.txt** and **email_confirmation_request.html**, from the **templates/django_comments_xtd** directory.
+**Optional. It specifies a **contact mail address** the user could use to get in touch with a helpdesk or support personnel. It's used in both templates, **email_confirmation_request.txt** and **email_confirmation_request.html**, from the **templates/django_comments_tree** directory.
 
 An example::
 
@@ -113,7 +113,7 @@ An example::
      COMMENTS_XTD_FORM_CLASS = "mycomments.forms.MyCommentForm"
 
 
-It defaults to `"django_comments_xtd.forms.XtdCommentForm"`.
+It defaults to `"django_comments_tree.forms.XtdCommentForm"`.
 
 
 .. setting:: COMMENTS_XTD_MODEL
@@ -128,7 +128,7 @@ An example::
      COMMENTS_XTD_MODEL = "mycomments.models.MyCommentModel"
 
 
-Defaults to `"django_comments_xtd.models.XtdComment"`.
+Defaults to `"django_comments_tree.models.XtdComment"`.
 
 
 .. setting:: COMMENTS_XTD_LIST_ORDER
@@ -206,7 +206,7 @@ Defaults to ``True``.
 
  * ``allow_flagging``: Allow registered users to flag comments as inappropriate.
  * ``allow_feedback``: Allow registered users to like/dislike comments.
- * ``show_feedback``: Allow django-comments-xtd to report the list of users who liked/disliked the comment. The representation of each user in the list depends on the next setting :setting::`COMMENTS_XTD_API_USER_REPR`.
+ * ``show_feedback``: Allow django-comments-tree to report the list of users who liked/disliked the comment. The representation of each user in the list depends on the next setting :setting::`COMMENTS_XTD_API_USER_REPR`.
 
 An example use:
 

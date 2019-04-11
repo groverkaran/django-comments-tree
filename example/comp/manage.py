@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.insert(0, '../..') # parent of django_comments_xtd directory
+sys.path.insert(0, '../..') # parent of django_comments_tree directory
 sys.path.insert(0, '..') # demos directory
 
 if __name__ == "__main__":

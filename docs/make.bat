@@ -95,9 +95,9 @@ if "%1" == "qthelp" (
 	echo.
 	echo.Build finished; now you can run "qcollectiongenerator" with the ^
 .qhcp project file in %BUILDDIR%/qthelp, like this:
-	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\django-comments-xtd.qhcp
+	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\django-comments-tree.qhcp
 	echo.To view the help file:
-	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\django-comments-xtd.ghc
+	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\django-comments-tree.ghc
 	goto end
 )
 

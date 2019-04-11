@@ -11,19 +11,19 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('django_comments_xtd', '0001_initial'),
+        ('django_comments_tree', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='MyComment',
             fields=[
-                ('xtdcomment_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='django_comments_xtd.XtdComment')),
+                ('xtdcomment_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='django_comments_tree.XtdComment')),
                 ('title', models.CharField(max_length=256)),
             ],
             options={
                 'abstract': False,
             },
-            bases=('django_comments_xtd.xtdcomment',),
+            bases=('django_comments_tree.xtdcomment',),
         ),
     ]

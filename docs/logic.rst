@@ -20,7 +20,7 @@ Following is the application control logic described in 4 actions:
 
  b. Otherwise creates an instance of ``TmpXtdComment`` model: an in-memory representation of the comment.
 
- c. Send signal ``comment_will_be_posted`` and ``comment_was_posted``. The *django-comments-xtd* receiver ``on_comment_was_posted`` receives the second signal with the ``TmpXtdComment`` instance and does as follows:
+ c. Send signal ``comment_will_be_posted`` and ``comment_was_posted``. The *django-comments-tree* receiver ``on_comment_was_posted`` receives the second signal with the ``TmpXtdComment`` instance and does as follows:
 
   * If the user is authenticated or confirmation by email is not required (see :doc:`settings`):
 
@@ -36,13 +36,13 @@ Following is the application control logic described in 4 actions:
 
   * Otherwise the template content should inform the user about the confirmation request sent by email.
 
-4. The user **clicks on the confirmation link**, in the email message. *Django-comments-xtd* ``confirm`` view handles the request:
+4. The user **clicks on the confirmation link**, in the email message. *django-comments-tree* ``confirm`` view handles the request:
 
  a. Checks the secured token in the URL. If it's wrong returns a 404 code.
  
  b. Otherwise checks whether the comment was already confirmed, in such a case returns a 404 code.
 
- c. Otherwise sends a ``confirmation_received`` signal. You can register a receiver to this signal to do some extra process before approving the comment. See :ref:`signal-and-receiver-label`. If any receiver returns False the comment will be rejected and the template ``django_comments_xtd/discarded.html`` will be rendered.
+ c. Otherwise sends a ``confirmation_received`` signal. You can register a receiver to this signal to do some extra process before approving the comment. See :ref:`signal-and-receiver-label`. If any receiver returns False the comment will be rejected and the template ``django_comments_tree/discarded.html`` will be rendered.
 
  d. Otherwise an instance of ``XtdComment`` finally hits the database, and
 
@@ -55,7 +55,7 @@ Following is the application control logic described in 4 actions:
 Creating the secure token for the confirmation URL
 --------------------------------------------------
 
-The Confirmation URL sent by email to the user has a secured token with the comment. To create the token Django-comments-xtd uses the module ``signed.py`` authored by Simon Willison and provided in `Django-OpenID <http://github.com/simonw/django-openid>`_. 
+The Confirmation URL sent by email to the user has a secured token with the comment. To create the token django-comments-tree uses the module ``signed.py`` authored by Simon Willison and provided in `Django-OpenID <http://github.com/simonw/django-openid>`_.
 
 ``django_openid.signed`` offers two high level functions:
 
@@ -88,7 +88,7 @@ Calling signed.loads(s) checks the signature BEFORE unpickling the object -this 
 Signal and receiver
 ===================
 
-In addition to the `signals sent by the Django Comments Framework <https://docs.djangoproject.com/en/1.3/ref/contrib/comments/signals/>`_, django-comments-xtd sends the following signal:
+In addition to the `signals sent by the Django Comments Framework <https://docs.djangoproject.com/en/1.3/ref/contrib/comments/signals/>`_, django-comments-tree sends the following signal:
 
  * **confirmation_received**: Sent when the user clicks on the confirmation link and before the ``XtdComment`` instance is created in the database.
 
@@ -108,7 +108,7 @@ Extending the demo site with the following code will do the job:
        # append the below code to demos/simple/views.py:
 
        from datetime import datetime, timedelta
-       from django_comments_xtd import signals
+       from django_comments_tree import signals
 
        def check_submit_date_is_within_last_7days(sender, data, request, **kwargs):
            plus7days = timedelta(days=7)
@@ -118,7 +118,7 @@ Extending the demo site with the following code will do the job:
     
     
        #-----------------------------------------------------
-       # change get_comment_create_data in django_comments_xtd/forms.py to cheat a
+       # change get_comment_create_data in django_comments_tree/forms.py to cheat a
        # bit and make Django believe that the comment was submitted 7 days ago:
 
        def get_comment_create_data(self):
@@ -133,7 +133,7 @@ Extending the demo site with the following code will do the job:
            return data
 
 
-Try the simple demo site again and see that the `django_comments_xtd/discarded.html` template is rendered after clicking on the confirmation URL.
+Try the simple demo site again and see that the `django_comments_tree/discarded.html` template is rendered after clicking on the confirmation URL.
 
 
 .. index::
@@ -150,7 +150,7 @@ Nested comments are disabled by default, to enable them use the following settin
  * ``COMMENTS_XTD_MAX_THREAD_LEVEL``: an integer value
  * ``COMMENTS_XTD_MAX_THREAD_LEVEL_BY_APP_MODEL``: a dictionary
 
-Django-comments-xtd inherits the flexibility of `django-contrib-comments framework <https://docs.djangoproject.com/en/1.4/ref/contrib/comments/>`_, so that developers can plug it to support comments on as many models as they want in their projects. It is as suitable for one model based project, like comments posted to stories in a simple blog, as for a project with multiple applications and models.
+Django-comments-tree inherits the flexibility of `django-contrib-comments framework <https://docs.djangoproject.com/en/1.4/ref/contrib/comments/>`_, so that developers can plug it to support comments on as many models as they want in their projects. It is as suitable for one model based project, like comments posted to stories in a simple blog, as for a project with multiple applications and models.
 
 The configuration of the maximum thread level on a simple project is done by declaring the ``COMMENTS_XTD_MAX_THREAD_LEVEL`` in the ``settings.py`` file:
 

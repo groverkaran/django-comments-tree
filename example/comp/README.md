@@ -29,4 +29,4 @@ By using the `render_xtdcomment_tree` templatetag, both, `article_detail.html` a
 
 #### `render_last_xtdcomments`
 
-The **Last 5 Comments** shown in the block at the rigght uses the templatetag `render_last_xtdcomments` to show the last 5 comments posted to either `articles.Article` or `quotes.Quote` instances. The templatetag receives the list of pairs `app.model` from which we want to gather comments and shows the given N last instances posted. The templatetag renders the template `django_comments_xtd/comment.html` for each comment retrieve.
+The **Last 5 Comments** shown in the block at the rigght uses the templatetag `render_last_xtdcomments` to show the last 5 comments posted to either `articles.Article` or `quotes.Quote` instances. The templatetag receives the list of pairs `app.model` from which we want to gather comments and shows the given N last instances posted. The templatetag renders the template `django_comments_tree/comment.html` for each comment retrieve.

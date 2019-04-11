@@ -1,6 +1,5 @@
-django-contrib-comments
+#django-contrib-comments
 djangorestframework
-six
 Django
 docutils
 django-markdown2

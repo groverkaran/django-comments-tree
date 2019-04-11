@@ -5,7 +5,7 @@ from setuptools.command.test import test
 
 
 def run_tests(*args):
-    from django_comments_xtd.tests import run_tests
+    from django_comments_tree.tests import run_tests
     errors = run_tests()
     if errors:
         sys.exit(1)
@@ -17,8 +17,8 @@ test.run_tests = run_tests
 
 
 setup(
-    name="django-comments-xtd",
-    version="2.4.0",
+    name="django-comments-tree",
+    version="0.1.0",
     packages=find_packages(),
     include_package_data=True,
     license="MIT",
@@ -31,9 +31,9 @@ setup(
                       "database after users confirm them by email."),
     author="Daniel Rus Morales",
     author_email="mbox@danir.us",
-    maintainer="Daniel Rus Morales",
-    maintainer_email="mbox@danir.us",
-    url="http://pypi.python.org/pypi/django-comments-xtd",
+    maintainer="Ed Henderson",
+    maintainer_email="ed@sharpertool.com",
+    url="http://pypi.python.org/pypi/django-comments-tree",
     install_requires=[
         'Django>=1.8',
         'django-contrib-comments>=1.8',

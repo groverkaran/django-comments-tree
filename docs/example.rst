@@ -4,13 +4,13 @@
 Demo projects
 =============
 
-There are three example projects available within django-comments-xtd:
+There are three example projects available within django-comments-tree:
 
 1. **simple**: Provides non-threaded comment support to articles. It's an only-backend project, meant as a test case of the basic features (confirmation by mail, follow-up notifications, mute link).
-2. **custom**: Provides threaded comment support to articles using a new Comment class that inherits from django-comments-xtd's. The new comment model adds a **title** field to the **XtdComment** class. Find more details in :ref:`ref-extending`.
+2. **custom**: Provides threaded comment support to articles using a new Comment class that inherits from django-comments-tree's. The new comment model adds a **title** field to the **XtdComment** class. Find more details in :ref:`ref-extending`.
 3. **comp**: This example project provides comment support to several models, defining the maximum thread level on per app.model basis. It uses moderation, removal suggestion flag, like/dislike flags, and list of users who liked/disliked comments. Comment support for Articles are frontend based while comments for Quotes are backend based.
 
-Visit the **example** directory within the repository `in GitHub <http://github.com/danirus/django-comments-xtd/tree/master/example>`_ for a quick look.
+Visit the **example** directory within the repository `in GitHub <http://github.com/sharpertool/django-comments-tree/tree/master/example>`_ for a quick look.
 
 .. contents:: Table of Contents
    :depth: 1
@@ -28,12 +28,12 @@ The recommended way to run the demo sites is in its own `virtualenv <http://www.
 
     $ virtualenv venv
     $ source venv/bin/activate
-    (venv)$ git clone git://github.com/danirus/django-comments-xtd.git
-    (venv)$ cd django-comments-xtd/
+    (venv)$ git clone git://github.com/sharpertool/django-comments-tree.git
+    (venv)$ cd django-comments-tree/
     (venv)$ python setup.py install
     (venv)$ npm install
     (venv)$ node_modules/webpack/bin/webpack.js -p
-    (venv)$ cd django_comments_xtd
+    (venv)$ cd django_comments_tree
     (venv)$ django-admin compilemessages -l fi
     (venv)$ django-admin compilemessages -l fr
     (venv)$ django-admin compilemessages -l es
@@ -73,7 +73,7 @@ The simple example project features:
  #. No nested comments.
 
 
-This example project tests the initial features provided by django-comments-xtd. Setup the project as explained above.
+This example project tests the initial features provided by django-comments-tree. Setup the project as explained above.
 
 Some hints:
  * Log out from the admin site to post comments, otherwise they will be automatically confirmed and no email will be sent.
@@ -137,4 +137,4 @@ By using the `render_xtdcomment_tree` templatetag, both, `article_detail.html` a
 render_last_xtdcomments
 -----------------------
 
-The **Last 5 Comments** shown in the block at the rigght uses the templatetag `render_last_xtdcomments` to show the last 5 comments posted to either `articles.Article` or `quotes.Quote` instances. The templatetag receives the list of pairs `app.model` from which we want to gather comments and shows the given N last instances posted. The templatetag renders the template `django_comments_xtd/comment.html` for each comment retrieve.
+The **Last 5 Comments** shown in the block at the rigght uses the templatetag `render_last_xtdcomments` to show the last 5 comments posted to either `articles.Article` or `quotes.Quote` instances. The templatetag receives the list of pairs `app.model` from which we want to gather comments and shows the given N last instances posted. The templatetag renders the template `django_comments_tree/comment.html` for each comment retrieve.

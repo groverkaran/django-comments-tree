@@ -32,4 +32,4 @@ install:
 script:
  - env | sort
  - tox
- - flake8 --show-source --max-line-length=80 --exclude=.tox,docs,django_comments_xtd/tests,django_comments_xtd/__init__.py,django_comments_xtd/migrations django_comments_xtd/
+ - flake8 --show-source --max-line-length=80 --exclude=.tox,docs,django_comments_tree/tests,django_comments_tree/__init__.py,django_comments_tree/migrations django_comments_tree/

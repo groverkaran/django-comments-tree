@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 
-from django_comments_xtd.moderation import moderator, SpamModerator
+from django_comments_tree.moderation import moderator, SpamModerator
 
 
 class PublicManager(models.Manager):

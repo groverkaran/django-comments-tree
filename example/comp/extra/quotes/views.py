@@ -9,5 +9,5 @@ class QuoteDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(QuoteDetailView, self).get_context_data(**kwargs)
-        context.update({'next': reverse('comments-xtd-sent')})
+        context.update({'next': reverse('comments-tree-sent')})
         return context
