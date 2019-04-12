@@ -153,21 +153,21 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 COMMENTS_APP = "django_comments_tree"
-COMMENTS_XTD_CONFIRM_EMAIL = True   # Set to False to disable confirmation
-COMMENTS_XTD_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
-COMMENTS_XTD_FROM_EMAIL = 'noreply@example.com'
-COMMENTS_XTD_CONTACT_EMAIL = 'helpdesk@example.com'
-COMMENTS_XTD_THREADED_EMAILS = False # default to True, use False to allow
+COMMENTS_TREE_CONFIRM_EMAIL = True   # Set to False to disable confirmation
+COMMENTS_TREE_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
+COMMENTS_TREE_FROM_EMAIL = 'noreply@example.com'
+COMMENTS_TREE_CONTACT_EMAIL = 'helpdesk@example.com'
+COMMENTS_TREE_THREADED_EMAILS = False # default to True, use False to allow
                                      # other backend (say Celery based) send
                                      # your emails.
 
 # Quotes can have 1-level depth nested comments.
-COMMENTS_XTD_MAX_THREAD_LEVEL = 1
-COMMENTS_XTD_MAX_THREAD_LEVEL_BY_APP_MODEL = {
+COMMENTS_TREE_MAX_THREAD_LEVEL = 1
+COMMENTS_TREE_MAX_THREAD_LEVEL_BY_APP_MODEL = {
     'articles.article': 2,
 }
-COMMENTS_XTD_LIST_ORDER = ('-thread_id', 'order')
-COMMENTS_XTD_APP_MODEL_OPTIONS = {
+COMMENTS_TREE_LIST_ORDER = ('-submit_date',)
+COMMENTS_TREE_APP_MODEL_OPTIONS = {
     'articles.article': {
         'allow_flagging': True,
         'allow_feedback': True,
@@ -179,7 +179,7 @@ COMMENTS_XTD_APP_MODEL_OPTIONS = {
         'show_feedback': True,
     }
 }
-# COMMENTS_XTD_API_USER_REPR = lambda u: u.get_full_name()
+# COMMENTS_TREE_API_USER_REPR = lambda u: u.get_full_name()
 
 LOGIN_URL = "/admin/login/"
 LOGIN_REDIRECT_URL = LOGIN_URL

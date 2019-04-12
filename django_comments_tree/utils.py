@@ -44,7 +44,7 @@ def _send_mail(subject, body, from_email, recipient_list,
 
 def send_mail(subject, body, from_email, recipient_list,
               fail_silently=False, html=None):
-    if settings.COMMENTS_XTD_THREADED_EMAILS:
+    if settings.COMMENTS_TREE_THREADED_EMAILS:
         EmailThread(subject, body, from_email, recipient_list,
                     fail_silently, html).start()
     else:
@@ -61,7 +61,7 @@ def has_app_model_option(comment):
     content_type = ContentType.objects.get_for_model(comment.content_object)
     key = "%s.%s" % (content_type.app_label, content_type.model)
     try:
-        return settings.COMMENTS_XTD_APP_MODEL_OPTIONS[key]
+        return settings.COMMENTS_TREE_APP_MODEL_OPTIONS[key]
     except KeyError:
-        return settings.COMMENTS_XTD_APP_MODEL_OPTIONS.setdefault(
+        return settings.COMMENTS_TREE_APP_MODEL_OPTIONS.setdefault(
             'default', _default)

@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from django_comments_tree import django_comments
-from django_comments_tree.models import TmpXtdComment
+from django_comments_tree.models import TmpTreeComment
 from django_comments_tree.forms import XtdCommentForm
 from django_comments_tree.tests.models import Article
 
@@ -23,7 +23,7 @@ class XtdCommentFormTestCase(TestCase):
 
     def test_get_comment_model(self):
         # check get_comment_model retrieves the due model class
-        self.assertTrue(self.form.get_comment_model() == TmpXtdComment)
+        self.assertTrue(self.form.get_comment_model() == TmpTreeComment)
 
     def test_get_comment_create_data(self):
         # as it's used in django_comments.views.comments

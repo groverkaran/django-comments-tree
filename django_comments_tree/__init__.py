@@ -10,12 +10,12 @@ default_app_config = 'django_comments_tree.apps.Config'
 
 def get_model():
     from django_comments_tree.conf import settings
-    return import_string(settings.COMMENTS_XTD_MODEL)
+    return import_string(settings.COMMENTS_TREE_MODEL)
 
 
 def get_form():
     from django_comments_tree.conf import settings
-    return import_string(settings.COMMENTS_XTD_FORM_CLASS)
+    return import_string(settings.COMMENTS_TREE_FORM_CLASS)
 
 
 VERSION = (2, 4, 0, 'f', 0) # following PEP 440

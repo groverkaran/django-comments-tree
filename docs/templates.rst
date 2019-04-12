@@ -18,7 +18,7 @@ This page details the list of templates provided by django-comments-tree. They a
 ``email_confirmation_request``
 ------------------------------
    
-As ``.html`` and ``.txt``, this template represents the confirmation message sent to the user when the **Send** button is clicked to post a comment. Both templates are sent in a multipart message, or only in text format if the :setting:`COMMENTS_XTD_SEND_HTML_EMAIL` setting is set to ``False``.
+As ``.html`` and ``.txt``, this template represents the confirmation message sent to the user when the **Send** button is clicked to post a comment. Both templates are sent in a multipart message, or only in text format if the :setting:`COMMENTS_TREE_SEND_HTML_EMAIL` setting is set to ``False``.
 
 In the context of the template the following objects are expected:
 
@@ -176,7 +176,7 @@ Rendered when a not authenticated user sends a comment. It informs the user that
 ``reply.html``
 --------------
 
-Rendered when a user clicks on the **reply** link of a comment. Reply links are created with ``XtdComment.get_reply_url`` method. They show up below the text of each comment when they allow nested comments.
+Rendered when a user clicks on the **reply** link of a comment. Reply links are created with ``TreeComment.get_reply_url`` method. They show up below the text of each comment when they allow nested comments.
 
 .. index::
    single: muted

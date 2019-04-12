@@ -1,7 +1,7 @@
 from django.db import models
 
-from django_comments_tree.models import XtdComment
+from django_comments_tree.models import TreeComment
 
 
-class MyComment(XtdComment):
+class MyComment(TreeComment):
     title = models.CharField(max_length=256)

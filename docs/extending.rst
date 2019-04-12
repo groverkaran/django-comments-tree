@@ -7,11 +7,11 @@ Customizing django-comments-tree
 django-comments-tree can be extended in the same way as django-contrib-comments. There are three points to observe:
 
  1. The setting ``COMMENTS_APP`` must be ``'django_comments_tree'``.
- 2. The setting ``COMMENTS_XTD_MODEL`` must be your model class name, i.e.: ``'mycomments.models.MyComment'``.
- 3. The setting ``COMMENTS_XTD_FORM_CLASS`` must be your form class name, i.e.: ``'mycomments.forms.MyCommentForm'``.
+ 2. The setting ``COMMENTS_TREE_MODEL`` must be your model class name, i.e.: ``'mycomments.models.MyComment'``.
+ 3. The setting ``COMMENTS_TREE_FORM_CLASS`` must be your form class name, i.e.: ``'mycomments.forms.MyCommentForm'``.
 
 
-In addition to that, write an ``admin.py`` module to see the new comment class in the admin interface. Inherit from ``django_commensts_xtd.admin.XtdCommentsAdmin``. You might want to add your new comment fields to the comment list view, by rewriting the ``list_display`` attribute of your admin class. Or change the details view customizing the ``fieldsets`` attribute.
+In addition to that, write an ``admin.py`` module to see the new comment class in the admin interface. Inherit from ``django_commensts_xtd.admin.TreeCommentsAdmin``. You might want to add your new comment fields to the comment list view, by rewriting the ``list_display`` attribute of your admin class. Or change the details view customizing the ``fieldsets`` attribute.
 
 
 Custom Comments Demo
@@ -35,19 +35,19 @@ The ``settings.py`` module contains the following customizations::
   )
 
   COMMENTS_APP = "django_comments_tree"
-  COMMENTS_XTD_MODEL = 'mycomments.models.MyComment'
-  COMMENTS_XTD_FORM_CLASS = 'mycomments.forms.MyCommentForm'
+  COMMENTS_TREE_MODEL = 'mycomments.models.MyComment'
+  COMMENTS_TREE_FORM_CLASS = 'mycomments.forms.MyCommentForm'
 
 ``models`` Module
 -----------------
 
-The new class ``MyComment`` extends django_comments_tree's ``XtdComment`` with a title field::
+The new class ``MyComment`` extends django_comments_tree's ``TreeComment`` with a title field::
 
   from django.db import models
-  from django_comments_tree.models import XtdComment
+  from django_comments_tree.models import TreeComment
 
 
-  class MyComment(XtdComment):
+  class MyComment(TreeComment):
       title = models.CharField(max_length=256)
 
 
@@ -60,7 +60,7 @@ The forms module extends ``XtdCommentForm`` and rewrites the method ``get_commen
   from django.utils.translation import ugettext_lazy as _
 
   from django_comments_tree.forms import XtdCommentForm
-  from django_comments_tree.models import TmpXtdComment
+  from django_comments_tree.models import TmpTreeComment
 
 
   class MyCommentForm(XtdCommentForm):
@@ -78,16 +78,16 @@ The forms module extends ``XtdCommentForm`` and rewrites the method ``get_commen
 ``admin`` Module
 ----------------
 
-The admin module provides a new class MyCommentAdmin that inherits from XtdCommentsAdmin and customize some of its attributes to include the new field ``title``::
+The admin module provides a new class MyCommentAdmin that inherits from TreeCommentsAdmin and customize some of its attributes to include the new field ``title``::
 
   from django.contrib import admin
   from django.utils.translation import ugettext_lazy as _
 
-  from django_comments_tree.admin import XtdCommentsAdmin
+  from django_comments_tree.admin import TreeCommentsAdmin
   from custom_comments.mycomments.models import MyComment
 
 
-  class MyCommentAdmin(XtdCommentsAdmin):
+  class MyCommentAdmin(TreeCommentsAdmin):
       list_display = ('thread_level', 'title', 'cid', 'name', 'content_type',
                       'object_pk', 'submit_date', 'followup', 'is_public',
                       'is_removed')
@@ -120,12 +120,12 @@ Modifying comments with code
 
 Here's an example of how to access the underlying model storing your comments::
 
-    from django_comments_tree.models import XtdComment
+    from django_comments_tree.models import TreeComment
     from django.contrib.contenttypes.models import ContentType
     
     def unbsubscribe_everyone(model_instance):
         content_type = ContentType.objects.get_for_model(model_instance)
 
-        XtdComment.objects\
+        TreeComment.objects\
             .filter(content_type=content_type, object_pk=model_instance.pk)\
             .update(followup=False)

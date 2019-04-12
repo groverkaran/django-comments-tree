@@ -17,7 +17,7 @@ from django_comments_tree import get_model as get_comment_model
 from django_comments_tree.conf import settings
 from django_comments_tree.api import frontend
 
-XtdComment = get_comment_model()
+TreeComment = get_comment_model()
 
 register = Library()
 
@@ -29,7 +29,8 @@ class XtdCommentCountNode(Node):
     def __init__(self, as_varname, content_types):
         """Class method to parse get_xtdcomment_list and return a Node."""
         self.as_varname = as_varname
-        self.qs = XtdComment.objects.for_content_types(content_types,
+        # ToDo: This returns None or a qs
+        self.qs = TreeComment.objects.for_content_types(content_types,
                                                        site=settings.SITE_ID)
 
     def render(self, context):
@@ -87,10 +88,13 @@ class BaseLastXtdCommentsNode(Node):
 class RenderLastXtdCommentsNode(BaseLastXtdCommentsNode):
 
     def render(self, context):
+
         if not isinstance(self.count, int):
             self.count = int(self.count.resolve(context))
 
-        self.qs = XtdComment.objects.for_content_types(
+        # ToDo: This returns None or a qs
+        # ToDo: what does it mean if content_types is a list?
+        self.qs = TreeComment.objects.for_content_types(
             self.content_types,
             site=settings.SITE_ID).order_by('submit_date')[:self.count]
 
@@ -122,7 +126,8 @@ class GetLastXtdCommentsNode(BaseLastXtdCommentsNode):
     def render(self, context):
         if not isinstance(self.count, int):
             self.count = int(self.count.resolve(context))
-        self.qs = XtdComment.objects.for_content_types(
+        # ToDo: This returns None or a qs
+        self.qs = TreeComment.objects.for_content_types(
             self.content_types,
             site=settings.SITE_ID)
         self.qs = self.qs.order_by('submit_date')[:self.count]
@@ -249,11 +254,11 @@ class RenderXtdCommentTreeNode(Node):
         if self.obj:
             obj = self.obj.resolve(context)
             ctype = ContentType.objects.get_for_model(obj)
-            queryset = XtdComment.objects.filter(content_type=ctype,
+            queryset = TreeComment.objects.filter(content_type=ctype,
                                                  object_pk=obj.pk,
                                                  site__pk=settings.SITE_ID,
                                                  is_public=True)
-            comments = XtdComment.tree_from_queryset(
+            comments = TreeComment.tree_from_queryset(
                 queryset,
                 with_flagging=self.allow_flagging,
                 with_feedback=self.allow_feedback,
@@ -295,11 +300,11 @@ class GetXtdCommentTreeNode(Node):
     def render(self, context):
         obj = self.obj.resolve(context)
         ctype = ContentType.objects.get_for_model(obj)
-        queryset = XtdComment.objects.filter(content_type=ctype,
+        queryset = TreeComment.objects.filter(content_type=ctype,
                                              object_pk=obj.pk,
                                              site__pk=settings.SITE_ID,
                                              is_public=True)
-        dic_list = XtdComment.tree_from_queryset(
+        dic_list = TreeComment.tree_from_queryset(
             queryset,
             with_feedback=self.with_feedback,
             user=context['user']
@@ -387,18 +392,18 @@ def render_xtdcomment_tree(parser, token):
 @register.tag
 def get_xtdcomment_tree(parser, token):
     """
-    Add to the template context a list of XtdComment dictionaries for the
+    Add to the template context a list of TreeComment dictionaries for the
     given object. The optional argument *with_feedback* adds a list
     'likedit' with the users who liked the comment and a list 'dislikedit'
     with the users who disliked the comment.
 
-    Each XtdComment dictionary has the following attributes::
+    Each TreeComment dictionary has the following attributes::
         {
             'comment': xtdcomment object,
             'children': [ list of child xtdcomment dicts ]
         }
 
-    When called with_feedback each XtdComment dictionary will look like::
+    When called with_feedback each TreeComment dictionary will look like::
         {
             'comment': xtdcomment object,
             'children': [ list of child xtdcomment dicts ],

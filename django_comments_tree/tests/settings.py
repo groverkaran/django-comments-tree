@@ -105,18 +105,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_comments_tree',
     'django_comments_tree.tests',
+    'treebeard',
     django_comments,
 ]
 COMMENTS_APP = "django_comments_tree"
 
 DEFAULT_FROM_EMAIL = "Alice Bloggs <alice@example.com>"
 
-COMMENTS_XTD_CONFIRM_EMAIL = True
-COMMENTS_XTD_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
-COMMENTS_XTD_MAX_THREAD_LEVEL = 2
-COMMENTS_XTD_MAX_THREAD_LEVEL_BY_APP_MODEL = {'tests.diary': 0}
+COMMENTS_TREE_CONFIRM_EMAIL = True
+COMMENTS_TREE_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
+COMMENTS_TREE_MAX_THREAD_LEVEL = 2
+COMMENTS_TREE_MAX_THREAD_LEVEL_BY_APP_MODEL = {'tests.diary': 0}
 
-COMMENTS_XTD_APP_MODEL_OPTIONS = {
+COMMENTS_TREE_APP_MODEL_OPTIONS = {
     'tests.diary': {
         'allow_flagging': True,
         'allow_feedback': True,

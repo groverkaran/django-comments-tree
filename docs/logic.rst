@@ -18,21 +18,21 @@ Following is the application control logic described in 4 actions:
 
  a. If there were form errors it does the same as in point 2. 
 
- b. Otherwise creates an instance of ``TmpXtdComment`` model: an in-memory representation of the comment.
+ b. Otherwise creates an instance of ``TmpTreeComment`` model: an in-memory representation of the comment.
 
- c. Send signal ``comment_will_be_posted`` and ``comment_was_posted``. The *django-comments-tree* receiver ``on_comment_was_posted`` receives the second signal with the ``TmpXtdComment`` instance and does as follows:
+ c. Send signal ``comment_will_be_posted`` and ``comment_was_posted``. The *django-comments-tree* receiver ``on_comment_was_posted`` receives the second signal with the ``TmpTreeComment`` instance and does as follows:
 
   * If the user is authenticated or confirmation by email is not required (see :doc:`settings`):
 
-   * An instance of ``XtdComment`` hits the database.
+   * An instance of ``TreeComment`` hits the database.
 
    * An email notification is sent to previous comments followers telling them about the new comment following up theirs. Comment followers are those who ticked the box *Notify me about follow up comments via email*.
 
-   * Otherwise a confirmation email is sent to the user with a link to confirm the comment. The link contains a secured token with the ``TmpXtdComment``. See below :ref:`the-secure-token-label`.
+   * Otherwise a confirmation email is sent to the user with a link to confirm the comment. The link contains a secured token with the ``TmpTreeComment``. See below :ref:`the-secure-token-label`.
 
  d. Pass control to the ``next`` parameter handler if any, or render the ``comments/posted.html`` template:
 
-  * If the instance of ``XtdComment`` has already been created, redirect to the the comments's absolute URL.
+  * If the instance of ``TreeComment`` has already been created, redirect to the the comments's absolute URL.
 
   * Otherwise the template content should inform the user about the confirmation request sent by email.
 
@@ -44,7 +44,7 @@ Following is the application control logic described in 4 actions:
 
  c. Otherwise sends a ``confirmation_received`` signal. You can register a receiver to this signal to do some extra process before approving the comment. See :ref:`signal-and-receiver-label`. If any receiver returns False the comment will be rejected and the template ``django_comments_tree/discarded.html`` will be rendered.
 
- d. Otherwise an instance of ``XtdComment`` finally hits the database, and
+ d. Otherwise an instance of ``TreeComment`` finally hits the database, and
 
  e. An email notification is sent to previous comments followers telling them about the new comment following up theirs.
 
@@ -90,7 +90,7 @@ Signal and receiver
 
 In addition to the `signals sent by the Django Comments Framework <https://docs.djangoproject.com/en/1.3/ref/contrib/comments/signals/>`_, django-comments-tree sends the following signal:
 
- * **confirmation_received**: Sent when the user clicks on the confirmation link and before the ``XtdComment`` instance is created in the database.
+ * **confirmation_received**: Sent when the user clicks on the confirmation link and before the ``TreeComment`` instance is created in the database.
 
  * **comment_thread_muted**: Sent when the user clicks on the mute link, in a follow-up notification.
 
@@ -126,7 +126,7 @@ Extending the demo site with the following code will do the job:
 
            data = super(CommentForm, self).get_comment_create_data()
            data['followup'] = self.cleaned_data['followup']
-           if settings.COMMENTS_XTD_CONFIRM_EMAIL:
+           if settings.COMMENTS_TREE_CONFIRM_EMAIL:
                # comment must be verified before getting approved
                data['is_public'] = False
                data['submit_date'] = datetime.datetime.now() - timedelta(days=8)  # ADD THIS
@@ -147,16 +147,16 @@ Maximum Thread Level
 
 Nested comments are disabled by default, to enable them use the following settings:
 
- * ``COMMENTS_XTD_MAX_THREAD_LEVEL``: an integer value
- * ``COMMENTS_XTD_MAX_THREAD_LEVEL_BY_APP_MODEL``: a dictionary
+ * ``COMMENTS_TREE_MAX_THREAD_LEVEL``: an integer value
+ * ``COMMENTS_TREE_MAX_THREAD_LEVEL_BY_APP_MODEL``: a dictionary
 
 Django-comments-tree inherits the flexibility of `django-contrib-comments framework <https://docs.djangoproject.com/en/1.4/ref/contrib/comments/>`_, so that developers can plug it to support comments on as many models as they want in their projects. It is as suitable for one model based project, like comments posted to stories in a simple blog, as for a project with multiple applications and models.
 
-The configuration of the maximum thread level on a simple project is done by declaring the ``COMMENTS_XTD_MAX_THREAD_LEVEL`` in the ``settings.py`` file:
+The configuration of the maximum thread level on a simple project is done by declaring the ``COMMENTS_TREE_MAX_THREAD_LEVEL`` in the ``settings.py`` file:
 
    .. code-block:: python
 
-       COMMENTS_XTD_MAX_THREAD_LEVEL = 2
+       COMMENTS_TREE_MAX_THREAD_LEVEL = 2
 
 
 Comments then could be nested up to level 2:
@@ -175,8 +175,8 @@ On a project that allows users posting comments to instances of different models
 
    .. code-block:: python
 
-       COMMENTS_XTD_MAX_THREAD_LEVEL = 1
-       COMMENTS_XTD_MAX_THREAD_LEVEL_BY_APP_MODEL = {
+       COMMENTS_TREE_MAX_THREAD_LEVEL = 1
+       COMMENTS_TREE_MAX_THREAD_LEVEL_BY_APP_MODEL = {
            'blog.story': 5,
            'blog.quote': 5,
        }

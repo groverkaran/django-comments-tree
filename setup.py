@@ -20,22 +20,28 @@ setup(
     name="django-comments-tree",
     version="0.1.0",
     packages=find_packages(),
+    scripts=[],
     include_package_data=True,
     license="MIT",
-    description=("Django Comments Framework extension app with thread "
+    description=("Django Comments Framework extension app with django-treebeard "
                  "support, follow up notifications and email "
                  "confirmations."),
-    long_description=("A reusable Django app that extends django-contrib-"
-                      "comments Framework with thread support, following up "
+    long_description=("A reusable Django app that uses django-treebeards to create a threaded"
+                      "comments Framework, following up "
                       "notifications and comments that only hits the "
                       "database after users confirm them by email."),
-    author="Daniel Rus Morales",
-    author_email="mbox@danir.us",
+    author="Ed Henderson",
+    author_email="ed@sharpertool.com",
     maintainer="Ed Henderson",
     maintainer_email="ed@sharpertool.com",
+    keywords="django comments treebeard threaded",
     url="http://pypi.python.org/pypi/django-comments-tree",
+    project_urls={
+
+    },
     install_requires=[
-        'Django>=1.8',
+        'Django>=2.0',
+        'django-treebeard>=4.1.0',
         'django-contrib-comments>=1.8',
         'djangorestframework>=3.6',
         'docutils',

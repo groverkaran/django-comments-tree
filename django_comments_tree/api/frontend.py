@@ -5,7 +5,7 @@ from django_comments_tree.conf import settings
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-XtdComment = get_comment_model()
+TreeComment = get_comment_model()
 
 
 def commentbox_props(obj, user, request=None):
@@ -51,7 +51,7 @@ def commentbox_props(obj, user, request=None):
 
     form = CommentSecurityForm(obj)
     ctype = ContentType.objects.get_for_model(obj)
-    queryset = XtdComment.objects.filter(content_type=ctype,
+    queryset = TreeComment.objects.filter(content_type=ctype,
                                          object_pk=obj.pk,
                                          site__pk=settings.SITE_ID,
                                          is_public=True)
@@ -92,7 +92,7 @@ def commentbox_props(obj, user, request=None):
         user_is_authenticated = user.is_authenticated
     if user and user_is_authenticated:
         d['current_user'] = "%d:%s" % (
-            user.pk, settings.COMMENTS_XTD_API_USER_REPR(user))
+            user.pk, settings.COMMENTS_TREE_API_USER_REPR(user))
         d['is_authenticated'] = True
         d['can_moderate'] = user.has_perm("django_comments.can_moderate")
         d['request_name'] = True if not len(user.get_full_name()) else False

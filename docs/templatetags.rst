@@ -42,7 +42,7 @@ Renders the threaded structure of comments posted to the given object using the 
  * ``django_comments_tree/<app>/comment_tree.html``
  * ``django_comments_tree/comment_tree.html`` (provided with the app)
 
-It expects either an object specified with the ``for <object>`` argument, or a variable named ``comments``, which might be present in the context or received as ``comments=<comments-object>``. When the ``for <object>`` argument is specified, it retrieves all the comments posted to the given object, ordered by the ``thread_id`` and ``order`` within the thread, as stated by the setting :setting:`COMMENTS_XTD_LIST_ORDER`.
+It expects either an object specified with the ``for <object>`` argument, or a variable named ``comments``, which might be present in the context or received as ``comments=<comments-object>``. When the ``for <object>`` argument is specified, it retrieves all the comments posted to the given object, ordered by the ``submit_date`` within the thread, as stated by the setting :setting:`COMMENTS_TREE_LIST_ORDER`.
 
 It supports 4 optional arguments:
 
@@ -88,7 +88,7 @@ Returns a dictionary to the template context under the name given in ``[varname]
            'children': [ list_of_child_xtdcomment_dicts ]
        }
 
-The comments will be ordered by the ``thread_id`` and ``order`` within the thread, as stated by the setting :setting:`COMMENTS_XTD_LIST_ORDER`.
+The comments will be ordered by the ``submit_date`` within the thread, as stated by the setting :setting:`COMMENTS_TREE_LIST_ORDER`.
 
 When the optional argument ``with_feedback`` is specified the returned dictionary will contain two additional attributes with the list of users who liked the comment and the list of users who disliked it:
 

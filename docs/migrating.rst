@@ -67,13 +67,13 @@ Now create the tables for django-comments-tree:
 Populate comment data
 =====================
 
-The following step will populate **XtdComment**'s table with data from the **Comment** model. For that purpose you can use the ``populate_xtdcomments`` management command:
+The following step will populate **TreeComment**'s table with data from the **Comment** model. For that purpose you can use the ``populate_xtdcomments`` management command:
 
    .. code-block:: bash
 
        (venv)$ python manage.py populate_xtdcomments
-       Added 3468 XtdComment object(s).
+       Added 3468 TreeComment object(s).
 
-You can pass as many DB connections as you have defined in :setting:`DATABASES` and the command will run in each of the databases, populating the **XtdComment**'s table with data from the comments table existing in each database.
+You can pass as many DB connections as you have defined in :setting:`DATABASES` and the command will run in each of the databases, populating the **TreeComment**'s table with data from the comments table existing in each database.
 
 Now the project is ready to handle comments with django-comments-tree.

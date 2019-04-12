@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_comments.forms import CommentForm
 
 from django_comments_tree.conf import settings
-from django_comments_tree.models import TmpXtdComment
+from django_comments_tree.models import TmpTreeComment
 
 
 class XtdCommentForm(CommentForm):
@@ -48,7 +48,7 @@ class XtdCommentForm(CommentForm):
         self.fields['followup'].widget.attrs['class'] = "custom-control-input"
 
     def get_comment_model(self):
-        return TmpXtdComment
+        return TmpTreeComment
 
     def get_comment_create_data(self, site_id=None):
         data = super(CommentForm, self).get_comment_create_data(site_id=site_id)
@@ -56,8 +56,6 @@ class XtdCommentForm(CommentForm):
         object_pk = data.get('object_pk')
         model = apps.get_model(ctype.app_label, ctype.model)
         target = model._default_manager.get(pk=object_pk)
-        data.update({'thread_id': 0, 'level': 0, 'order': 1,
-                     'parent_id': self.cleaned_data['reply_to'],
-                     'followup': self.cleaned_data['followup'],
+        data.update({'followup': self.cleaned_data['followup'],
                      'content_object': target})
         return data

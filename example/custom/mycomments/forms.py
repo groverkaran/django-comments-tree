@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from django_comments_tree.forms import XtdCommentForm
-from django_comments_tree.models import TmpXtdComment
+from django_comments_tree.models import TmpTreeComment
 
 
 class MyCommentForm(XtdCommentForm):

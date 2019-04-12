@@ -19,7 +19,7 @@ from rest_framework import serializers
 
 from django_comments_tree import signed, views
 from django_comments_tree.conf import settings
-from django_comments_tree.models import (TmpXtdComment, XtdComment,
+from django_comments_tree.models import (TmpTreeComment, TreeComment,
                                          LIKEDIT_FLAG, DISLIKEDIT_FLAG)
 from django_comments_tree.signals import confirmation_received
 from django_comments_tree.utils import has_app_model_option
@@ -122,7 +122,7 @@ class WriteCommentSerializer(serializers.Serializer):
             resp['comment'].user = self.request.user
 
         # Signal that the comment is about to be saved
-        responses = comment_will_be_posted.send(sender=TmpXtdComment,
+        responses = comment_will_be_posted.send(sender=TmpTreeComment,
                                                 comment=resp['comment'],
                                                 request=self.request)
         for (receiver, response) in responses:
@@ -132,13 +132,13 @@ class WriteCommentSerializer(serializers.Serializer):
 
         # Replicate logic from django_comments_tree.views.on_comment_was_posted.
         if (
-                not settings.COMMENTS_XTD_CONFIRM_EMAIL or
+                not settings.COMMENTS_TREE_CONFIRM_EMAIL or
                 self.request.user.is_authenticated
         ):
             if not views._comment_exists(resp['comment']):
                 new_comment = views._create_comment(resp['comment'])
                 resp['comment'].xtd_comment = new_comment
-                confirmation_received.send(sender=TmpXtdComment,
+                confirmation_received.send(sender=TmpTreeComment,
                                            comment=resp['comment'],
                                            request=self.request)
                 comment_was_posted.send(sender=new_comment.__class__,
@@ -151,7 +151,7 @@ class WriteCommentSerializer(serializers.Serializer):
                     resp['code'] = 202
         else:
             key = signed.dumps(resp['comment'], compress=True,
-                               extra_key=settings.COMMENTS_XTD_SALT)
+                               extra_key=settings.COMMENTS_TREE_SALT)
             views.send_email_confirmation_request(resp['comment'], key, site)
             resp['code'] = 204  # Confirmation sent by mail.
 
@@ -173,7 +173,7 @@ class ReadCommentSerializer(serializers.ModelSerializer):
     flags = serializers.SerializerMethodField()
 
     class Meta:
-        model = XtdComment
+        model = TreeComment
         fields = ('id', 'user_name', 'user_url', 'user_moderator',
                   'user_avatar', 'permalink', 'comment', 'submit_date',
                   'parent_id', 'level', 'is_removed', 'allow_reply', 'flags')
@@ -231,10 +231,10 @@ class ReadCommentSerializer(serializers.ModelSerializer):
                 flags['dislike']['active'] = True
         if has_app_model_option(obj)['show_feedback']:
             flags['like']['users'] = [
-                "%d:%s" % (user.id, settings.COMMENTS_XTD_API_USER_REPR(user))
+                "%d:%s" % (user.id, settings.COMMENTS_TREE_API_USER_REPR(user))
                 for user in users_likedit]
             flags['dislike']['users'] = [
-                "%d:%s" % (user.id, settings.COMMENTS_XTD_API_USER_REPR(user))
+                "%d:%s" % (user.id, settings.COMMENTS_TREE_API_USER_REPR(user))
                 for user in users_dislikedit]
         return flags
 
@@ -275,7 +275,7 @@ class FlagSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Comments posted to instances of '%s.%s' are not explicitly "
                 "allowed to receive '%s' flags. Check the "
-                "COMMENTS_XTD_APP_MODEL_OPTIONS setting." % (
+                "COMMENTS_TREE_APP_MODEL_OPTIONS setting." % (
                     ctype.app_label, ctype.model, data['flag']
                 )
             )

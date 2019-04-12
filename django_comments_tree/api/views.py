@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from django_comments_tree import views
 from django_comments_tree.api import serializers
 from django_comments_tree.conf import settings
-from django_comments_tree.models import XtdComment
+from django_comments_tree.models import TreeComment
 
 
 class CommentCreate(generics.CreateAPIView):
@@ -44,9 +44,9 @@ class CommentList(generics.ListAPIView):
             content_type = ContentType.objects.get_by_natural_key(app_label,
                                                                   model)
         except ContentType.DoesNotExist:
-            qs = XtdComment.objects.none()
+            qs = TreeComment.objects.none()
         else:
-            qs = XtdComment.objects.filter(content_type=content_type,
+            qs = TreeComment.objects.filter(content_type=content_type,
                                            object_pk=object_pk_arg,
                                            site__pk=settings.SITE_ID,
                                            is_public=True)
@@ -62,7 +62,7 @@ class CommentCount(generics.GenericAPIView):
         object_pk_arg = self.kwargs.get('object_pk', None)
         app_label, model = content_type_arg.split("-")
         content_type = ContentType.objects.get_by_natural_key(app_label, model)
-        qs = XtdComment.objects.filter(content_type=content_type,
+        qs = TreeComment.objects.filter(content_type=content_type,
                                        object_pk=object_pk_arg,
                                        is_public=True)
         return qs

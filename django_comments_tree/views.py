@@ -21,12 +21,12 @@ from django_comments.views.utils import next_redirect, confirmation_view
 from django_comments_tree import (get_form, comment_was_posted, signals, signed,
                                   get_model as get_comment_model)
 from django_comments_tree.conf import settings
-from django_comments_tree.models import (TmpXtdComment,
+from django_comments_tree.models import (TmpTreeComment,
                                          MaxThreadLevelExceededException,
                                          LIKEDIT_FLAG, DISLIKEDIT_FLAG)
 from django_comments_tree.utils import send_mail, has_app_model_option
 
-XtdComment = get_comment_model()
+TreeComment = get_comment_model()
 
 
 def get_moderated_tmpl(cmt):
@@ -48,27 +48,27 @@ def send_email_confirmation_request(
                                args=[key.decode('utf-8')])
     message_context = {'comment': comment,
                        'confirmation_url': confirmation_url,
-                       'contact': settings.COMMENTS_XTD_CONTACT_EMAIL,
+                       'contact': settings.COMMENTS_TREE_CONTACT_EMAIL,
                        'site': site}
     # prepare text message
     text_message_template = loader.get_template(text_template)
     text_message = text_message_template.render(message_context)
-    if settings.COMMENTS_XTD_SEND_HTML_EMAIL:
+    if settings.COMMENTS_TREE_SEND_HTML_EMAIL:
         # prepare html message
         html_message_template = loader.get_template(html_template)
         html_message = html_message_template.render(message_context)
     else:
         html_message = None
 
-    send_mail(subject, text_message, settings.COMMENTS_XTD_FROM_EMAIL,
+    send_mail(subject, text_message, settings.COMMENTS_TREE_FROM_EMAIL,
               [comment.user_email, ], html=html_message)
 
 
 def _comment_exists(comment):
     """
-    True if exists a XtdComment with same user_name, user_email and submit_date.
+    True if exists a TreeComment with same user_name, user_email and submit_date.
     """
-    return (XtdComment.objects.filter(
+    return (TreeComment.objects.filter(
         user_name=comment.user_name,
         user_email=comment.user_email,
         followup=comment.followup,
@@ -78,9 +78,9 @@ def _comment_exists(comment):
 
 def _create_comment(tmp_comment):
     """
-    Creates a XtdComment from a TmpXtdComment.
+    Creates a TreeComment from a TmpTreeComment.
     """
-    comment = XtdComment(**tmp_comment)
+    comment = TreeComment(**tmp_comment)
     # comment.is_public = True
     comment.save()
     return comment
@@ -91,7 +91,7 @@ def on_comment_was_posted(sender, comment, request, **kwargs):
     Post the comment if a user is authenticated or send a confirmation email.
 
     On signal django_comments.signals.comment_was_posted check if the
-    user is authenticated or if settings.COMMENTS_XTD_CONFIRM_EMAIL is False.
+    user is authenticated or if settings.COMMENTS_TREE_CONFIRM_EMAIL is False.
     In both cases will post the comment. Otherwise will send a confirmation
     email to the person who posted the comment.
     """
@@ -102,31 +102,31 @@ def on_comment_was_posted(sender, comment, request, **kwargs):
     else:
         user_is_authenticated = False
 
-    if not settings.COMMENTS_XTD_CONFIRM_EMAIL or user_is_authenticated:
+    if not settings.COMMENTS_TREE_CONFIRM_EMAIL or user_is_authenticated:
         if not _comment_exists(comment):
             new_comment = _create_comment(comment)
             comment.xtd_comment = new_comment
-            signals.confirmation_received.send(sender=TmpXtdComment,
+            signals.confirmation_received.send(sender=TmpTreeComment,
                                                comment=comment,
                                                request=request)
             if comment.is_public:
                 notify_comment_followers(new_comment)
     else:
         key = signed.dumps(comment, compress=True,
-                           extra_key=settings.COMMENTS_XTD_SALT)
+                           extra_key=settings.COMMENTS_TREE_SALT)
         site = get_current_site(request)
         send_email_confirmation_request(comment, key, site)
 
 
-comment_was_posted.connect(on_comment_was_posted, sender=TmpXtdComment)
+comment_was_posted.connect(on_comment_was_posted, sender=TmpTreeComment)
 
 
 def sent(request, using=None):
     comment_pk = request.GET.get("c", None)
     try:
         comment_pk = int(comment_pk)
-        comment = XtdComment.objects.get(pk=comment_pk)
-    except (TypeError, ValueError, XtdComment.DoesNotExist):
+        comment = TreeComment.objects.get(pk=comment_pk)
+    except (TypeError, ValueError, TreeComment.DoesNotExist):
         value = signing.loads(comment_pk)
         ctype, object_pk = value.split(":")
         model = apps.get_model(*ctype.split(".", 1))
@@ -163,14 +163,14 @@ def confirm(request, key,
             template_discarded="django_comments_tree/discarded.html"):
     try:
         tmp_comment = signed.loads(str(key),
-                                   extra_key=settings.COMMENTS_XTD_SALT)
+                                   extra_key=settings.COMMENTS_TREE_SALT)
     except (ValueError, signed.BadSignature):
         raise Http404
     # the comment does exist if the URL was already confirmed, then: Http404
     if _comment_exists(tmp_comment):
         raise Http404
     # Send signal that the comment confirmation has been received
-    responses = signals.confirmation_received.send(sender=TmpXtdComment,
+    responses = signals.confirmation_received.send(sender=TmpTreeComment,
                                                    comment=tmp_comment,
                                                    request=request)
     # Check whether a signal receiver decides to discard the comment
@@ -193,7 +193,7 @@ def notify_comment_followers(comment):
               'object_pk': comment.object_pk,
               'is_public': True,
               'followup': True}
-    previous_comments = XtdComment.objects \
+    previous_comments = TreeComment.objects \
         .filter(**kwargs) \
         .exclude(user_email=comment.user_email)
 
@@ -201,7 +201,7 @@ def notify_comment_followers(comment):
         followers[instance.user_email] = (
             instance.user_name,
             signed.dumps(instance, compress=True,
-                         extra_key=settings.COMMENTS_XTD_SALT))
+                         extra_key=settings.COMMENTS_TREE_SALT))
 
     # model = apps.get_model(comment.content_type.app_label,
     #                        comment.content_type.model)
@@ -209,7 +209,7 @@ def notify_comment_followers(comment):
     subject = _("new comment posted")
     text_message_template = loader.get_template(
         "django_comments_tree/email_followup_comment.txt")
-    if settings.COMMENTS_XTD_SEND_HTML_EMAIL:
+    if settings.COMMENTS_TREE_SEND_HTML_EMAIL:
         html_message_template = loader.get_template(
             "django_comments_tree/email_followup_comment.html")
 
@@ -221,22 +221,22 @@ def notify_comment_followers(comment):
                            'mute_url': mute_url,
                            'site': comment.site}
         text_message = text_message_template.render(message_context)
-        if settings.COMMENTS_XTD_SEND_HTML_EMAIL:
+        if settings.COMMENTS_TREE_SEND_HTML_EMAIL:
             html_message = html_message_template.render(message_context)
         else:
             html_message = None
-        send_mail(subject, text_message, settings.COMMENTS_XTD_FROM_EMAIL,
+        send_mail(subject, text_message, settings.COMMENTS_TREE_FROM_EMAIL,
                   [email, ], html=html_message)
 
 
 def reply(request, cid):
     try:
-        comment = XtdComment.objects.get(pk=cid)
+        comment = TreeComment.objects.get(pk=cid)
         if not comment.allow_thread():
             raise MaxThreadLevelExceededException(comment)
     except MaxThreadLevelExceededException as exc:
         return HttpResponseForbidden(exc)
-    except XtdComment.DoesNotExist as exc:
+    except TreeComment.DoesNotExist as exc:
         raise Http404(exc)
 
     form = get_form()(comment.content_object, comment=comment)
@@ -257,7 +257,7 @@ def reply(request, cid):
 def mute(request, key):
     try:
         comment = signed.loads(str(key),
-                               extra_key=settings.COMMENTS_XTD_SALT)
+                               extra_key=settings.COMMENTS_TREE_SALT)
     except (ValueError, signed.BadSignature):
         raise Http404
     # the comment does exist if the URL was already confirmed, then: Http404
@@ -265,11 +265,11 @@ def mute(request, key):
         raise Http404
 
     # Send signal that the comment thread has been muted
-    signals.comment_thread_muted.send(sender=XtdComment,
+    signals.comment_thread_muted.send(sender=TreeComment,
                                       comment=comment,
                                       request=request)
 
-    XtdComment.objects.filter(
+    TreeComment.objects.filter(
         content_type=comment.content_type, object_pk=comment.object_pk,
         is_public=True, followup=True, user_email=comment.user_email
     ).update(followup=False)
@@ -306,7 +306,7 @@ def flag(request, comment_id, next=None):
         ctype = ContentType.objects.get_for_model(comment.content_object)
         raise Http404("Comments posted to instances of '%s.%s' are not "
                       "explicitly allowed to receive 'removal suggestion' "
-                      "flags. Check the COMMENTS_XTD_APP_MODEL_OPTIONS "
+                      "flags. Check the COMMENTS_TREE_APP_MODEL_OPTIONS "
                       "setting." % (ctype.app_label, ctype.model))
     # Flag on POST
     if request.method == 'POST':
@@ -338,7 +338,7 @@ def like(request, comment_id, next=None):
         ctype = ContentType.objects.get_for_model(comment.content_object)
         raise Http404("Comments posted to instances of '%s.%s' are not "
                       "explicitly allowed to receive 'liked it' flags. "
-                      "Check the COMMENTS_XTD_APP_MODEL_OPTIONS "
+                      "Check the COMMENTS_TREE_APP_MODEL_OPTIONS "
                       "setting." % (ctype.app_label, ctype.model))
     # Flag on POST
     if request.method == 'POST':
@@ -372,7 +372,7 @@ def dislike(request, comment_id, next=None):
         ctype = ContentType.objects.get_for_model(comment.content_object)
         raise Http404("Comments posted to instances of '%s.%s' are not "
                       "explicitly allowed to receive 'disliked it' flags. "
-                      "Check the COMMENTS_XTD_APP_MODEL_OPTIONS "
+                      "Check the COMMENTS_TREE_APP_MODEL_OPTIONS "
                       "setting." % (ctype.app_label, ctype.model))
     # Flag on POST
     if request.method == 'POST':
@@ -448,7 +448,8 @@ class XtdCommentListView(ListView):
         content_types = self.get_content_types()
         if content_types is None:
             return None
-        return XtdComment.objects \
+        # ToDo: This returns None or a qs
+        return TreeComment.objects \
             .for_content_types(content_types,
                                site=settings.SITE_ID) \
             .filter(is_removed=False) \

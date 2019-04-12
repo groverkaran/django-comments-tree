@@ -10,7 +10,7 @@ Contains three example projects:
 
 The Simple demo site is a project with an 'articles' application and an 'Article' model whose instances accept comments. It features: 
 
- * Comments have to be confirmed by mail before they hit the database, unless users are authenticated or `COMMENTS_XTD_CONFIRM_EMAIL` is set to False. 
+ * Comments have to be confirmed by mail before they hit the database, unless users are authenticated or `COMMENTS_TREE_CONFIRM_EMAIL` is set to False. 
  * Commenters may request follow up notifications.
  * Mute links to allow cancellation of follow-up notifications.
 

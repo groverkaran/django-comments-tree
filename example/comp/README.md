@@ -17,7 +17,7 @@ The Comp Demo implements two apps, each of which contains a model whose instance
 
 #### Threaded comments
 
-The setting `COMMENTS_XTD_MAX_THREAD_LEVEL` is set to 2, meaning that comments may be threaded up to 2 levels below the the first level (internally known as level 0)::
+The setting `COMMENTS_TREE_MAX_THREAD_LEVEL` is set to 2, meaning that comments may be threaded up to 2 levels below the the first level (internally known as level 0)::
     
     First comment (level 0)
         |-- Comment to "First comment" (level 1)

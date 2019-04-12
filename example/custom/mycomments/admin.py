@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from django_comments_tree.admin import XtdCommentsAdmin
+from django_comments_tree.admin import TreeCommentsAdmin
 from custom.mycomments.models import MyComment
 
 
-class MyCommentAdmin(XtdCommentsAdmin):
+class MyCommentAdmin(TreeCommentsAdmin):
     list_display = ('thread_level', 'title', 'cid', 'name', 'content_type',
                     'object_pk', 'submit_date', 'followup', 'is_public',
                     'is_removed')

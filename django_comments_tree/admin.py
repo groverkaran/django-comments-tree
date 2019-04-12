@@ -5,10 +5,10 @@ from django.contrib import admin
 from django_comments import get_model
 from django_comments.admin import CommentsAdmin
 from django_comments.models import CommentFlag
-from django_comments_tree.models import XtdComment, BlackListedDomain
+from django_comments_tree.models import TreeComment, BlackListedDomain
 
 
-class XtdCommentsAdmin(CommentsAdmin):
+class TreeCommentsAdmin(CommentsAdmin):
     list_display = ('thread_level', 'cid', 'name', 'content_type', 'object_pk',
                     'ip_address', 'submit_date', 'followup', 'is_public',
                     'is_removed')
@@ -22,7 +22,7 @@ class XtdCommentsAdmin(CommentsAdmin):
                                  'is_public', 'is_removed')}),
     )
     date_hierarchy = 'submit_date'
-    ordering = ('thread_id', 'order')
+    ordering = ('submitted_date')
     search_fields = ['object_pk', 'user__username', 'user_name', 'user_email',
                      'comment']
 
@@ -43,7 +43,7 @@ class BlackListedDomainAdmin(admin.ModelAdmin):
     search_fields = ['domain']
 
 
-if get_model() is XtdComment:
-    admin.site.register(XtdComment, XtdCommentsAdmin)
+if get_model() is TreeComment:
+    admin.site.register(TreeComment, TreeCommentsAdmin)
     admin.site.register(CommentFlag)
     admin.site.register(BlackListedDomain, BlackListedDomainAdmin)

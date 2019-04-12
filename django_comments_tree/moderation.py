@@ -21,7 +21,7 @@ except ImportError:
 
 
 from django_comments_tree.conf import settings
-from django_comments_tree.models import BlackListedDomain, TmpXtdComment
+from django_comments_tree.models import BlackListedDomain, TmpTreeComment
 from django_comments_tree.signals import confirmation_received
 from django_comments_tree.utils import send_mail
 
@@ -70,7 +70,7 @@ class XtdCommentModerator(CommentModerator):
         subject = ('[%s] Comment removal suggestion on "%s"' %
                    (c['current_site'].name, content_object))
         message = t.render(Context(c) if VERSION < (1, 8) else c)
-        send_mail(subject, message, settings.COMMENTS_XTD_FROM_EMAIL,
+        send_mail(subject, message, settings.COMMENTS_TREE_FROM_EMAIL,
                   recipient_list, fail_silently=True)
 
 
@@ -111,9 +111,9 @@ class SpamModerator(XtdCommentModerator):
 class XtdModerator(Moderator):
     def connect(self):
         comment_will_be_posted.connect(self.pre_save_moderation,
-                                       sender=TmpXtdComment)
+                                       sender=TmpTreeComment)
         confirmation_received.connect(self.post_save_moderation,
-                                      sender=TmpXtdComment)
+                                      sender=TmpTreeComment)
         comment_was_flagged.connect(self.comment_flagged,
                                     sender=get_model())
 

@@ -7,7 +7,7 @@ Demo projects
 There are three example projects available within django-comments-tree:
 
 1. **simple**: Provides non-threaded comment support to articles. It's an only-backend project, meant as a test case of the basic features (confirmation by mail, follow-up notifications, mute link).
-2. **custom**: Provides threaded comment support to articles using a new Comment class that inherits from django-comments-tree's. The new comment model adds a **title** field to the **XtdComment** class. Find more details in :ref:`ref-extending`.
+2. **custom**: Provides threaded comment support to articles using a new Comment class that inherits from django-comments-tree's. The new comment model adds a **title** field to the **TreeComment** class. Find more details in :ref:`ref-extending`.
 3. **comp**: This example project provides comment support to several models, defining the maximum thread level on per app.model basis. It uses moderation, removal suggestion flag, like/dislike flags, and list of users who liked/disliked comments. Comment support for Articles are frontend based while comments for Quotes are backend based.
 
 Visit the **example** directory within the repository `in GitHub <http://github.com/sharpertool/django-comments-tree/tree/master/example>`_ for a quick look.
@@ -67,7 +67,7 @@ Simple project
 The simple example project features:
   
  #. An Articles App, with a model ``Article`` whose instances accept comments.
- #. Confirmation by mail is required before the comment hit the database, unless ``COMMENTS_XTD_CONFIRM_EMAIL`` is set to False. Authenticated users don't have to confirm comments.
+ #. Confirmation by mail is required before the comment hit the database, unless ``COMMENTS_TREE_CONFIRM_EMAIL`` is set to False. Authenticated users don't have to confirm comments.
  #. Follow up notifications via mail.
  #. Mute links to allow cancellation of follow-up notifications.
  #. No nested comments.
@@ -92,7 +92,7 @@ Custom project
 The **custom** example project extends the **simple** project functionality featuring:
 
  * Thread support up to level 2
- * A new comment class that inherits from **XtdComment** with a new **Title** field and a new form class.
+ * A new comment class that inherits from **TreeComment** with a new **Title** field and a new form class.
 
 .. image:: images/extend-comments-app.png
 
@@ -123,7 +123,7 @@ Features:
 Threaded comments
 -----------------
 
-The setting `COMMENTS_XTD_MAX_THREAD_LEVEL` is set to 2, meaning that comments may be threaded up to 2 levels below the the first level (internally known as level 0)::
+The setting `COMMENTS_TREE_MAX_THREAD_LEVEL` is set to 2, meaning that comments may be threaded up to 2 levels below the the first level (internally known as level 0)::
     
     First comment (level 0)
         |-- Comment to "First comment" (level 1)

@@ -18,7 +18,7 @@ To get started using django-comments-tree follow these steps:
 
 #. Set the :setting:`COMMENTS_APP` setting to ``'django_comments_tree'``.
 
-#. Set the :setting:`COMMENTS_XTD_MAX_THREAD_LEVEL` to ``N``, being ``N`` the maximum level of threading up to which comments will be nested in your project.
+#. Set the :setting:`COMMENTS_TREE_MAX_THREAD_LEVEL` to ``N``, being ``N`` the maximum level of threading up to which comments will be nested in your project.
 
    .. code-block:: python
 
@@ -31,11 +31,11 @@ To get started using django-comments-tree follow these steps:
        #  Comment (level 0)
        #   |-- Comment (level 1)
        #        |-- Comment (level 2)
-       COMMENTS_XTD_MAX_THREAD_LEVEL = 2
+       COMMENTS_TREE_MAX_THREAD_LEVEL = 2
 
-   The thread level can also be established on a per ``<app>.<model>`` basis by using the :setting:`COMMENTS_XTD_MAX_THREAD_LEVEL_BY_APP_MODEL` setting. Use it to establish different maximum threading levels for each model. ie: no nested comments for quotes, up to thread level 2 for blog stories, etc.
+   The thread level can also be established on a per ``<app>.<model>`` basis by using the :setting:`COMMENTS_TREE_MAX_THREAD_LEVEL_BY_APP_MODEL` setting. Use it to establish different maximum threading levels for each model. ie: no nested comments for quotes, up to thread level 2 for blog stories, etc.
 
-#. Set the :setting:`COMMENTS_XTD_CONFIRM_EMAIL` to ``True`` to require comment confirmation by email for no logged-in users.
+#. Set the :setting:`COMMENTS_TREE_CONFIRM_EMAIL` to ``True`` to require comment confirmation by email for no logged-in users.
    
 #. Run ``manage.py migrate`` to create the tables.
 

@@ -21,7 +21,7 @@ from django_comments.views import comments
     
 from django_comments_tree import django_comments, signals, signed, views
 from django_comments_tree.conf import settings
-from django_comments_tree.models import XtdComment
+from django_comments_tree.models import TreeComment
 from django_comments_tree.tests.models import Article, Diary
 
 
@@ -151,13 +151,13 @@ class ConfirmCommentTestCase(TestCase):
         self.assertTrue(response.content.find(b'Comment discarded') > -1)
 
     def test_comment_is_created_and_view_redirect(self):
-        # testing that visiting a correct confirmation URL creates a XtdComment
+        # testing that visiting a correct confirmation URL creates a TreeComment
         # and redirects to the article detail page
         Site.objects.get_current().domain = "testserver"  # django bug #7743
         response = confirm_comment_url(self.key, follow=False)
-        data = signed.loads(self.key, extra_key=settings.COMMENTS_XTD_SALT)
+        data = signed.loads(self.key, extra_key=settings.COMMENTS_TREE_SALT)
         try:
-            comment = XtdComment.objects.get(
+            comment = TreeComment.objects.get(
                 content_type=data["content_type"],
                 user_name=data["user_name"],
                 user_email=data["user_email"],
@@ -276,7 +276,7 @@ class ReplyCommentTestCase(TestCase):
         site = Site.objects.get(pk=1)
 
         # post Comment 1 to article, level 0
-        XtdComment.objects.create(content_type=article_ct,
+        TreeComment.objects.create(content_type=article_ct,
                                   object_pk=article.id,
                                   content_object=article,
                                   site=site,
@@ -284,7 +284,7 @@ class ReplyCommentTestCase(TestCase):
                                   submit_date=datetime.now())
 
         # post Comment 2 to article, level 1
-        XtdComment.objects.create(content_type=article_ct,
+        TreeComment.objects.create(content_type=article_ct,
                                   object_pk=article.id,
                                   content_object=article,
                                   site=site,
@@ -293,7 +293,7 @@ class ReplyCommentTestCase(TestCase):
                                   parent_id=1)
 
         # post Comment 3 to article, level 2 (max according to test settings)
-        XtdComment.objects.create(content_type=article_ct,
+        TreeComment.objects.create(content_type=article_ct,
                                   object_pk=article.id,
                                   content_object=article,
                                   site=site,
@@ -402,10 +402,10 @@ class HTMLDisabledMailTestCase(TestCase):
         self.data.update(self.form.initial)
 
     @patch.multiple('django_comments_tree.conf.settings',
-                    COMMENTS_XTD_SEND_HTML_EMAIL=False)
+                    COMMENTS_TREE_SEND_HTML_EMAIL=False)
     def test_mail_does_not_contain_html_part(self):
         with patch.multiple('django_comments_tree.conf.settings',
-                            COMMENTS_XTD_SEND_HTML_EMAIL=False):
+                            COMMENTS_TREE_SEND_HTML_EMAIL=False):
             response = post_article_comment(self.data, self.article)
             self.assertEqual(response.status_code, 302)
             self.assertTrue(response.url.startswith('/comments/posted/?c='))

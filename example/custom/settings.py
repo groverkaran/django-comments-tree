@@ -130,14 +130,14 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 COMMENTS_APP = "django_comments_tree"
-COMMENTS_XTD_CONFIRM_EMAIL = True # Set to True to request confirmations
-COMMENTS_XTD_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
-COMMENTS_XTD_FROM_EMAIL = 'noreply@example.com'
-COMMENTS_XTD_CONTACT_EMAIL = 'helpdesk@example.com'
-COMMENTS_XTD_MAX_THREAD_LEVEL = 2
-COMMENTS_XTD_THREADED_EMAILS = False # default to True, use False to allow
+COMMENTS_TREE_CONFIRM_EMAIL = True # Set to True to request confirmations
+COMMENTS_TREE_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
+COMMENTS_TREE_FROM_EMAIL = 'noreply@example.com'
+COMMENTS_TREE_CONTACT_EMAIL = 'helpdesk@example.com'
+COMMENTS_TREE_MAX_THREAD_LEVEL = 2
+COMMENTS_TREE_THREADED_EMAILS = False # default to True, use False to allow
                                      # other backend (say Celery based) send
                                      # your emails.
 
-COMMENTS_XTD_MODEL = 'custom.mycomments.models.MyComment'
-COMMENTS_XTD_FORM_CLASS = 'custom.mycomments.forms.MyCommentForm'
+COMMENTS_TREE_MODEL = 'custom.mycomments.models.MyComment'
+COMMENTS_TREE_FORM_CLASS = 'custom.mycomments.forms.MyCommentForm'
