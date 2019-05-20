@@ -25,16 +25,24 @@ setup(
     license="MIT",
     description=("Django Comments Framework extension app with django-treebeard "
                  "support, follow up notifications and email "
-                 "confirmations."),
-    long_description=("A reusable Django app that uses django-treebeards to create a threaded"
+                 "confirmations, as well as real-time comments using Firebase "
+                 "for notifications."),
+    long_description=("A reusable Django app that uses django-treebeard "
+                      "to create a threaded"
                       "comments Framework, following up "
                       "notifications and comments that only hits the "
-                      "database after users confirm them by email."),
+                      "database after users confirm them by email."
+                      "Real-time comment updates are also available using "
+                      "firebase as a notification mechanism of comment updates. "
+                      "Clients can connect to firebase for updates, and then query "
+                      "the backend for the actual changes, so that all data is "
+                      "located in the backend database."
+                      ),
     author="Ed Henderson",
     author_email="ed@sharpertool.com",
     maintainer="Ed Henderson",
     maintainer_email="ed@sharpertool.com",
-    keywords="django comments treebeard threaded",
+    keywords="django comments treebeard threaded firebase",
     url="http://pypi.python.org/pypi/django-comments-tree",
     project_urls={
 
@@ -44,6 +52,7 @@ setup(
         'django-treebeard>=4.1.0',
         'django-contrib-comments>=1.8',
         'djangorestframework>=3.6',
+        'python-firebase>=1.2'
         'docutils',
         'six',
     ],

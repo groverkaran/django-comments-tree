@@ -58,3 +58,8 @@ def username(u):
 
 
 COMMENTS_TREE_API_USER_REPR = username
+
+# Set to true to enable Firebase notifications
+COMMENTS_TREE_ENABLE_FIREBASE = False
+
+COMMENTS_TREE_FIREBASE_KEY = None

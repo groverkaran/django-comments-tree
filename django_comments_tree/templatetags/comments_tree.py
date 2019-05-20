@@ -23,8 +23,8 @@ register = Library()
 
 
 # ----------------------------------------------------------------------
-class XtdCommentCountNode(Node):
-    """Store the number of XtdComments for the given list of app.models"""
+class TreeCommentCountNode(Node):
+    """Store the number of TreeComments for the given list of app.models"""
 
     def __init__(self, as_varname, content_types):
         """Class method to parse get_xtdcomment_list and return a Node."""
@@ -39,7 +39,7 @@ class XtdCommentCountNode(Node):
 
 
 @register.tag
-def get_xtdcomment_count(parser, token):
+def get_treecomment_count(parser, token):
     """
     Gets the comment count for the given params and populates the template
     context with a variable containing that value, whose name is defined by the
@@ -47,11 +47,11 @@ def get_xtdcomment_count(parser, token):
 
     Syntax::
 
-        {% get_xtdcomment_count as var for app.model [app.model] %}
+        {% get_treecomment_count as var for app.model [app.model] %}
 
     Example usage::
 
-        {% get_xtdcomment_count as comments_count for blog.story blog.quote %}
+        {% get_treecomment_count as comments_count for blog.story blog.quote %}
 
     """
     tokens = token.contents.split()
@@ -67,7 +67,7 @@ def get_xtdcomment_count(parser, token):
                                   tokens[0])
 
     content_types = _get_content_types(tokens[0], tokens[4:])
-    return XtdCommentCountNode(as_varname, content_types)
+    return TreeCommentCountNode(as_varname, content_types)
 
 
 # ----------------------------------------------------------------------

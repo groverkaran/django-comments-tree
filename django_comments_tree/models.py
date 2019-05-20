@@ -79,17 +79,17 @@ class CommentManager(models.Manager):
         filter_fields = {'content_type__in': content_types}
         if site is not None:
             filter_fields['site'] = site
+        qs = TreeComment.objects.none()
         associations = CommentAssociation.objects.filter(**filter_fields)
-        if associations.exists():
-            assoc = associations.first()
-            root = assoc.root
-            return root.get_descendants()
-        return CommentAssociation.objects.none()
+        for assoc in associations:
+            qs = qs.union(assoc.root.get_descendants())
+        return qs
 
     def get_queryset(self):
         qs = super(CommentManager, self).get_queryset()
-        order_by = settings.COMMENTS_TREE_LIST_ORDER
-        return qs.order_by(*order_by)
+        return qs
+        #order_by = settings.COMMENTS_TREE_LIST_ORDER
+        #return qs.order_by(*order_by)
 
 
 class TreeComment(MP_Node, CommentAbstractModel):
@@ -98,7 +98,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
     #level = models.SmallIntegerField(default=0)
     #order = models.IntegerField(default=1, db_index=True)
 
-    node_order_by = ['submit_date']
+    #node_order_by = ['submit_date']
 
     followup = models.BooleanField(blank=True, default=False,
                                    help_text=_("Notify follow-up comments"))

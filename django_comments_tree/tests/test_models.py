@@ -39,7 +39,7 @@ class TreeCommentManagerTestCase(ArticleBaseTestCase):
                                                          object_pk=self.article_1.id,
                                                          content_object=self.article_2,
                                                          site=self.site2,
-                                                         root=self.root_2)
+                                                         root=self.root_1)
 
     def post_comment_1(self):
         self.root_1.add_child(comment="just a testing comment")

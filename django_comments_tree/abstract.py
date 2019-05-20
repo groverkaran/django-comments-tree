@@ -48,7 +48,7 @@ class CommentAbstractModel(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ('submit_date',)
+        #ordering = ('submit_date',)
         permissions = [("can_moderate", "Can moderate comments")]
         verbose_name = _('comment')
         verbose_name_plural = _('comments')
