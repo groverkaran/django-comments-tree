@@ -95,6 +95,7 @@ class OnCommentWasPostedTestCase(TestCase):
         self.assertTrue(self.mock_mailer.call_count == 0)
         self.post_valid_data()
         self.assertTrue(self.mock_mailer.call_count == 1)
+        self.user = AnonymousUser()
 
 
 class ConfirmCommentTestCase(TestCase):
@@ -158,7 +159,6 @@ class ConfirmCommentTestCase(TestCase):
         data = signed.loads(self.key, extra_key=settings.COMMENTS_TREE_SALT)
         try:
             comment = TreeComment.objects.get(
-                content_type=data["content_type"],
                 user_name=data["user_name"],
                 user_email=data["user_email"],
                 submit_date=data["submit_date"])

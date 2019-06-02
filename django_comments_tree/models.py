@@ -172,8 +172,6 @@ class CommentManager(MP_NodeManager):
     def get_queryset(self):
         qs = super(CommentManager, self).get_queryset()
         return qs
-        #order_by = settings.COMMENTS_TREE_LIST_ORDER
-        #return qs.order_by(*order_by)
 
 
 class TreeComment(MP_Node, CommentAbstractModel):
@@ -242,6 +240,24 @@ class TreeComment(MP_Node, CommentAbstractModel):
         assoc = self.association
         if assoc:
             return assoc.content_type
+
+        return None
+
+    @property
+    def object_pk(self):
+        """ Accessor added for compatibility with django_contrib.comments """
+        assoc = self.association
+        if assoc:
+            return assoc.object_pk
+
+        return None
+
+    @property
+    def site(self):
+        """ Accessor added for compatibility with django_contrib.comments """
+        assoc = self.association
+        if assoc:
+            return assoc.site
 
         return None
 
@@ -373,6 +389,13 @@ class TmpTreeComment(dict):
         try:
             return self[key]
         except KeyError:
+            if self.get('tree_comment'):
+                try:
+                    return getattr(self.get('tree_comment'), key)
+                except KeyError:
+                    pass
+                except Exception as e:
+                    pass
             return None
 
     def __setattr__(self, key, value):
@@ -382,8 +405,8 @@ class TmpTreeComment(dict):
         pass
 
     def _get_pk_val(self):
-        if self.xtd_comment:
-            return self.xtd_comment._get_pk_val()
+        if self.tree_comment:
+            return self.tree_comment._get_pk_val()
         else:
             content_type = "%s.%s" % self.content_type.natural_key()
             return signing.dumps("%s:%s" % (content_type, self.object_pk))
@@ -403,7 +426,7 @@ class TmpTreeComment(dict):
         state = {k: v for k, v in self.items() if k != 'content_object'}
         ct = state.pop('content_type')
         state['content_type_key'] = ct.natural_key()
-        return (TmpTreeComment, (), state)
+        return (TmpTreeComment, (), state,)
 
 
 # ----------------------------------------------------------------------

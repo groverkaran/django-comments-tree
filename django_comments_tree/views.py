@@ -80,7 +80,13 @@ def _create_comment(tmp_comment):
     """
     Creates a TreeComment from a TmpTreeComment.
     """
-    comment = TreeComment(**tmp_comment)
+    content_type = tmp_comment.pop('content_type')
+    content_object = tmp_comment.pop('content_object')
+    object_pk = tmp_comment.pop('object_pk')
+    site_id = tmp_comment.pop('site_id')
+    root = TreeComment.objects.get_or_create_root(content_object)
+    comment = root.add_child(**tmp_comment)
+    #comment = TreeComment(**tmp_comment)
     # comment.is_public = True
     comment.save()
     return comment
@@ -105,7 +111,7 @@ def on_comment_was_posted(sender, comment, request, **kwargs):
     if not settings.COMMENTS_TREE_CONFIRM_EMAIL or user_is_authenticated:
         if not _comment_exists(comment):
             new_comment = _create_comment(comment)
-            comment.xtd_comment = new_comment
+            comment.tree_comment = new_comment
             signals.confirmation_received.send(sender=TmpTreeComment,
                                                comment=comment,
                                                request=request)
@@ -188,14 +194,20 @@ def confirm(request, key,
 
 
 def notify_comment_followers(comment):
+    """
+    Updated to use MP_Nodes
+    :param comment: 
+    :return: 
+    """
+    root = comment.get_root()
+    
     followers = {}
-    kwargs = {'content_type': comment.content_type,
-              'object_pk': comment.object_pk,
-              'is_public': True,
+    kwargs = {'is_public': True,
               'followup': True}
-    previous_comments = TreeComment.objects \
-        .filter(**kwargs) \
-        .exclude(user_email=comment.user_email)
+    previous_comments = root.get_descendants()
+
+    previous_comments = previous_comments.filter(**kwargs)
+    previous_comments = previous_comments.exclude(user_email=comment.user_email)
 
     for instance in previous_comments:
         followers[instance.user_email] = (
@@ -428,7 +440,7 @@ dislike_done = confirmation_view(
 )
 
 
-class XtdCommentListView(ListView):
+class TreeCommentListView(ListView):
     page_range = 5
     content_types = None  # List of "app_name.model_name" strings.
     template_name = "django_comments_tree/comment_list.html"

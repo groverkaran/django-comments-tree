@@ -137,7 +137,7 @@ class WriteCommentSerializer(serializers.Serializer):
         ):
             if not views._comment_exists(resp['comment']):
                 new_comment = views._create_comment(resp['comment'])
-                resp['comment'].xtd_comment = new_comment
+                resp['comment'].tree_comment = new_comment
                 confirmation_received.send(sender=TmpTreeComment,
                                            comment=resp['comment'],
                                            request=self.request)

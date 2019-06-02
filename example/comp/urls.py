@@ -11,7 +11,7 @@ else:
 from django.views.i18n import JavaScriptCatalog
     
 from django_comments_tree import LatestCommentFeed
-from django_comments_tree.views import XtdCommentListView
+from django_comments_tree.views import TreeCommentListView
 
 from comp import views
 
@@ -26,7 +26,7 @@ urlpatterns = [
     re_path(r'^quotes/', include('comp.extra.quotes.urls')),
     re_path(r'^comments/', include('django_comments_tree.urls')),
     re_path(r'^comments/$',
-            XtdCommentListView.as_view(content_types=["articles.article",
+            TreeCommentListView.as_view(content_types=["articles.article",
                                                       "quotes.quote"],
                                        paginate_by=10, page_range=5),
             name='comments-tree-list'),
