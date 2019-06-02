@@ -281,10 +281,11 @@ def mute(request, key):
                                       comment=comment,
                                       request=request)
 
-    TreeComment.objects.filter(
-        content_type=comment.content_type, object_pk=comment.object_pk,
-        is_public=True, followup=True, user_email=comment.user_email
-    ).update(followup=False)
+    unmuted = comment.get_root().get_descendants().filter(
+        is_public=True, 
+        followup=True, 
+        user_email=comment.user_email)
+    unmuted.update(followup=False)
 
     model = apps.get_model(comment.content_type.app_label,
                            comment.content_type.model)

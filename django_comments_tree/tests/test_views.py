@@ -275,35 +275,43 @@ class ReplyCommentTestCase(TestCase):
         article_ct = ContentType.objects.get(app_label="tests", model="article")
         site = Site.objects.get(pk=1)
 
-        # post Comment 1 to article, level 0
-        TreeComment.objects.create(content_type=article_ct,
-                                  object_pk=article.id,
-                                  content_object=article,
-                                  site=site,
-                                  comment="comment 1 to article",
-                                  submit_date=datetime.now())
+        root = TreeComment.objects.get_or_create_root(article)
 
-        # post Comment 2 to article, level 1
-        TreeComment.objects.create(content_type=article_ct,
-                                  object_pk=article.id,
-                                  content_object=article,
-                                  site=site,
-                                  comment="comment 1 to comment 1",
-                                  submit_date=datetime.now(),
-                                  parent_id=1)
+        c1 = root.add_child(comment="comment 1 to article")
+        r1 = c1.add_child(comment="comment 1 to comment 1")
+        rr1 = r1.add_child(comment="comment 1 to comment 1")
 
-        # post Comment 3 to article, level 2 (max according to test settings)
-        TreeComment.objects.create(content_type=article_ct,
-                                  object_pk=article.id,
-                                  content_object=article,
-                                  site=site,
-                                  comment="comment 1 to comment 1",
-                                  submit_date=datetime.now(),
-                                  parent_id=2)
+        self.deep_reply = rr1
+
+        # # post Comment 1 to article, level 0
+        # TreeComment.objects.create(content_type=article_ct,
+        #                           object_pk=article.id,
+        #                           content_object=article,
+        #                           site=site,
+        #                           comment="comment 1 to article",
+        #                           submit_date=datetime.now())
+        #
+        # # post Comment 2 to article, level 1
+        # TreeComment.objects.create(content_type=article_ct,
+        #                           object_pk=article.id,
+        #                           content_object=article,
+        #                           site=site,
+        #                           comment="comment 1 to comment 1",
+        #                           submit_date=datetime.now(),
+        #                           parent_id=1)
+        #
+        # # post Comment 3 to article, level 2 (max according to test settings)
+        # TreeComment.objects.create(content_type=article_ct,
+        #                           object_pk=article.id,
+        #                           content_object=article,
+        #                           site=site,
+        #                           comment="comment 1 to comment 1",
+        #                           submit_date=datetime.now(),
+        #                           parent_id=2)
 
     def test_not_allow_threaded_reply_raises_403(self):
         response = self.client.get(reverse("comments-tree-reply",
-                                           kwargs={"cid": 3}))
+                                           kwargs={"cid": self.deep_reply.id}))
         self.assertEqual(response.status_code, 403)
 
 
