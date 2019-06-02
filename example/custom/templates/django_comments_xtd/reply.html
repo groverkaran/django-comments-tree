@@ -1,7 +1,7 @@
 {% extends "django_comments_tree/base.html" %}
 {% load i18n %}
 {% load comments %}
-{% load comments_xtd %}
+{% load comments_tree %}
 
 {% block title %}{% trans "Comment reply" %}{% endblock %}
 
@@ -18,10 +18,10 @@
       <div class="media-left">
         {% if comment.user_url %}
         <a href="{{ comment.user_url }}">
-          {{ comment.user_email|xtd_comment_gravatar }}
+          {{ comment.user_email|tree_comment_gravatar }}
         </a>
         {% else %}
-        {{ comment.user_email|xtd_comment_gravatar }}
+        {{ comment.user_email|tree_comment_gravatar }}
         {% endif %}
       </div>
       <div class="media-body">

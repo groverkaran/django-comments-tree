@@ -1,6 +1,6 @@
 {% extends "django_comments_tree/base.html" %}
 {% load i18n %}
-{% load comments_xtd %}
+{% load comments_tree %}
 
 {% block title %}{% trans "Preview your comment" %}{% endblock %}
 
@@ -21,7 +21,7 @@
             <em>{% trans "Empty comment." %}</em>
             {% else %}
             <div class="media">
-                {{ form.cleaned_data.email|xtd_comment_gravatar }}
+                {{ form.cleaned_data.email|tree_comment_gravatar }}
                 <div class="media-body">
                     <div class="comment pb-3">
                         <h6 class="mb-1 small">

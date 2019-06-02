@@ -159,6 +159,10 @@ class CommentManager(models.Manager):
 class TreeComment(MP_Node, CommentAbstractModel):
     node_order_by = ['path']
 
+    def __init__(self, *args, **kwargs):
+        self._association = None
+        super().__init__(*args, **kwargs)
+
     followup = models.BooleanField(blank=True, default=False,
                                    help_text=_("Notify follow-up comments"))
     objects = CommentManager()
@@ -196,6 +200,30 @@ class TreeComment(MP_Node, CommentAbstractModel):
             return True
         else:
             return False
+
+    @property
+    def association(self):
+        """
+        Return the content type for this comment. We have to search from the root for this.
+        Cache the value though.
+        """
+        if self._association is None:
+            root = self if self.is_root() else self.get_root()
+            self._association = CommentAssociation.objects.get(root=root)
+
+        return self._association
+
+    @property
+    def content_type(self):
+        """
+        Return the content type for this comment. We have to search from the root for this.
+        Cache the value though.
+        """
+        assoc = self.association
+        if assoc:
+            return assoc.content_type
+
+        return None
 
     @classmethod
     def tree_from_queryset(cls, queryset, with_flagging=False,
@@ -246,13 +274,13 @@ class TreeComment(MP_Node, CommentAbstractModel):
         dic_list = []
         cur_dict = None
         for obj in queryset:
-            if cur_dict and obj.level == cur_dict['comment'].level:
+            if cur_dict and obj.depth == cur_dict['comment'].depth:
                 dic_list.append(cur_dict)
                 cur_dict = None
             if not cur_dict:
                 cur_dict = get_new_dict(obj)
                 continue
-            if obj.parent_id == cur_dict['comment'].pk:
+            if obj.get_parent().id == cur_dict['comment'].pk:
                 child_dict = get_new_dict(obj)
                 cur_dict['children'].append(child_dict)
             else:

@@ -9,7 +9,7 @@ Filters and template tags
 
 Django-comments-tree provides 5 template tags and 3 filters. Load the module to make use of them in your templates::
 
-    {% load comments_xtd %}
+    {% load comments_tree %}
 
 .. contents:: Table of Contents
    :depth: 1
@@ -197,37 +197,37 @@ Get the count of comments two models, ``Story`` and ``Quote``, have received and
 
 
 .. index::
-   single: xtd_comment_gravatar
+   single: tree_comment_gravatar
 
-.. templatetag:: xtd_comment_gravatar
+.. templatetag:: tree_comment_gravatar
 
-Filter ``xtd_comment_gravatar``
+Filter ``tree_comment_gravatar``
 ===============================
 
 Filter syntax::
 
-  {{ comment.email|xtd_comment_gravatar }}
+  {{ comment.email|tree_comment_gravatar }}
 
 A simple gravatar filter that inserts the `gravatar <http://www.gravatar.com/>`_ image associated to an email address.
 
-This filter has been named ``xtd_comment_gravatar`` as oposed to simply ``gravatar`` to avoid potential name collisions with other gravatar filters the user might have opted to include in the template.
+This filter has been named ``tree_comment_gravatar`` as oposed to simply ``gravatar`` to avoid potential name collisions with other gravatar filters the user might have opted to include in the template.
 
 
 .. index::
-   single: xtd_comment_gravatar_url
+   single: tree_comment_gravatar_url
 
-.. templatetag:: xtd_comment_gravatar_url
+.. templatetag:: tree_comment_gravatar_url
 
-Filter ``xtd_comment_gravatar_url``
+Filter ``tree_comment_gravatar_url``
 ===================================
 
 Filter syntax::
 
-  {{ comment.email|xtd_comment_gravatar_url }}
+  {{ comment.email|tree_comment_gravatar_url }}
 
 A simple gravatar filter that inserts the `gravatar URL <http://www.gravatar.com/>`_ associated to an email address.
 
-This filter has been named ``xtd_comment_gravatar_url`` as oposed to simply ``gravatar_url`` to avoid potential name collisions with other gravatar filters the user might have opted to include in the template.
+This filter has been named ``tree_comment_gravatar_url`` as oposed to simply ``gravatar_url`` to avoid potential name collisions with other gravatar filters the user might have opted to include in the template.
 
 
 .. index::

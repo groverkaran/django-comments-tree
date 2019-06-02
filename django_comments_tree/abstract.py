@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from markupfield.fields import MarkupField
@@ -115,6 +116,15 @@ class CommentAbstractModel(models.Model):
 
     def get_absolute_url(self, anchor_pattern="#c%(id)s"):
         return self.get_content_object_url() + (anchor_pattern % self.__dict__)
+
+    def get_content_object_url(self):
+        """
+        Get a URL suitable for redirecting to the content object.
+        """
+        return reverse(
+            "comments-url-redirect",
+            args=(self.content_type.id, self.association.object_pk)
+        )
 
     def get_as_text(self):
         """

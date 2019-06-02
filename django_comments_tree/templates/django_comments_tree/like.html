@@ -1,6 +1,6 @@
 {% extends "django_comments_tree/base.html" %}
 {% load i18n %}
-{% load comments_xtd %}
+{% load comments_tree %}
 
 {% block title %}{% trans "Confirm your opinion" %}{% endblock %}
 
@@ -25,7 +25,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <div class="media pb-2">
-                    {{ comment.user_email|xtd_comment_gravatar }}
+                    {{ comment.user_email|tree_comment_gravatar }}
                     <div class="media-body">
                         <h6 class="mb-1 small">
                             {{ comment.submit_date|date:"N j, Y, P" }}&nbsp;-&nbsp;

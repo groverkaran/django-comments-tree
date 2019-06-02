@@ -1,12 +1,12 @@
 {% load i18n %}
 {% load comments %}
-{% load comments_xtd %}
+{% load comments_tree %}
 
 <div id="comments" class="media-list">
     {% for comment in comment_list %}
     <div class="media pb-2">
         <a name="c{{ comment.id }}"></a>
-        {{ comment.user_email|xtd_comment_gravatar }}
+        {{ comment.user_email|tree_comment_gravatar }}
         <div class="media-body">
             <div class="comment pb-3">
                 <h6 class="mb-1 small d-flex">

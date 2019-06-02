@@ -14,7 +14,7 @@ from django_comments_tree.tests.test_models import (
     thread_test_step_4, thread_test_step_5, add_comment_to_diary_entry)
                                                    
 
-class GetXtdCommentCountTestCase(DjangoTestCase):
+class GetCommentCountTestCase(DjangoTestCase):
     def setUp(self):
         self.article_1 = Article.objects.create(
             title="September", slug="september", body="During September...")
@@ -22,24 +22,24 @@ class GetXtdCommentCountTestCase(DjangoTestCase):
             title="October", slug="october", body="What I did on October...")
         self.day_in_diary = Diary.objects.create(body="About Today...")
         
-    def test_get_xtdcomment_count_for_one_model(self):
+    def test_get_comment_count_for_one_model(self):
         thread_test_step_1(self.article_1)
-        t = ("{% load comments_xtd %}"
-             "{% get_xtdcomment_count as varname for tests.article %}"
+        t = ("{% load comments_tree %}"
+             "{% get_treecomment_count as varname for tests.article %}"
              "{{ varname }}")
         self.assertEqual(Template(t).render(Context()), '2')
 
-    def test_get_xtdcomment_count_for_two_models(self):
+    def test_get_comment_count_for_two_models(self):
         thread_test_step_1(self.article_1)
         add_comment_to_diary_entry(self.day_in_diary)
-        t = ("{% load comments_xtd %}"
-             "{% get_xtdcomment_count as varname"
+        t = ("{% load comments_tree %}"
+             "{% get_treecomment_count as varname"
              "   for tests.article tests.diary %}"
              "{{ varname }}")
         self.assertEqual(Template(t).render(Context()), '3')
         
 
-class LastXtdCommentsTestCase(DjangoTestCase):
+class LastCommentsTestCase(DjangoTestCase):
     def setUp(self):
         self.article = Article.objects.create(
             title="September", slug="september", body="During September...")
@@ -47,11 +47,11 @@ class LastXtdCommentsTestCase(DjangoTestCase):
         thread_test_step_1(self.article)
         thread_test_step_2(self.article)
         thread_test_step_3(self.article)
-        add_comment_to_diary_entry(self.day_in_diary)        
+        add_comment_to_diary_entry(self.day_in_diary)
         
-    def test_render_last_xtdcomments(self):
-        t = ("{% load comments_xtd %}"
-             "{% render_last_xtdcomments 5 for tests.article tests.diary %}")
+    def test_render_last_comments(self):
+        t = ("{% load comments_tree %}"
+             "{% render_last_treecomments 5 for tests.article tests.diary %}")
         output = Template(t).render(Context())
         self.assertEqual(output.count('<a name='), 5)
         self.assertEqual(output.count('<a name="c6">'), 1)
@@ -63,9 +63,9 @@ class LastXtdCommentsTestCase(DjangoTestCase):
         # the first one must not be rendered in the output.
         self.assertEqual(output.count('<a name="c1">'), 0)
 
-    def test_get_last_xtdcomments(self):
-        t = ("{% load comments_xtd %}"
-             "{% get_last_xtdcomments 5 as last_comments"
+    def test_get_last_comments(self):
+        t = ("{% load comments_tree %}"
+             "{% get_last_treecomments 5 as last_comments"
              "   for tests.article tests.diary %}"
              "{% for comment in last_comments %}"
              "<comment>{{ comment.id }}</comment>"
@@ -82,7 +82,7 @@ class LastXtdCommentsTestCase(DjangoTestCase):
         self.assertEqual(output.count('<comment>1</comment>'), 0)
 
 
-class XtdCommentsTestCase(DjangoTestCase):
+class CommentsTestCase(DjangoTestCase):
     def setUp(self):
         self.article = Article.objects.create(
             title="September", slug="september", body="During September...")
@@ -93,9 +93,9 @@ class XtdCommentsTestCase(DjangoTestCase):
         thread_test_step_4(self.article)
         thread_test_step_5(self.article)
         
-    def test_render_xtdcomment_tree(self):
-        t = ("{% load comments_xtd %}"
-             "{% render_xtdcomment_tree for object %}")
+    def test_render_comment_tree(self):
+        t = ("{% load comments_tree %}"
+             "{% render_treecomment_tree for object %}")
         output = Template(t).render(Context({'object': self.article,
                                              'user': AnonymousUser()}))
         self.assertEqual(output.count('<a name='), 9)

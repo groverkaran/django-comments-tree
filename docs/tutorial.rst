@@ -440,7 +440,7 @@ Edit ``blog/post_detail.html`` to make it look like follows:
 
        {% extends "base.html" %}
        {% load comments %}
-       {% load comments_xtd %}
+       {% load comments_tree %}
 
        {% block title %}{{ object.title }}{% endblock %}
 
@@ -804,7 +804,7 @@ Now let's edit ``blog/post_detail.html`` and make it look as follows:
     {% extends "base.html" %}
     {% load static %}
     {% load comments %}
-    {% load comments_xtd %}
+    {% load comments_tree %}
     
     {% block title %}{{ object.title }}{% endblock %}
     

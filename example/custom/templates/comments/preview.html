@@ -1,6 +1,6 @@
 {% extends "django_comments_tree/base.html" %}
 {% load i18n %}
-{% load comments_xtd %}
+{% load comments_tree %}
 
 {% block content %}
 <h4>{% trans "Preview your comment:" %}</h4>
@@ -12,7 +12,7 @@
       {% else %}
       <div class="media-left">
         <a href="{{ form.cleaned_data.url }}">
-          {{ form.cleaned_data.email|xtd_comment_gravatar }}
+          {{ form.cleaned_data.email|tree_comment_gravatar }}
         </a>
       </div>
       <div class="media-body">

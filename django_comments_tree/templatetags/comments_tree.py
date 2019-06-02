@@ -27,11 +27,11 @@ class TreeCommentCountNode(Node):
     """Store the number of TreeComments for the given list of app.models"""
 
     def __init__(self, as_varname, content_types):
-        """Class method to parse get_xtdcomment_list and return a Node."""
+        """Class method to parse get_treecomment_list and return a Node."""
         self.as_varname = as_varname
         # ToDo: This returns None or a qs
         self.qs = TreeComment.objects.for_content_types(content_types,
-                                                       site=settings.SITE_ID)
+                                                        site=settings.SITE_ID)
 
     def render(self, context):
         context[self.as_varname] = self.qs.count()
@@ -71,11 +71,11 @@ def get_treecomment_count(parser, token):
 
 
 # ----------------------------------------------------------------------
-class BaseLastXtdCommentsNode(Node):
-    """Base class to deal with the last N XtdComments for a list of app.model"""
+class BaseLastTreeCommentsNode(Node):
+    """Base class to deal with the last N TreeComments for a list of app.model"""
 
     def __init__(self, count, content_types, template_path=None):
-        """Class method to parse get_xtdcomment_list and return a Node."""
+        """Class method to parse get_treecomment_list and return a Node."""
         try:
             self.count = int(count)
         except Exception:
@@ -85,7 +85,7 @@ class BaseLastXtdCommentsNode(Node):
         self.template_path = template_path
 
 
-class RenderLastXtdCommentsNode(BaseLastXtdCommentsNode):
+class RenderLastTreeCommentsNode(BaseLastTreeCommentsNode):
 
     def render(self, context):
 
@@ -100,27 +100,27 @@ class RenderLastXtdCommentsNode(BaseLastXtdCommentsNode):
 
         strlist = []
         context_dict = context.flatten()
-        for xtd_comment in self.qs:
+        for tree_comment in self.qs:
             if self.template_path:
                 template_arg = self.template_path
             else:
                 template_arg = [
                     "django_comments_tree/%s/%s/comment.html" % (
-                        xtd_comment.content_type.app_label,
-                        xtd_comment.content_type.model),
+                        tree_comment.content_type.app_label,
+                        tree_comment.content_type.model),
                     "django_comments_tree/%s/comment.html" % (
-                        xtd_comment.content_type.app_label,),
+                        tree_comment.content_type.app_label,),
                     "django_comments_tree/comment.html"
                 ]
-            context_dict['comment'] = xtd_comment
+            context_dict['comment'] = tree_comment
             strlist.append(loader.render_to_string(template_arg, context_dict))
         return ''.join(strlist)
 
 
-class GetLastXtdCommentsNode(BaseLastXtdCommentsNode):
+class GetLastTreeCommentsNode(BaseLastTreeCommentsNode):
 
     def __init__(self, count, as_varname, content_types):
-        super(GetLastXtdCommentsNode, self).__init__(count, content_types)
+        super().__init__(count, content_types)
         self.as_varname = as_varname
 
     def render(self, context):
@@ -154,7 +154,7 @@ def _get_content_types(tagname, tokens):
 
 
 @register.tag
-def render_last_xtdcomments(parser, token):
+def render_last_treecomments(parser, token):
     """
     Render the last N XtdComments through the
       ``django_comments_tree/comment.html`` template
@@ -190,21 +190,21 @@ def render_last_xtdcomments(parser, token):
         content_types = _get_content_types(tokens[0], tokens[3:])
         template = None
 
-    return RenderLastXtdCommentsNode(count, content_types, template)
+    return RenderLastTreeCommentsNode(count, content_types, template)
 
 
 @register.tag
-def get_last_xtdcomments(parser, token):
+def get_last_treecomments(parser, token):
     """
-    Get the last N XtdComments.
+    Get the last N TreeComments.
 
     Syntax::
 
-        {% get_last_xtdcomments N as var for app.model [app.model] %}
+        {% get_last_treecomments N as var for app.model [app.model] %}
 
     Example usage::
 
-        {% get_last_xtdcomments 5 as last_comments for blog.story blog.quote %}
+        {% get_last_treecomments 5 as last_comments for blog.story blog.quote %}
 
     """
     tokens = token.contents.split()
@@ -226,11 +226,11 @@ def get_last_xtdcomments(parser, token):
             "Fifth argument in %r tag must be 'for'" % tokens[0])
 
     content_types = _get_content_types(tokens[0], tokens[5:])
-    return GetLastXtdCommentsNode(count, as_varname, content_types)
+    return GetLastTreeCommentsNode(count, as_varname, content_types)
 
 
 # ----------------------------------------------------------------------
-class RenderXtdCommentTreeNode(Node):
+class RenderTreeCommentTreeNode(Node):
     def __init__(self, obj, cvars, allow_feedback=False, show_feedback=False,
                  allow_flagging=False, template_path=None):
         self.obj = Variable(obj) if obj else None
@@ -254,10 +254,12 @@ class RenderXtdCommentTreeNode(Node):
         if self.obj:
             obj = self.obj.resolve(context)
             ctype = ContentType.objects.get_for_model(obj)
-            queryset = TreeComment.objects.filter(content_type=ctype,
-                                                 object_pk=obj.pk,
-                                                 site__pk=settings.SITE_ID,
-                                                 is_public=True)
+            root = TreeComment.objects.get_or_create_root(obj, site=settings.SITE_ID)
+            queryset = root.get_descendants()
+            # queryset = TreeComment.objects.filter(content_type=ctype,
+            #                                       object_pk=obj.pk,
+            #                                       site__pk=settings.SITE_ID,
+            #                                       is_public=True)
             comments = TreeComment.tree_from_queryset(
                 queryset,
                 with_flagging=self.allow_flagging,
@@ -273,7 +275,7 @@ class RenderXtdCommentTreeNode(Node):
             try:
                 ctype = context['comments'][0]['comment'].content_type
             except Exception:
-                raise TemplateSyntaxError("'render_xtdcomment_tree' doesn't "
+                raise TemplateSyntaxError("'render_treecomment_tree' doesn't "
                                           "have 'comments' in the context and "
                                           "neither have been provided with the "
                                           "clause 'with'.")
@@ -291,7 +293,7 @@ class RenderXtdCommentTreeNode(Node):
         return html
 
 
-class GetXtdCommentTreeNode(Node):
+class GetTreeCommentTreeNode(Node):
     def __init__(self, obj, var_name, with_feedback):
         self.obj = Variable(obj)
         self.var_name = var_name
@@ -301,9 +303,9 @@ class GetXtdCommentTreeNode(Node):
         obj = self.obj.resolve(context)
         ctype = ContentType.objects.get_for_model(obj)
         queryset = TreeComment.objects.filter(content_type=ctype,
-                                             object_pk=obj.pk,
-                                             site__pk=settings.SITE_ID,
-                                             is_public=True)
+                                              object_pk=obj.pk,
+                                              site__pk=settings.SITE_ID,
+                                              is_public=True)
         dic_list = TreeComment.tree_from_queryset(
             queryset,
             with_feedback=self.with_feedback,
@@ -314,22 +316,22 @@ class GetXtdCommentTreeNode(Node):
 
 
 @register.tag
-def render_xtdcomment_tree(parser, token):
+def render_treecomment_tree(parser, token):
     """
     Render the nested comment tree structure posted to the given object.
     By default uses the template ``django_comments_tree/comments_tree.html``.
 
     Syntax::
 
-        {% render_xtdcomment_tree [for <object>] [with vname1=<obj1>
+        {% render_treecomment_tree [for <object>] [with vname1=<obj1>
            vname2=<obj2>] [allow_feedback] [show_feedback] [allow_flagging]
            [using <template>] %}
-        {% render_xtdcomment_tree with <varname>=<context-var> %}
+        {% render_treecomment_tree with <varname>=<context-var> %}
 
     Example usage::
 
-        {% render_xtdcomment_tree for object allow_feedback %}
-        {% render_xtdcomment_tree with comments=comment.children %}
+        {% render_treecomment_tree for object allow_feedback %}
+        {% render_treecomment_tree with comments=comment.children %}
     """
     obj = None
     cvars = []
@@ -382,15 +384,15 @@ def render_xtdcomment_tree(parser, token):
                 raise TemplateSyntaxError("The relative path to the template "
                                           "is missing after 'using' in %r."
                                           % tag)
-    return RenderXtdCommentTreeNode(obj, cvars,
-                                    allow_feedback=allow_feedback,
-                                    show_feedback=show_feedback,
-                                    allow_flagging=allow_flagging,
-                                    template_path=template_path)
+    return RenderTreeCommentTreeNode(obj, cvars,
+                                     allow_feedback=allow_feedback,
+                                     show_feedback=show_feedback,
+                                     allow_flagging=allow_flagging,
+                                     template_path=template_path)
 
 
 @register.tag
-def get_xtdcomment_tree(parser, token):
+def get_treecomment_tree(parser, token):
     """
     Add to the template context a list of TreeComment dictionaries for the
     given object. The optional argument *with_feedback* adds a list
@@ -399,22 +401,22 @@ def get_xtdcomment_tree(parser, token):
 
     Each TreeComment dictionary has the following attributes::
         {
-            'comment': xtdcomment object,
-            'children': [ list of child xtdcomment dicts ]
+            'comment': treecomment object,
+            'children': [ list of child treecomment dicts ]
         }
 
     When called with_feedback each TreeComment dictionary will look like::
         {
-            'comment': xtdcomment object,
-            'children': [ list of child xtdcomment dicts ],
+            'comment': treecomment object,
+            'children': [ list of child treecomment dicts ],
             'likedit': [user_object_a, user_object_b, ...],
             'dislikedit': [user_object_x, user_object_y, ...],
         }
 
     Syntax::
-        {% get_xtdcomment_tree for [object] as [varname] [with_feedback] %}
+        {% get_treecomment_tree for [object] as [varname] [with_feedback] %}
     Example usage::
-        {% get_xtdcomment_tree for post as comment_list %}
+        {% get_treecomment_tree for post as comment_list %}
     """
     try:
         tag_name, args = token.contents.split(None, 1)
@@ -429,7 +431,7 @@ def get_xtdcomment_tree(parser, token):
         with_feedback = True
     else:
         with_feedback = False
-    return GetXtdCommentTreeNode(obj, var_name, with_feedback)
+    return GetTreeCommentTreeNode(obj, var_name, with_feedback)
 
 
 # ----------------------------------------------------------------------
@@ -465,7 +467,7 @@ def get_commentbox_props(parser, token):
 
 # ----------------------------------------------------------------------
 @register.filter
-def xtd_comment_gravatar_url(email, size=48):
+def tree_comment_gravatar_url(email, size=48):
     return ("//www.gravatar.com/avatar/%s?%s&d=mm" %
             (hashlib.md5(email.lower().encode('utf-8')).hexdigest(),
              urlencode({'s': str(size)})))
@@ -473,15 +475,15 @@ def xtd_comment_gravatar_url(email, size=48):
 
 # ----------------------------------------------------------------------
 @register.filter
-def xtd_comment_gravatar(email, size=48):
-    url = xtd_comment_gravatar_url(email, size)
+def tree_comment_gravatar(email, size=48):
+    url = tree_comment_gravatar_url(email, size)
     return mark_safe('<img src="%s" class="mr-3" height="%d" width="%d">' %
                      (url, size, size))
 
 
 # ----------------------------------------------------------------------
 @register.filter
-def comments_xtd_api_list_url(obj):
+def comments_tree_api_list_url(obj):
     ctype = ContentType.objects.get_for_model(obj)
     ctype_slug = "%s-%s" % (ctype.app_label, ctype.model)
     return reverse('comments-tree-api-list', kwargs={'content_type': ctype_slug,
