@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 import os
 import imp
 import django
+import markdown
+from django_comments_tree.render import render_draftjs
 
 
 PRJ_PATH = os.path.abspath(os.path.curdir)
@@ -114,7 +116,7 @@ DEFAULT_FROM_EMAIL = "Alice Bloggs <alice@example.com>"
 
 COMMENTS_TREE_CONFIRM_EMAIL = True
 COMMENTS_TREE_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
-COMMENTS_TREE_MAX_THREAD_LEVEL = 2
+COMMENTS_TREE_MAX_THREAD_LEVEL = 4
 COMMENTS_TREE_MAX_THREAD_LEVEL_BY_APP_MODEL = {'tests.diary': 0}
 
 COMMENTS_TREE_APP_MODEL_OPTIONS = {
@@ -127,3 +129,9 @@ COMMENTS_TREE_APP_MODEL_OPTIONS = {
 
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
+# Default types we can use for comments
+MARKUP_FIELD_TYPES = (
+    ('markdown', markdown.markdown),
+    ('Draft.js', render_draftjs),
+)

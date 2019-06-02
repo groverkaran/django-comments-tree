@@ -1,15 +1,8 @@
-from __future__ import unicode_literals
-
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
 from django.db import models
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-
-from django_comments.managers import CommentManager
+from markupfield.fields import MarkupField
 
 COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 3000)
 
@@ -29,12 +22,14 @@ class CommentAbstractModel(models.Model):
     user_email = models.EmailField(_("user's email address"), blank=True)
     user_url = models.URLField(_("user's URL"), blank=True)
 
-    comment = models.TextField(_('comment'), max_length=COMMENT_MAX_LENGTH)
+    comment = MarkupField(_('comment'),
+                          default_markup_type='Draft.js')
 
     # Metadata about the comment
     submit_date = models.DateTimeField(_('date/time submitted'), db_index=True,
                                        default=timezone.now)
-    ip_address = models.GenericIPAddressField(_('IP address'), unpack_ipv4=True, blank=True, null=True)
+    ip_address = models.GenericIPAddressField(_('IP address'),
+                                              unpack_ipv4=True, blank=True, null=True)
     is_public = models.BooleanField(_('is public'), default=True,
                                     help_text=_('Uncheck this box to make the comment effectively '
                                                 'disappear from the site.'))
@@ -43,18 +38,15 @@ class CommentAbstractModel(models.Model):
                                                  'A "This comment has been removed" message will '
                                                  'be displayed instead.'))
 
-    # Manager
-    objects = CommentManager()
-
     class Meta:
         abstract = True
-        #ordering = ('submit_date',)
+        # ordering = ('submit_date',)
         permissions = [("can_moderate", "Can moderate comments")]
         verbose_name = _('comment')
         verbose_name_plural = _('comments')
 
     def __str__(self):
-        return "%s: %s..." % (self.name, self.comment[:50])
+        return "%s: %s..." % (self.name, self.comment.raw[:50])
 
     def save(self, *args, **kwargs):
         if self.submit_date is None:

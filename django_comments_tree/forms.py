@@ -8,7 +8,7 @@ from django_comments_tree.conf import settings
 from django_comments_tree.models import TmpTreeComment
 
 
-class XtdCommentForm(CommentForm):
+class TreeCommentForm(CommentForm):
     followup = forms.BooleanField(required=False,
                                   label=_("Notify me about follow-up comments"))
     reply_to = forms.IntegerField(required=True, initial=0,

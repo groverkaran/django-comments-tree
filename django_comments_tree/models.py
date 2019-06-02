@@ -41,7 +41,67 @@ class MaxThreadLevelExceededException(Exception):
         return "Max thread level reached for comment %d" % self.comment.id
 
 
+class CommentAssociation(models.Model):
+    """
+    Associate a tree node with a particular model by GenericForeignKey
+
+    ToDo: Review the proper way to use GFK's. Do I need all of the other parts?
+    """
+
+    # Root of comments for the associated model
+    root = models.ForeignKey('TreeComment', on_delete=models.CASCADE, null=True)
+
+    # Content-object field
+    content_type = models.ForeignKey(ContentType,
+                                     verbose_name=_('content type'),
+                                     related_name="content_type_set_for_%(class)s",
+                                     on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
+
+    # Retained a legacy. Remove once I determine it is not needed
+    object_pk = models.TextField(_('object ID'))
+
+    # Metadata about the comment
+    # ToDo: Why do I need this?
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+
+
 class CommentManager(models.Manager):
+
+    def get_root(self, obj):
+        """ Return the root for the given object """
+        try:
+            ct = ContentType.objects.get_for_model(obj)
+            assoc = CommentAssociation.objects.get(content_type=ct, object_pk=obj.id)
+            return assoc.root
+        except:
+            return None
+
+    def get_or_create_root(self, obj, site=None):
+        ct = ContentType.objects.get_for_model(obj)
+
+        if site is None:
+            site = Site.objects.get(pk=1)
+
+        try:
+            assoc = CommentAssociation.objects.get(content_type=ct,
+                                                   object_pk=obj.id,
+                                                   site=site)
+        except CommentAssociation.DoesNotExist as e:
+            root = TreeComment.add_root()
+            assoc = CommentAssociation.objects.create(content_type=ct,
+                                                      object_pk=obj.id,
+                                                      content_object=obj,
+                                                      site=site,
+                                                      root=root)
+        if assoc:
+            return assoc.root
+        return None
+
+    def create_for_object(self, obj, comment=''):
+        root = self.get_or_create_root(obj)
+        return root.add_child(comment=comment)
 
     def in_moderation(self):
         """
@@ -53,11 +113,15 @@ class CommentManager(models.Manager):
         """
         QuerySet for all comments for a particular model (either an instance or
         a class).
+
+        Updated: this can't return a queryset, since MP_Node are queriable that way
+
         """
         ct = ContentType.objects.get_for_model(model)
+
         qs = self.get_queryset().filter(content_type=ct)
         if isinstance(model, models.Model):
-            qs = qs.filter(object_id=model._get_pk_val())
+            qs = qs.filter(object_pk=model._get_pk_val())
         return qs
 
     def for_app_models(self, *args, **kwargs) -> Optional[models.QuerySet]:
@@ -93,16 +157,20 @@ class CommentManager(models.Manager):
 
 
 class TreeComment(MP_Node, CommentAbstractModel):
-    #thread_id = models.IntegerField(default=0, db_index=True)
-    #parent_id = models.IntegerField(default=0)
-    #level = models.SmallIntegerField(default=0)
-    #order = models.IntegerField(default=1, db_index=True)
-
-    #node_order_by = ['submit_date']
+    node_order_by = ['path']
 
     followup = models.BooleanField(blank=True, default=False,
                                    help_text=_("Notify follow-up comments"))
     objects = CommentManager()
+
+    def add_child(self, *args, comment=None, **kwargs):
+        """ Check for maximum depth before adding child """
+        depth = self.depth
+        if depth > settings.COMMENTS_TREE_MAX_THREAD_LEVEL:
+            raise MaxThreadLevelExceededException(comment)
+
+        child = super().add_child(*args, comment=comment, **kwargs)
+        return child
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
@@ -204,32 +272,6 @@ def unpublish_nested_comments_on_removal_flag(sender, comment, flag, **kwargs):
             .update(is_public=False)
 
 
-class CommentAssociation(models.Model):
-    """
-    Associate a tree node with a particular model by GenericForeignKey
-
-    ToDo: Review the proper way to use GFK's. Do I need all of the other parts?
-    """
-
-    # Root of comments for the associated model
-    root = models.ForeignKey(TreeComment, on_delete=models.CASCADE, null=True)
-
-    # Content-object field
-    content_type = models.ForeignKey(ContentType,
-                                     verbose_name=_('content type'),
-                                     related_name="content_type_set_for_%(class)s",
-                                     on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
-
-    # Retained a legacy. Remove once I determine it is not needed
-    object_pk = models.TextField(_('object ID'))
-
-    # Metadata about the comment
-    # ToDo: Why do I need this?
-    site = models.ForeignKey(Site, on_delete=models.CASCADE)
-
-
 class DummyDefaultManager:
     """
     Dummy Manager to mock django's CommentForm.check_for_duplicate method.
@@ -244,7 +286,7 @@ class DummyDefaultManager:
 
 class TmpTreeComment(dict):
     """
-    Temporary TreeComment to be pickled, ziped and appended to a URL.
+    Temporary TreeComment to be pickled, zipped and appended to a URL.
     """
     _default_manager = DummyDefaultManager()
 

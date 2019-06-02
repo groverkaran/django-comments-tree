@@ -583,18 +583,18 @@ Getting notifications
 
 A user might want to flag a comment on the basis of a violation of the site's terms of use, hate speech, racism or the like. To prevent a comment from staying published long after it has been flagged we might want to receive notifications on flagging events.
 
-For such purpose django-comments-tree provides the class **XtdCommentModerator**, which extends django-contrib-comments' **CommentModerator**.
+For such purpose django-comments-tree provides the class **TreeCommentModerator**, which extends django-contrib-comments' **CommentModerator**.
 
-In addition to all the `options <https://django-contrib-comments.readthedocs.io/en/latest/moderation.html#moderation-options>`_ of its parent class, **XtdCommentModerator** offers the ``removal_suggestion_notification`` attribute, that when set to ``True`` makes Django send a mail to all the :setting:`MANAGERS` on every **Removal suggestion** flag created.
+In addition to all the `options <https://django-contrib-comments.readthedocs.io/en/latest/moderation.html#moderation-options>`_ of its parent class, **TreeCommentModerator** offers the ``removal_suggestion_notification`` attribute, that when set to ``True`` makes Django send a mail to all the :setting:`MANAGERS` on every **Removal suggestion** flag created.
 
-To see an example let's edit ``blog/models.py``. If you are already using the class **SpamModerator**, which inherits from **XtdCommentModerator**, just add ``removal_suggestion_notification = True`` to your ``PostCommentModeration`` class. Otherwise add the following code:
+To see an example let's edit ``blog/models.py``. If you are already using the class **SpamModerator**, which inherits from **TreeCommentModerator**, just add ``removal_suggestion_notification = True`` to your ``PostCommentModeration`` class. Otherwise add the following code:
 
    .. code-block:: python
 
-      from django_comments_tree.moderation import moderator, XtdCommentModerator
+      from django_comments_tree.moderation import moderator, TreeCommentModerator
 
       ...
-      class PostCommentModerator(XtdCommentModerator):
+      class PostCommentModerator(TreeCommentModerator):
           removal_suggestion_notification = True
 
       moderator.register(Post, PostCommentModerator)

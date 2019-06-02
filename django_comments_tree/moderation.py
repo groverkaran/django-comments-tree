@@ -26,7 +26,7 @@ from django_comments_tree.signals import confirmation_received
 from django_comments_tree.utils import send_mail
 
 
-class XtdCommentModerator(CommentModerator):
+class TreeCommentModerator(CommentModerator):
     """
     Encapsulates comment-moderation options for a given-model.
 
@@ -74,7 +74,7 @@ class XtdCommentModerator(CommentModerator):
                   recipient_list, fail_silently=True)
 
 
-class SpamModerator(XtdCommentModerator):
+class SpamModerator(TreeCommentModerator):
     """
     Discard messages comming from blacklisted domains.
 

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
+from django.conf import settings
 from django.test import TestCase as DjangoTestCase
 
 from django_comments_tree.models import (TreeComment, CommentAssociation,
@@ -26,57 +27,26 @@ class TreeCommentManagerTestCase(ArticleBaseTestCase):
         self.site1 = Site.objects.get(pk=1)
         self.site2 = Site.objects.create(domain='site2.com', name='site2.com')
 
-        self.root_1 = TreeComment.add_root()
-        self.root_2 = TreeComment.add_root()
-
-        self.assoc_1 = CommentAssociation.objects.create(content_type=self.article_ct,
-                                                         object_pk=self.article_1.id,
-                                                         content_object=self.article_1,
-                                                         site=self.site1,
-                                                         root=self.root_1)
-
-        self.assoc_2 = CommentAssociation.objects.create(content_type=self.article_ct,
-                                                         object_pk=self.article_1.id,
-                                                         content_object=self.article_2,
-                                                         site=self.site2,
-                                                         root=self.root_1)
+        self.root_1 = TreeComment.objects.get_or_create_root(self.article_1)
+        self.root_1_pk = self.root_1.pk
+        self.root_2 = TreeComment.objects.get_or_create_root(self.article_1, site=self.site2)
+        self.root_2_pk = self.root_2.pk
 
     def post_comment_1(self):
-        self.root_1.add_child(comment="just a testing comment")
-        # TreeComment.objects.create(content_type=self.article_ct,
-        #                            object_pk=self.article_1.id,
-        #                            content_object=self.article_1,
-        #                            site=self.site1,
-        #                            comment="just a testing comment",
-        #                            submit_date=datetime.now())
+        r = TreeComment.objects.get(pk=self.root_1_pk)
+        r.add_child(comment="just a testing comment")
 
     def post_comment_2(self):
-        self.root_1.add_child(comment="yet another comment")
-        # TreeComment.objects.create(content_type=self.article_ct,
-        #                            object_pk=self.article_2.id,
-        #                            content_object=self.article_2,
-        #                            site=self.site1,
-        #                            comment="yet another comment",
-        #                            submit_date=datetime.now())
+        r = TreeComment.objects.get(pk=self.root_2_pk)
+        r.add_child(comment="yet another comment")
 
     def post_comment_3(self):
-        self.root_1.add_child(comment="and another one")
-
-        # TreeComment.objects.create(content_type=self.article_ct,
-        #                            object_pk=self.article_2.id,
-        #                            content_object=self.article_2,
-        #                            site=self.site1,
-        #                            comment="and another one",
-        #                            submit_date=datetime.now())
+        r = TreeComment.objects.get(pk=self.root_1_pk)
+        r.add_child(comment="and another one")
 
     def post_comment_4(self):
-        self.root_1.add_child(comment="just a testing comment in site2")
-        # TreeComment.objects.create(content_type=self.article_ct,
-        #                            object_pk=self.article_1.id,
-        #                            content_object=self.article_1,
-        #                            site=self.site2,
-        #                            comment="just a testing comment in site2",
-        #                            submit_date=datetime.now())
+        r = TreeComment.objects.get(pk=self.root_2_pk)
+        r.add_child(comment="just a testing comment in site2")
 
     def test_for_app_models(self):
         # there is no comment posted yet to article_1 nor article_2
@@ -122,126 +92,146 @@ class TreeCommentManagerTestCase(ArticleBaseTestCase):
 
 
 def thread_test_step_1(article):
-    article_ct = ContentType.objects.get(app_label="tests", model="article")
+    """
+    Add Two Comments for the article
+
+    root -
+      comment 1
+      comment 2
+    """
     site = Site.objects.get(pk=1)
 
-    TreeComment.objects.create()
+    #TreeComment.objects.create()
     # post Comment 1 with parent_id 0
-    root = TreeComment.add_root()
-
-    assoc = CommentAssociation.objects.create(
-        object_pk=article.id,
-        content_object=article,
-        site=site,
-        root=root,
-    )
+    root = TreeComment.objects.get_or_create_root(article, site=site)
 
     root.add_child(comment="comment 1 to article",
                    submit_date=datetime.now())
+    root.refresh_from_db()
 
     # post Comment 2 with parent_id 0
     root.add_child(comment="comment 2 to article",
                    submit_date=datetime.now())
+    root.refresh_from_db()
 
 
 def thread_test_step_2(article):
-    article_ct = ContentType.objects.get(app_label="tests", model="article")
+    """
+    Add 2 replies to the first comment
+
+    root -
+      comment 1
+        reply 1
+        reply 2
+      comment 2
+
+    """
     site = Site.objects.get(pk=1)
 
+    root = TreeComment.objects.get_or_create_root(article, site=site)
+
+    c1 = root.get_children()[0]
+
     # post Comment 3 to parent_id 1
-    TreeComment.objects.create(content_type=article_ct,
-                               object_pk=article.id,
-                               content_object=article,
-                               site=site,
-                               comment="comment 1 to comment 1",
-                               submit_date=datetime.now(),
-                               parent_id=1)
+    c1.add_child(comment="comment 1 to comment 1")
 
     # post Comment 4 to parent_id 1
-    TreeComment.objects.create(content_type=article_ct,
-                               object_pk=article.id,
-                               content_object=article,
-                               site=site,
-                               comment="comment 2 to comment 1",
-                               submit_date=datetime.now(),
-                               parent_id=1)
+    c1.add_child(comment="comment 2 to comment 1")
 
 
 def thread_test_step_3(article):
-    article_ct = ContentType.objects.get(app_label="tests", model="article")
+    """
+
+    root -
+      comment 1
+        reply 1
+        reply 2
+      comment 2
+        reply 1
+
+    """
     site = Site.objects.get(pk=1)
 
-    # post Comment 5 to parent_id 2
-    TreeComment.objects.create(content_type=article_ct,
-                               object_pk=article.id,
-                               content_object=article,
-                               site=site,
-                               comment="comment 1 to comment 1",
-                               submit_date=datetime.now(),
-                               parent_id=2)
+    root = TreeComment.objects.get_or_create_root(article, site=site)
+
+    c2 = root.get_children()[1]
+
+    c2.add_child(comment="comment 1 to comment 2")
 
 
 def thread_test_step_4(article):
-    article_ct = ContentType.objects.get(app_label="tests", model="article")
+    """
+
+    root -
+      comment 1
+        reply 1
+        reply 2
+            reply 2.1
+      comment 2
+        reply 1
+            reply 1.1
+
+    """
     site = Site.objects.get(pk=1)
 
-    # post Comment 6 to parent_id 5
-    TreeComment.objects.create(content_type=article_ct,
-                               object_pk=article.id,
-                               content_object=article,
-                               site=site,
-                               comment="cmt 1 to cmt 1 to cmt 2",
-                               submit_date=datetime.now(),
-                               parent_id=5)
+    root = TreeComment.objects.get_or_create_root(article, site=site)
 
-    # post Comment 7 to parent_id 4
-    TreeComment.objects.create(content_type=article_ct,
-                               object_pk=article.id,
-                               content_object=article,
-                               site=site,
-                               comment="cmt 1 to cmt 2 to cmt 1",
-                               submit_date=datetime.now(),
-                               parent_id=4)
+    c1, c2 = root.get_children()
+
+    c1_children = c1.get_children()
+    c2_children = c2.get_children()
+
+    c2_children[0].add_child(comment="cmt 1 to cmt 1 to cmt 2")
+
+    c1_children[1].add_child(comment="cmt 1 to cmt 2 to cmt 1")
 
 
 def thread_test_step_5(article):
-    article_ct = ContentType.objects.get(app_label="tests", model="article")
+    """
+
+    root -
+      comment 1
+        reply 1
+        reply 2
+            reply 2.1
+                reply 2.1.1
+      comment 2
+        reply 1
+            reply 1.1
+                reply 1.1.1
+
+    """
     site = Site.objects.get(pk=1)
 
-    # post Comment 8 to parent_id 3
-    TreeComment.objects.create(content_type=article_ct,
-                               object_pk=article.id,
-                               content_object=article,
-                               site=site,
-                               comment="cmt 1 to cmt 1 to cmt 1",
-                               submit_date=datetime.now(),
-                               parent_id=3)
+    root = TreeComment.objects.get_or_create_root(article, site=site)
 
-    # post Comment 9 with parent_id 0
-    TreeComment.objects.create(content_type=article_ct,
-                               object_pk=article.id,
-                               content_object=article,
-                               site=site,
-                               comment="cmt 1 to cmt 2 to cmt 1",
-                               submit_date=datetime.now())
+    c1, c2 = root.get_children()
+
+    c1_children = c1.get_children()
+    c2_children = c2.get_children()
+
+    c1_grandchildren_list = [c.get_children() for c in c1_children]
+    c2_grandchildren_list = [c.get_children() for c in c2_children]
+
+    for i, gc in enumerate(c1_grandchildren_list):
+        for g in gc:
+            g.add_child(comment=f'cmt1 to cmt{i} to cmt1 to cmt1')
+
+    for i, gc in enumerate(c2_grandchildren_list):
+        for g in gc:
+            g.add_child(comment=f'cmt1 to cmt{i} to cmt1 to cmt2')
 
 
 class BaseThreadStep1TestCase(ArticleBaseTestCase):
     def setUp(self):
         super(BaseThreadStep1TestCase, self).setUp()
         thread_test_step_1(self.article_1)
-        (  # content ->     cmt.id  thread_id  parent_id  level  order
-            self.c1,  # ->    1         1          1        0      1
-            self.c2  # ->    2         2          2        0      1
-        ) = TreeComment.objects.all()
 
     def test_threaded_comments_step_1_level_0(self):
         # comment 1
-        self.assertTrue(self.c1.parent_id == 1 and self.c1.thread_id == 1)
-        self.assertTrue(self.c1.level == 0 and self.c1.order == 1)
-        # comment 2
-        self.assertTrue(self.c2.parent_id == 2 and self.c2.thread_id == 2)
-        self.assertTrue(self.c2.level == 0 and self.c2.order == 1)
+        root = TreeComment.objects.get_root(self.article_1)
+        self.assertEqual(root.get_descendant_count(), 2, "Expected to have 2 comments/replies")
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments, no replies")
 
 
 class ThreadStep2TestCase(ArticleBaseTestCase):
@@ -249,28 +239,17 @@ class ThreadStep2TestCase(ArticleBaseTestCase):
         super(ThreadStep2TestCase, self).setUp()
         thread_test_step_1(self.article_1)
         thread_test_step_2(self.article_1)
-        (  # content ->    cmt.id  thread_id  parent_id  level  order
-            self.c1,  # ->   1         1          1        0      1
-            self.c3,  # ->   3         1          1        1      2
-            self.c4,  # ->   4         1          1        1      3
-            self.c2  # ->   2         2          2        0      1
-        ) = TreeComment.objects.all()
 
     def test_threaded_comments_step_2_level_0(self):
-        # comment 1
-        self.assertTrue(self.c1.parent_id == 1 and self.c1.thread_id == 1)
-        self.assertTrue(self.c1.level == 0 and self.c1.order == 1)
-        # comment 2
-        self.assertTrue(self.c2.parent_id == 2 and self.c2.thread_id == 2)
-        self.assertTrue(self.c2.level == 0 and self.c2.order == 1)
+        root = TreeComment.objects.get_root(self.article_1)
 
-    def test_threaded_comments_step_2_level_1(self):
-        # comment 3
-        self.assertTrue(self.c3.parent_id == 1 and self.c3.thread_id == 1)
-        self.assertTrue(self.c3.level == 1 and self.c3.order == 2)
-        # comment 4
-        self.assertTrue(self.c4.parent_id == 1 and self.c4.thread_id == 1)
-        self.assertTrue(self.c4.level == 1 and self.c4.order == 3)
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
+        c1, c2 = root.get_children()
+
+        # comment 1
+        self.assertEqual(c1.get_children_count(), 2, "Expected comment 1 to have 2 replies")
+        # comment 2
+        self.assertEqual(c2.get_children_count(), 0, "Expected comment 2 to have no replies")
 
 
 class ThreadStep3TestCase(ArticleBaseTestCase):
@@ -280,32 +259,25 @@ class ThreadStep3TestCase(ArticleBaseTestCase):
         thread_test_step_2(self.article_1)
         thread_test_step_3(self.article_1)
 
-        (  # -> content:   cmt.id  thread_id  parent_id  level  order
-            self.c1,  # ->   1         1          1        0      1
-            self.c3,  # ->   3         1          1        1      2
-            self.c4,  # ->   4         1          1        1      3
-            self.c2,  # ->   2         2          2        0      1
-            self.c5  # ->   5         2          2        1      2
-        ) = TreeComment.objects.all()
-
     def test_threaded_comments_step_3_level_0(self):
-        # comment 1
-        self.assertTrue(self.c1.parent_id == 1 and self.c1.thread_id == 1)
-        self.assertTrue(self.c1.level == 0 and self.c1.order == 1)
-        # comment 2
-        self.assertTrue(self.c2.parent_id == 2 and self.c2.thread_id == 2)
-        self.assertTrue(self.c2.level == 0 and self.c2.order == 1)
+        root = TreeComment.objects.get_root(self.article_1)
+
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
+        self.assertEqual(root.get_descendant_count(), 5, "Expected to have 5 total comments and replices")
+
 
     def test_threaded_comments_step_3_level_1(self):
-        # comment 3
-        self.assertTrue(self.c3.parent_id == 1 and self.c3.thread_id == 1)
-        self.assertTrue(self.c3.level == 1 and self.c3.order == 2)
-        # comment 4
-        self.assertTrue(self.c4.parent_id == 1 and self.c4.thread_id == 1)
-        self.assertTrue(self.c4.level == 1 and self.c4.order == 3)
-        # comment 5
-        self.assertTrue(self.c5.parent_id == 2 and self.c5.thread_id == 2)
-        self.assertTrue(self.c5.level == 1 and self.c5.order == 2)
+        root = TreeComment.objects.get_root(self.article_1)
+
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
+        self.assertEqual(root.get_descendant_count(), 5, "Expected to have 5 total comments and replices")
+
+        c1, c2 = root.get_children()
+
+        # comment 1
+        self.assertEqual(c1.get_children_count(), 2, "Expected comment 1 to have 2 replies")
+        # comment 2
+        self.assertEqual(c2.get_children_count(), 1, "Expected comment 2 to have 1 replie")
 
 
 class ThreadStep4TestCase(ArticleBaseTestCase):
@@ -316,42 +288,31 @@ class ThreadStep4TestCase(ArticleBaseTestCase):
         thread_test_step_3(self.article_1)
         thread_test_step_4(self.article_1)
 
-        (  # content ->    cmt.id  thread_id  parent_id  level  order
-            self.c1,  # ->   1         1          1        0      1
-            self.c3,  # ->   3         1          1        1      2
-            self.c4,  # ->   4         1          1        1      3
-            self.c7,  # ->   7         1          4        2      4
-            self.c2,  # ->   2         2          2        0      1
-            self.c5,  # ->   5         2          2        1      2
-            self.c6  # ->   6         2          5        2      3
-        ) = TreeComment.objects.all()
-
     def test_threaded_comments_step_4_level_0(self):
-        # comment 1
-        self.assertTrue(self.c1.parent_id == 1 and self.c1.thread_id == 1)
-        self.assertTrue(self.c1.level == 0 and self.c1.order == 1)
-        # comment 2
-        self.assertTrue(self.c2.parent_id == 2 and self.c2.thread_id == 2)
-        self.assertTrue(self.c2.level == 0 and self.c2.order == 1)
+        root = TreeComment.objects.get_root(self.article_1)
+
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
+        self.assertEqual(root.get_descendant_count(), 7, "Expected to have 7 total comments and replies")
+
+        c1, c2 = root.get_children()
 
     def test_threaded_comments_step_4_level_1(self):
-        # comment 3
-        self.assertTrue(self.c3.parent_id == 1 and self.c3.thread_id == 1)
-        self.assertTrue(self.c3.level == 1 and self.c3.order == 2)
-        # comment 4
-        self.assertTrue(self.c4.parent_id == 1 and self.c4.thread_id == 1)
-        self.assertTrue(self.c4.level == 1 and self.c4.order == 3)
-        # comment 5
-        self.assertTrue(self.c5.parent_id == 2 and self.c5.thread_id == 2)
-        self.assertTrue(self.c5.level == 1 and self.c5.order == 2)
+        root = TreeComment.objects.get_root(self.article_1)
+
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
+        self.assertEqual(root.get_descendant_count(), 7, "Expected to have 5 total comments and replies")
+
+        c1, c2 = root.get_children()
+        self.assertEqual(c1.get_children_count(), 2, "Expected 2 replies to comment 1")
+        self.assertEqual(c2.get_children_count(), 1, "Expected 1 reply to comment 2")
+
+        c1_children = c1.get_children()
+        c2_children = c2.get_children()
+        self.assertEqual(c1_children[1].get_children_count(), 1, "Expected 1 replies to comment 1, reply 2")
+        self.assertEqual(c2_children[0].get_children_count(), 1, "Expected 1 reply to comment 2, reply 1")
 
     def test_threaded_comments_step_4_level_2(self):
-        # comment 6
-        self.assertTrue(self.c6.parent_id == 5 and self.c6.thread_id == 2)
-        self.assertTrue(self.c6.level == 2 and self.c6.order == 3)
-        # comment 7
-        self.assertTrue(self.c7.parent_id == 4 and self.c7.thread_id == 1)
-        self.assertTrue(self.c7.level == 2 and self.c7.order == 4)
+        root = TreeComment.objects.get_root(self.article_1)
 
 
 class ThreadStep5TestCase(ArticleBaseTestCase):
@@ -363,96 +324,57 @@ class ThreadStep5TestCase(ArticleBaseTestCase):
         thread_test_step_4(self.article_1)
         thread_test_step_5(self.article_1)
 
-        (  # content ->    cmt.id  thread_id  parent_id  level  order
-            self.c1,  # ->   1         1          1        0      1
-            self.c3,  # ->   3         1          1        1      2
-            self.c8,  # ->   8         1          3        2      3
-            self.c4,  # ->   4         1          1        1      4
-            self.c7,  # ->   7         1          4        2      5
-            self.c2,  # ->   2         2          2        0      1
-            self.c5,  # ->   5         2          2        1      2
-            self.c6,  # ->   6         2          5        2      3
-            self.c9  # ->   9         9          9        0      1
-        ) = TreeComment.objects.all()
-
     def test_threaded_comments_step_5_level_0(self):
-        # comment 1
-        self.assertTrue(self.c1.parent_id == 1 and self.c1.thread_id == 1)
-        self.assertTrue(self.c1.level == 0 and self.c1.order == 1)
-        # comment 2
-        self.assertTrue(self.c2.parent_id == 2 and self.c2.thread_id == 2)
-        self.assertTrue(self.c2.level == 0 and self.c2.order == 1)
-        # comment 9
-        self.assertTrue(self.c9.parent_id == 9 and self.c9.thread_id == 9)
-        self.assertTrue(self.c9.level == 0 and self.c9.order == 1)
+        root = TreeComment.objects.get_root(self.article_1)
+
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
+        self.assertEqual(root.get_descendant_count(), 9, "Expected to have 5 total comments and replices")
+
+        c1, c2 = root.get_children()
 
     def test_threaded_comments_step_5_level_1(self):
-        # comment 3
-        self.assertTrue(self.c3.parent_id == 1 and self.c3.thread_id == 1)
-        self.assertTrue(self.c3.level == 1 and self.c3.order == 2)
-        # comment 4
-        self.assertTrue(self.c4.parent_id == 1 and self.c4.thread_id == 1)
-        self.assertTrue(self.c4.level == 1 and self.c4.order == 4)  # changed
-        # comment 5
-        self.assertTrue(self.c5.parent_id == 2 and self.c5.thread_id == 2)
-        self.assertTrue(self.c5.level == 1 and self.c5.order == 2)
+        root = TreeComment.objects.get_root(self.article_1)
+
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
+        self.assertEqual(root.get_descendant_count(), 9, "Expected to have 5 total comments and replices")
+
+        c1, c2 = root.get_children()
 
     def test_threaded_comments_step_5_level_2(self):
-        # comment 6
-        self.assertTrue(self.c6.parent_id == 5 and self.c6.thread_id == 2)
-        self.assertTrue(self.c6.level == 2 and self.c6.order == 3)
-        # comment 7
-        self.assertTrue(self.c7.parent_id == 4 and self.c7.thread_id == 1)
-        self.assertTrue(self.c7.level == 2 and self.c7.order == 5)  # changed
-        # comment 8
-        self.assertTrue(self.c8.parent_id == 3 and self.c8.thread_id == 1)
-        self.assertTrue(self.c8.level == 2 and self.c8.order == 3)
+        root = TreeComment.objects.get_root(self.article_1)
+
+        self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
+        self.assertEqual(root.get_descendant_count(), 9, "Expected to have 5 total comments and replices")
+
+        c1, c2 = root.get_children()
+
+        self.assertEqual(c1.get_children()[1].get_children()[0].get_children_count(),
+                         1, "Expected 1 grandchild")
+        self.assertEqual(c2.get_children()[0].get_children()[0].get_children_count(),
+                         1, "Expected 1 grandchild")
 
     def test_exceed_max_thread_level_raises_exception(self):
-        article_ct = ContentType.objects.get(app_label="tests", model="article")
-        site = Site.objects.get(pk=1)
+        root = TreeComment.objects.get_or_create_root(self.article_1)
         with self.assertRaises(MaxThreadLevelExceededException):
-            TreeComment.objects.create(content_type=article_ct,
-                                       object_pk=self.article_1.id,
-                                       content_object=self.article_1,
-                                       site=site,
-                                       comment="cmt 1 to cmt 2 to cmt 1",
-                                       submit_date=datetime.now(),
-                                       parent_id=8)  # already max thread level
+            comments = root.get_descendants()
+            max_depth = [c for c in comments if c.depth > settings.COMMENTS_TREE_MAX_THREAD_LEVEL]
+            max_depth[0].add_child(comment="Should cause an exception here")
 
 
-def add_comment_to_diary_entry(diary_entry):
-    diary_ct = ContentType.objects.get(app_label="tests", model="diary")
-    site = Site.objects.get(pk=1)
-    TreeComment.objects.create(content_type=diary_ct,
-                               object_pk=diary_entry.id,
-                               content_object=diary_entry,
-                               site=site,
-                               comment="cmt to day in diary",
-                               submit_date=datetime.now())
+def add_comment_to_diary_entry(diary):
+    root = TreeComment.objects.get_or_create_root(diary)
+    root.add_child(comment='This is a diary comment')
 
 
 class DiaryBaseTestCase(DjangoTestCase):
     def setUp(self):
         self.day_in_diary = Diary.objects.create(body="About Today...")
-        add_comment_to_diary_entry(self.day_in_diary)
-        # diary_ct = ContentType.objects.get(app_label="tests", model="diary")
-        # site = Site.objects.get(pk=1)
-        # TreeComment.objects.create(content_type=diary_ct,
-        #                           object_pk=self.day_in_diary.id,
-        #                           content_object=self.day_in_diary,
-        #                           site=site,
-        #                           comment="cmt to day in diary",
-        #                           submit_date=datetime.now())
+        self.root = TreeComment.objects.get_or_create_root(self.day_in_diary)
 
     def test_max_thread_level_by_app_model(self):
-        diary_ct = ContentType.objects.get(app_label="tests", model="diary")
-        site = Site.objects.get(pk=1)
+        self.root = TreeComment.objects.get_or_create_root(self.day_in_diary)
+        c = self.root
+        for x in range(1, settings.COMMENTS_TREE_MAX_THREAD_LEVEL+1):
+            c = c.add_child(comment=f"Comment level {x}")
         with self.assertRaises(MaxThreadLevelExceededException):
-            TreeComment.objects.create(content_type=diary_ct,
-                                       object_pk=self.day_in_diary.id,
-                                       content_object=self.day_in_diary,
-                                       site=site,
-                                       comment="cmt to cmt to day in diary",
-                                       submit_date=datetime.now(),
-                                       parent_id=1)  # already max thread level
+            c.add_child(comment="Comment should cause an exception now")

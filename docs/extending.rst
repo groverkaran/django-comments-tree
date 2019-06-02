@@ -54,16 +54,16 @@ The new class ``MyComment`` extends django_comments_tree's ``TreeComment`` with 
 ``forms`` Module
 ----------------
 
-The forms module extends ``XtdCommentForm`` and rewrites the method ``get_comment_create_data``::
+The forms module extends ``TreeCommentForm`` and rewrites the method ``get_comment_create_data``::
 
   from django import forms
   from django.utils.translation import ugettext_lazy as _
 
-  from django_comments_tree.forms import XtdCommentForm
+  from django_comments_tree.forms import TreeCommentForm
   from django_comments_tree.models import TmpTreeComment
 
 
-  class MyCommentForm(XtdCommentForm):
+  class MyCommentForm(TreeCommentForm):
       title = forms.CharField(
           max_length=256,
           widget=forms.TextInput(attrs={'placeholder': _('title')})

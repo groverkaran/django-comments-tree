@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 from django.conf import settings
-
+import markdown
+from django_comments_tree.render import render_draftjs
 
 COMMENT_MAX_LENGTH = 3000
 
-# Extra key to salt the XtdCommentForm.
+# Extra key to salt the TreeCommentForm.
 COMMENTS_TREE_SALT = b""
 
 # Whether comment posts should be confirmed by email.
@@ -26,7 +27,7 @@ COMMENTS_TREE_MAX_THREAD_LEVEL_BY_APP_MODEL = {}
 COMMENTS_TREE_LIST_ORDER = ('submit_date',)
 
 # Form class to use.
-COMMENTS_TREE_FORM_CLASS = "django_comments_tree.forms.XtdCommentForm"
+COMMENTS_TREE_FORM_CLASS = "django_comments_tree.forms.TreeCommentForm"
 
 # Model to use.
 COMMENTS_TREE_MODEL = "django_comments_tree.models.TreeComment"
@@ -63,3 +64,9 @@ COMMENTS_TREE_API_USER_REPR = username
 COMMENTS_TREE_ENABLE_FIREBASE = False
 
 COMMENTS_TREE_FIREBASE_KEY = None
+
+# Default types we can use for comments
+MARKUP_FIELD_TYPES = (
+    ('markdown', markdown.markdown),
+    ('Draft.js', render_draftjs),
+)

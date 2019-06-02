@@ -18,7 +18,7 @@ test.run_tests = run_tests
 
 setup(
     name="django-comments-tree",
-    version="0.1.0",
+    version="0.1.0a0.dev.0",
     packages=find_packages(),
     scripts=[],
     include_package_data=True,
@@ -52,9 +52,14 @@ setup(
         'django-treebeard>=4.1.0',
         'django-contrib-comments>=1.8',
         'djangorestframework>=3.6',
-        'python-firebase>=1.2'
+        'django-markupfield>=1.5.1',
+        'markdown>=3.1.1',
         'docutils',
         'six',
+    ],
+    extras_requires=[
+        'firebase-admin>=2.16.0',
+        'python-firebase>=1.2',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

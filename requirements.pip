@@ -1,6 +1,8 @@
+Django
+django-treebeard
 django-contrib-comments
 djangorestframework
-Django
+django-markupfield
+markdown
 docutils
-django-markdown2
-django-treebeard
+six

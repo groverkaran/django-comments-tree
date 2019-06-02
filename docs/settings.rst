@@ -113,7 +113,7 @@ An example::
      COMMENTS_TREE_FORM_CLASS = "mycomments.forms.MyCommentForm"
 
 
-It defaults to `"django_comments_tree.forms.XtdCommentForm"`.
+It defaults to `"django_comments_tree.forms.TreeCommentForm"`.
 
 
 .. setting:: COMMENTS_TREE_MODEL

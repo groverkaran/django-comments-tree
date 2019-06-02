@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from django_comments_tree import django_comments
 from django_comments_tree.models import TmpTreeComment
-from django_comments_tree.forms import XtdCommentForm
+from django_comments_tree.forms import TreeCommentForm
 from django_comments_tree.tests.models import Article
 
 
@@ -10,10 +10,10 @@ class GetFormTestCase(TestCase):
 
     def test_get_form(self):
         # check function django_comments_tree.get_form retrieves the due class
-        self.assertTrue(django_comments.get_form() == XtdCommentForm)
+        self.assertTrue(django_comments.get_form() == TreeCommentForm)
 
 
-class XtdCommentFormTestCase(TestCase):
+class TreeCommentFormTestCase(TestCase):
 
     def setUp(self):
         self.article = Article.objects.create(title="September",

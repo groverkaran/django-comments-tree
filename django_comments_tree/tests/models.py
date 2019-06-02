@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db import models
 from django.urls import reverse
 
-from django_comments_tree.moderation import moderator, XtdCommentModerator
+from django_comments_tree.moderation import moderator, TreeCommentModerator
 
 
 class PublicManager(models.Manager):
@@ -50,7 +50,7 @@ class Diary(models.Model):
         ordering = ('-publish',)
 
 
-class DiaryCommentModerator(XtdCommentModerator):
+class DiaryCommentModerator(TreeCommentModerator):
     email_notification = True
     enable_field = 'allow_comments'
     auto_moderate_field = 'publish'
