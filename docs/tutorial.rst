@@ -145,7 +145,7 @@ Next step consist of editing ``blog/post_detail.html`` and loading the ``comment
    .. code-block:: html+django
 
        {% extends "base.html" %}
-       {% load comments %}
+       {% load comments_tree %}
 
 Now we will change the blog post detail template to:
 
@@ -153,11 +153,11 @@ Now we will change the blog post detail template to:
  #. List the comments already posted, and
  #. Show the comment form, so that comments can be sent.
 
-By using the :ttag:`get_comment_count` tag we will show the number of comments posted. Change the code around the link element to make it look as follows:
+By using the :ttag:`get_treecomment_count` tag we will show the number of comments posted. Change the code around the link element to make it look as follows:
 
    .. code-block:: html+django
 
-       {% get_comment_count for object as comment_count %}
+       {% get_treecomment_count for object as comment_count %}
        <div class="py-4 text-center">
          <a href="{% url 'blog:post-list' %}">Back to the post list</a>
          &nbsp;&sdot;&nbsp;
@@ -421,7 +421,7 @@ When the :setting:`COMMENTS_TREE_MAX_THREAD_LEVEL` is greater than 0, comments b
 
 In this section we will enable nested comments by modifying :setting:`COMMENTS_TREE_MAX_THREAD_LEVEL` and apply some changes to our ``blog_detail.html`` template.
 
-We can make use of two template tags, :ttag:`render_xtdcomment_tree` and :ttag:`get_xtdcomment_tree`. The former renders a template with the comments while the latter put the comments in a nested data structure in the context of the template.
+We can make use of two template tags, :ttag:`render_treecomment_tree` and :ttag:`get_treecomment_tree`. The former renders a template with the comments while the latter put the comments in a nested data structure in the context of the template.
 
 We will also introduce the setting :setting:`COMMENTS_TREE_LIST_ORDER`, that allows altering the default order in which the comments are sorted in the list. By default comments are sorted by thread and their position inside the thread, which turns out to be in ascending datetime of arrival. In this example we will list newer comments first.
 
@@ -432,7 +432,7 @@ Let's start by editing ``tutorial/settings.py`` to set up the maximum thread lev
        COMMENTS_TREE_MAX_THREAD_LEVEL = 1  # default is 0
        COMMENTS_TREE_LIST_ORDER = ('-submit_date',)  # default is ('submit_date',)
 
-Now we have to modify the blog post detail template to load the ``comments_xtd`` templatetag and make use of :ttag:`render_xtdcomment_tree`. We also want to move the comment form from the bottom of the page to a more visible position right below the blog post, followed by the list of comments.
+Now we have to modify the blog post detail template to load the ``comments_xtd`` templatetag and make use of :ttag:`render_treecomment_tree`. We also want to move the comment form from the bottom of the page to a more visible position right below the blog post, followed by the list of comments.
 
 Edit ``blog/post_detail.html`` to make it look like follows:
 
@@ -472,13 +472,13 @@ Edit ``blog/post_detail.html`` to make it look like follows:
        
        {% if comment_count %}
        <ul class="media-list">
-         {% render_xtdcomment_tree for object %}
+         {% render_treecomment_tree for object %}
        </ul>
        {% endif %}
        {% endblock %}
 
 
-The tag :ttag:`render_xtdcomment_tree` renders the template ``django_comments_tree/comment_tree.html``.
+The tag :ttag:`render_treecomment_tree` renders the template ``django_comments_tree/comment_tree.html``.
 
 Now visit any of the blog posts to which you have already sent comments and see that a new `Reply` link shows up below each comment. Click on the link and post a new comment. It will appear nested inside the parent comment. The new comment will not show a `Reply` link because :setting:`COMMENTS_TREE_MAX_THREAD_LEVEL` has been set to 1. Raise it to 2 and reload the page to offer the chance to nest comments inside one level deeper.
 
@@ -547,13 +547,13 @@ We will enable each option in the next sections.
 Removal suggestion
 ------------------
 
-Enabling the comment removal flag is about including the **allow_flagging** argument in the ``render_xtdcomment_tree`` template tag. Edit the ``blog/post_detail.html`` template and append the argument:
+Enabling the comment removal flag is about including the **allow_flagging** argument in the ``render_treecomment_tree`` template tag. Edit the ``blog/post_detail.html`` template and append the argument:
 
    .. code-block:: html+django
 
        ...
        <ul class="media-list">
-         {% render_xtdcomment_tree for object allow_flagging %}
+         {% render_treecomment_tree for object allow_flagging %}
        </ul>
 
 
@@ -609,12 +609,12 @@ Django-comments-tree adds two new flags: the **Liked it** and the **Disliked it*
 
 Unlike the **Removal suggestion** flag, the **Liked it** and **Disliked it** flags are mutually exclusive. A user can not like and dislike a comment at the same time. Users can like/dislike at any time but only the last action will prevail.
 
-In this section we make changes to give our users the capacity to like or dislike comments. Following the same pattern as with the removal flag, enabling like/dislike buttons is about adding an argument to the ``render_xtdcomment_tree``, the argument ``allow_feedback``. Edit the ``blog/post_detail.html`` template and add the new argument:
+In this section we make changes to give our users the capacity to like or dislike comments. Following the same pattern as with the removal flag, enabling like/dislike buttons is about adding an argument to the ``render_treecomment_tree``, the argument ``allow_feedback``. Edit the ``blog/post_detail.html`` template and add the new argument:
 
    .. code-block:: html+django
 
        <ul class="media-list">
-         {% render_xtdcomment_tree for object allow_flagging allow_feedback %}
+         {% render_treecomment_tree for object allow_flagging allow_feedback %}
        </ul>
 
 
@@ -642,12 +642,12 @@ Having the new like/dislike links in place, if we click on any of them we will e
 Show the list of users
 **********************
 
-With the like/dislike buttons enabled we might as well consider to display the users who actually liked/disliked comments. Again addind an argument to the ``render_xtdcomment_tree`` will enable the feature. Change the ``blog/post_detail.html`` and add the argument ``show_feedback`` to the template tag:
+With the like/dislike buttons enabled we might as well consider to display the users who actually liked/disliked comments. Again addind an argument to the ``render_treecomment_tree`` will enable the feature. Change the ``blog/post_detail.html`` and add the argument ``show_feedback`` to the template tag:
 
    .. code-block:: html+django
 
        <ul class="media-list">
-         {% render_xtdcomment_tree for object allow_flagging allow_feedback show_feedback %}
+         {% render_treecomment_tree for object allow_flagging allow_feedback show_feedback %}
        </ul>
 
        {% block extra-js %}

@@ -129,12 +129,12 @@ The setting `COMMENTS_TREE_MAX_THREAD_LEVEL` is set to 2, meaning that comments 
         |-- Comment to "First comment" (level 1)
             |-- Comment to "Comment to First comment" (level 2)
 
-render_xtdcomment_tree
+render_treecomment_tree
 ----------------------
 
-By using the `render_xtdcomment_tree` templatetag, both, `article_detail.html` and `quote_detail.html`, show the tree of comments posted. `article_detail.html` makes use of the arguments `allow_feedback`, `show_feedback` and `allow_flagging`, while `quote_detail.html` only show the list of comments, with no extra arguments, so users can't flag comments for removal, and neither can submit like/dislike feedback.
+By using the `render_treecomment_tree` templatetag, both, `article_detail.html` and `quote_detail.html`, show the tree of comments posted. `article_detail.html` makes use of the arguments `allow_feedback`, `show_feedback` and `allow_flagging`, while `quote_detail.html` only show the list of comments, with no extra arguments, so users can't flag comments for removal, and neither can submit like/dislike feedback.
 
-render_last_xtdcomments
+render_last_treecomments
 -----------------------
 
-The **Last 5 Comments** shown in the block at the rigght uses the templatetag `render_last_xtdcomments` to show the last 5 comments posted to either `articles.Article` or `quotes.Quote` instances. The templatetag receives the list of pairs `app.model` from which we want to gather comments and shows the given N last instances posted. The templatetag renders the template `django_comments_tree/comment.html` for each comment retrieve.
+The **Last 5 Comments** shown in the block at the rigght uses the templatetag `render_last_treecomments` to show the last 5 comments posted to either `articles.Article` or `quotes.Quote` instances. The templatetag receives the list of pairs `app.model` from which we want to gather comments and shows the given N last instances posted. The templatetag renders the template `django_comments_tree/comment.html` for each comment retrieve.

@@ -17,21 +17,21 @@ Django-comments-tree provides 5 template tags and 3 filters. Load the module to 
     
 
 .. index::
-   single: render_xtdcomment_tree
-   pair: tag; render_xtdcomment_tree
+   single: render_treecomment_tree
+   pair: tag; render_treecomment_tree
 
-.. templatetag:: render_xtdcomment_tree
+.. templatetag:: render_treecomment_tree
 
-.. _render-xtdcomment-tree:
+.. _render-treecomment-tree:
                  
-Tag ``render_xtdcomment_tree``
+Tag ``render_treecomment_tree``
 ==============================
 
 Tag syntax:
 
    .. code-block:: html+django
 
-       {% render_xtdcomment_tree [for <object>] [with var_name_1=<obj_1> var_name_2=<obj_2>]
+       {% render_treecomment_tree [for <object>] [with var_name_1=<obj_1> var_name_2=<obj_2>]
                                  [allow_flagging] [allow_feedback] [show_feedback]
                                  [using <template>] %}
 
@@ -58,25 +58,25 @@ In the usual scenario the tag is used in the object detail template, i.e.: ``blo
 
    .. code-block:: html+django
 
-       {% render_xtdcomment_tree for article allow_flagging allow_feedback show_feedback  %}
+       {% render_treecomment_tree for article allow_flagging allow_feedback show_feedback  %}
 
 
    
        
 .. index::
-   single: get_xtdcomment_tree
-   pair: tag; get_xtdcomment_tree
+   single: get_treecomment_tree
+   pair: tag; get_treecomment_tree
 
-.. templatetag:: get_xtdcomment_tree
+.. templatetag:: get_treecomment_tree
 
-Tag ``get_xtdcomment_tree``
+Tag ``get_treecomment_tree``
 ===========================
 
 Tag syntax:
 
    .. code-block:: html+django
 
-       {% get_xtdcomment_tree for [object] as [varname] [with_feedback] %}
+       {% get_treecomment_tree for [object] as [varname] [with_feedback] %}
 
 
 Returns a dictionary to the template context under the name given in ``[varname]`` with the comments posted to the given ``[object]``. The dictionary has the form:
@@ -84,7 +84,7 @@ Returns a dictionary to the template context under the name given in ``[varname]
    .. code-block:: python
 
        {
-           'comment': xtdcomment_object,
+           'comment': treecomment_object,
            'children': [ list_of_child_xtdcomment_dicts ]
        }
 
@@ -95,7 +95,7 @@ When the optional argument ``with_feedback`` is specified the returned dictionar
    .. code-block:: python
 
        {
-           'xtdcomment': xtdcomment_object,
+           'treecomment': treecomment_object,
            'children': [ list_of_child_xtdcomment_dicts ],
            'likedit': [user_a, user_b, ...],
            'dislikedit': [user_n, user_m, ...]
@@ -109,21 +109,21 @@ Get an ordered dictionary with the comments posted to a given blog story and sto
 
    .. code-block:: html+django
 
-       {% get_xtdcomment_tree for story as comments_tree with_feedback %}
+       {% get_treecomment_tree for story as comments_tree with_feedback %}
 
 
 .. index::
-   single: render_last_xtdcomments
-   pair: tag; render_last_xtdcomments
+   single: render_last_treecomments
+   pair: tag; render_last_treecomments
 
-.. _render-last-xtdcomments:
+.. _render-last-treecomments:
 
-Tag ``render_last_xtdcomments``
+Tag ``render_last_treecomments``
 ===============================
 
 Tag syntax::
 
-    {% render_last_xtdcomments [N] for [app].[model] [[app].[model] ...] %}
+    {% render_last_treecomments [N] for [app].[model] [[app].[model] ...] %}
 
 Renders the list of the last N comments for the given pairs ``<app>.<model>`` using the following search list for templates:
 
@@ -136,19 +136,19 @@ Example usage
 
 Render the list of the last 5 comments posted, either to the blog.story model or to the blog.quote model. See it in action in the *Multiple Demo Site*, in the *blog homepage*, template ``blog/homepage.html``::
 
-    {% render_last_xtdcomments 5 for blog.story blog.quote %}
+    {% render_last_treecomments 5 for blog.story blog.quote %}
 
 
 .. index::
-   single: get_last_xtdcomments
-   pair: tag; get_last_xtdcomments
+   single: get_last_treecomments
+   pair: tag; get_last_treecomments
 
-Tag ``get_last_xtdcomments``
+Tag ``get_last_treecomments``
 ============================
 
 Tag syntax::
 
-    {% get_last_xtdcomments [N] as [varname] for [app].[model] [[app].[model] ...] %}
+    {% get_last_treecomments [N] as [varname] for [app].[model] [[app].[model] ...] %}
 
 Gets the list of the last N comments for the given pairs ``<app>.<model>`` and stores it in the template context whose name is defined by the ``as`` clause.
 
@@ -157,7 +157,7 @@ Example usage
 
 Get the list of the last 10 comments two models, ``Story`` and ``Quote``, have received and store them in the context variable ``last_10_comment``. You can then loop over the list with a ``for`` tag::
 
-    {% get_last_xtdcomments 10 as last_10_comments for blog.story blog.quote %}
+    {% get_last_treecomments 10 as last_10_comments for blog.story blog.quote %}
     {% if last_10_comments %}
       {% for comment in last_10_comments %}
         <p>{{ comment.comment|linebreaks }}</p> ...
@@ -169,17 +169,17 @@ Get the list of the last 10 comments two models, ``Story`` and ``Quote``, have r
 
     
 .. index::
-   single: get_xtdcomment_count
-   pair: tag; get_xtdcomment_count
+   single: get_treecomment_count
+   pair: tag; get_treecomment_count
 
-.. templatetag:: get_xtdcomment_count
+.. templatetag:: get_treecomment_count
 
-Tag ``get_xtdcomment_count``
+Tag ``get_treecomment_count``
 ============================
 
 Tag syntax::
 
-    {% get_xtdcomment_count as [varname] for [app].[model] [[app].[model] ...] %}
+    {% get_treecomment_count as [varname] for [app].[model] [[app].[model] ...] %}
 
 Gets the comment count for the given pairs ``<app>.<model>`` and populates the template context with a variable containing that value, whose name is defined by the ``as`` clause.
 
@@ -189,11 +189,11 @@ Example usage
 
 Get the count of comments the model ``Story`` of the app ``blog`` have received, and store it in the context variable ``comment_count``::
 
-    {% get_xtdcomment_count as comment_count for blog.story %}
+    {% get_treecomment_count as comment_count for blog.story %}
 
 Get the count of comments two models, ``Story`` and ``Quote``, have received and store it in the context variable ``comment_count``::
 
-    {% get_xtdcomment_count as comment_count for blog.story blog.quote %}
+    {% get_treecomment_count as comment_count for blog.story blog.quote %}
 
 
 .. index::

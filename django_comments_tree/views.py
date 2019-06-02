@@ -456,7 +456,7 @@ class XtdCommentListView(ListView):
             .order_by('submit_date')
 
     def get_context_data(self, **kwargs):
-        context = super(XtdCommentListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if 'paginator' in context:
             index = context['page_obj'].number - 1
             prange = [n for n in context['paginator'].page_range]

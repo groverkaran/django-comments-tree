@@ -24,6 +24,6 @@ class Migration(migrations.Migration):
             options={
                 'abstract': False,
             },
-            bases=('django_comments_tree.xtdcomment',),
+            bases=('django_comments_tree.treecomment',),
         ),
     ]

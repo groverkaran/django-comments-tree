@@ -130,7 +130,8 @@ def thread_test_step_2(article):
 
     root = TreeComment.objects.get_or_create_root(article, site=site)
 
-    c1 = root.get_children()[0]
+    children = root.get_children()
+    c1 = children[0]
 
     # post Comment 3 to parent_id 1
     c1.add_child(comment="comment 1 to comment 1")

@@ -34,7 +34,7 @@ In the context of the template the following objects are expected:
 ``comment_tree.html``
 ---------------------
 
-This template is rendered by the :ref:`render-xtdcomment-tree` to represent the comments posted to an object.
+This template is rendered by the :ref:`render-treecomment-tree` to represent the comments posted to an object.
 
 In the context of the template the following objects are expected:
 
@@ -43,7 +43,7 @@ In the context of the template the following objects are expected:
    .. code-block:: python
 
        {
-           'comment': xtdcomment_object,
+           'comment': treecomment_object,
            'children': [ list_of_child_xtdcomment_dicts ]
        }
    
@@ -60,11 +60,11 @@ Optionally the following objects can be present in the template:
 ``user_feedback.html``
 ----------------------
 
-This template is expected to be in the directory ``includes/django_comments_tree/``, and it provides a way to customized the look of the like and dislike buttons as long as the list of users who clicked on them. It is included from ``comment_tree.html``. The template is rendered only when the :ref:`render-xtdcomment-tree` is used with the argument ``allow_feedback``.
+This template is expected to be in the directory ``includes/django_comments_tree/``, and it provides a way to customized the look of the like and dislike buttons as long as the list of users who clicked on them. It is included from ``comment_tree.html``. The template is rendered only when the :ref:`render-treecomment-tree` is used with the argument ``allow_feedback``.
 
 In the context of the template is expected:
 
- * The boolean variable ``show_feedback``, which will be set to ``True`` when passing the argument ``show_feedback`` to the :ref:`render-xtdcomment-tree`. If ``True`` the template will show the list of users who liked the comment and the list of those who disliked it.
+ * The boolean variable ``show_feedback``, which will be set to ``True`` when passing the argument ``show_feedback`` to the :ref:`render-treecomment-tree`. If ``True`` the template will show the list of users who liked the comment and the list of those who disliked it.
  * A comment ``item``.
 
 Look at the section :ref:`show-the-list-of-users` to read on this particular topic.
@@ -155,7 +155,7 @@ The template expects the following objects in the context:
 
 This template is rendered under any of the following circumstances:
 
- * When using the :ref:`render-last-xtdcomments`.
+ * When using the :ref:`render-last-treecomments`.
  * When a logged in user sends a comment via Ajax. The comment gets rendered immediately. JavaScript client side code still has toe handle the response.
 
 

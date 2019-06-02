@@ -21,10 +21,10 @@
                     <div class="card-title pb-2">
                         <h5 class="text-center">Last 5 comments</h5>
                     </div>
-                    {% get_xtdcomment_count as comment_count for articles.article quotes.quote %}
+                    {% get_treecomment_count as comment_count for articles.article quotes.quote %}
                     {% if comment_count %}
                     <div class="media-list" id="comment-list">
-                        {% render_last_xtdcomments 5 for articles.article quotes.quote %}
+                        {% render_last_treecomments 5 for articles.article quotes.quote %}
                     </div>
                     <div class="text-right">
                         <a class="card-link" href="{% url 'comments-tree-list' %}">comment list</a>

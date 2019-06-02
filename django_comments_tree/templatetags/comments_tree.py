@@ -130,6 +130,7 @@ class GetLastTreeCommentsNode(BaseLastTreeCommentsNode):
         self.qs = TreeComment.objects.for_content_types(
             self.content_types,
             site=settings.SITE_ID)
+        
         self.qs = self.qs.order_by('submit_date')[:self.count]
         context[self.as_varname] = self.qs
         return ''
@@ -156,16 +157,16 @@ def _get_content_types(tagname, tokens):
 @register.tag
 def render_last_treecomments(parser, token):
     """
-    Render the last N XtdComments through the
+    Render the last N TreeComments through the
       ``django_comments_tree/comment.html`` template
 
     Syntax::
 
-        {% render_last_xtdcomments N for app.model [app.model] using template %}
+        {% render_last_treecomments N for app.model [app.model] using template %}
 
     Example usage::
 
-        {% render_last_xtdcomments 5 for blog.story blog.quote using "t.html" %}
+        {% render_last_treecomments 5 for blog.story blog.quote using "t.html" %}
     """
     tokens = token.contents.split()
     try:
@@ -260,13 +261,20 @@ class RenderTreeCommentTreeNode(Node):
             #                                       object_pk=obj.pk,
             #                                       site__pk=settings.SITE_ID,
             #                                       is_public=True)
-            comments = TreeComment.tree_from_queryset(
-                queryset,
-                with_flagging=self.allow_flagging,
-                with_feedback=self.allow_feedback,
-                user=context['user']
-            )
-            context_dict['comments'] = comments
+
+            ctree = TreeComment.tree_for_associated_object(obj,
+                                                           with_flagging=self.allow_flagging,
+                                                           with_feedback=self.allow_feedback,
+                                                           user=context['user']
+                                                           )
+
+            # comments = TreeComment.tree_from_queryset(
+            #     queryset,
+            #     with_flagging=self.allow_flagging,
+            #     with_feedback=self.allow_feedback,
+            #     user=context['user']
+            # )
+            context_dict['comments'] = ctree
         if self.cvars:
             for vname, vobj in self.cvars:
                 context_dict[vname] = vobj.resolve(context)

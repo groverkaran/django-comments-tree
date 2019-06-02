@@ -12,7 +12,8 @@ from django_comments_tree.tests.models import Article, Diary
 from django_comments_tree.tests.test_models import (
     thread_test_step_1, thread_test_step_2, thread_test_step_3,
     thread_test_step_4, thread_test_step_5, add_comment_to_diary_entry)
-                                                   
+
+from django_comments_tree.models import TreeComment
 
 class GetCommentCountTestCase(DjangoTestCase):
     def setUp(self):
@@ -92,7 +93,7 @@ class CommentsTestCase(DjangoTestCase):
         thread_test_step_3(self.article)
         thread_test_step_4(self.article)
         thread_test_step_5(self.article)
-        
+
     def test_render_comment_tree(self):
         t = ("{% load comments_tree %}"
              "{% render_treecomment_tree for object %}")
@@ -101,25 +102,13 @@ class CommentsTestCase(DjangoTestCase):
         self.assertEqual(output.count('<a name='), 9)
         # See test_models.py, ThreadStep5TestCase to get a quick
         # view of the comments posted and their thread structure.
-        pos_c1 = output.index('<a name="c1"></a>')
-        pos_c3 = output.index('<a name="c3"></a>')
-        pos_c8 = output.index('<a name="c8"></a>')
-        pos_c4 = output.index('<a name="c4"></a>')
-        pos_c7 = output.index('<a name="c7"></a>')
-        pos_c2 = output.index('<a name="c2"></a>')
-        pos_c5 = output.index('<a name="c5"></a>')
-        pos_c6 = output.index('<a name="c6"></a>')
-        pos_c9 = output.index('<a name="c9"></a>')
-        self.assertTrue(pos_c1 > 0)
-        self.assertTrue(pos_c3 > 0)
-        self.assertTrue(pos_c8 > 0)
-        self.assertTrue(pos_c4 > 0)
-        self.assertTrue(pos_c7 > 0)
-        self.assertTrue(pos_c2 > 0)
-        self.assertTrue(pos_c5 > 0)
-        self.assertTrue(pos_c6 > 0)
-        self.assertTrue(pos_c9 > 0)
-        self.assertTrue(pos_c1 < pos_c3 < pos_c8 <
-                        pos_c4 < pos_c7 < pos_c2 <
-                        pos_c5 < pos_c6 < pos_c9)
-        
+        id_list = [2, 4, 5, 8, 9, 3, 6, 7, 10]
+        pos_list = [output.index(f'<a name="c{id}"></a>') for id in id_list]
+        for pos in pos_list:
+            self.assertTrue(pos > 0)
+
+        for x in range(0, len(id_list)-1):
+            p1 = pos_list[x]
+            p2 = pos_list[x+1]
+            self.assertTrue(p1 < p2)
+

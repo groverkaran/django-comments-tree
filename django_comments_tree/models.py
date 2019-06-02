@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from django.db import models
 from django.db.models import F, Max, Min, Q
@@ -16,7 +16,7 @@ from django_comments.models import Comment as ContribComment, CommentFlag as Con
 from django_comments.signals import comment_was_flagged
 
 from django_comments_tree.conf import settings
-from treebeard.mp_tree import MP_Node
+from treebeard.mp_tree import MP_Node, MP_NodeManager
 
 from .abstract import CommentAbstractModel
 
@@ -67,7 +67,7 @@ class CommentAssociation(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
 
 
-class CommentManager(models.Manager):
+class CommentManager(MP_NodeManager):
 
     def get_root(self, obj):
         """ Return the root for the given object """
@@ -125,7 +125,7 @@ class CommentManager(models.Manager):
         return qs
 
     def for_app_models(self, *args, **kwargs) -> Optional[models.QuerySet]:
-        """Return XtdComments for pairs "app.model" given in args"""
+        """Return TreeComments for pairs "app.model" given in args"""
         content_types = []
         for app_model in args:
             app, model = app_model.split(".")
@@ -133,7 +133,7 @@ class CommentManager(models.Manager):
                                                          model=model))
         return self.for_content_types(content_types, **kwargs)
 
-    def for_content_types(self, content_types, site=None) -> Optional[models.QuerySet]:
+    def for_content_types(self, content_types: List[str], site: int=None) -> Optional[models.QuerySet]:
         """
         Return all descendants of the content type.
         :param content_types:
@@ -143,11 +143,31 @@ class CommentManager(models.Manager):
         filter_fields = {'content_type__in': content_types}
         if site is not None:
             filter_fields['site'] = site
+        associations = CommentAssociation.objects.filter(**filter_fields)
+        parent_paths = []
+
+        n_assoc = associations.count()
+        for assoc in associations:
+            parent_paths.append(assoc.root.path)
+
+        Qlist = [Q(path__startswith=path) for path in parent_paths]
+        myQ = Qlist.pop()
+        for Qitem in Qlist:
+            myQ |= Qitem
+
+        qs = TreeComment.objects.filter(depth__gte=2).filter(myQ)
+        return qs
+
+    def count_for_content_types(self, content_Types: List[str], site: int=None) -> int:
+        count = 0
+        filter_fields = {'content_type__in': content_Types}
+        if site is not None:
+            filter_fields['site'] = site
         qs = TreeComment.objects.none()
         associations = CommentAssociation.objects.filter(**filter_fields)
         for assoc in associations:
-            qs = qs.union(assoc.root.get_descendants())
-        return qs
+            count += assoc.root.get_descendants().count()
+        return count
 
     def get_queryset(self):
         qs = super(CommentManager, self).get_queryset()
@@ -157,7 +177,7 @@ class CommentManager(models.Manager):
 
 
 class TreeComment(MP_Node, CommentAbstractModel):
-    node_order_by = ['path']
+    node_order_by = ['submit_date']
 
     def __init__(self, *args, **kwargs):
         self._association = None
@@ -224,6 +244,37 @@ class TreeComment(MP_Node, CommentAbstractModel):
             return assoc.content_type
 
         return None
+
+    @classmethod
+    def tree_from_comment(cls, root, filter_public=True):
+        """
+        Return a recursive structure with comments and their children,
+        starting at the given root.
+        """
+        retval = []
+        children = root.get_children().order_by('submit_date')
+        if filter_public:
+            children = children.filter(is_public=True)
+        for child in children:
+            data = {
+                "comment": child,
+                "children": cls.tree_from_comment(child)
+            }
+            retval.append(data)
+        return retval
+
+    @classmethod
+    def tree_for_associated_object(cls, obj,
+                                   with_flagging=False,
+                                   with_feedback=False,
+                                   user=None):
+
+        root = TreeComment.objects.get_or_create_root(obj)
+        data = cls.tree_from_comment(root)
+        children = root.get_children().filter(is_public=True)
+        alist = root.get_annotated_list()
+        bulk = root.dump_bulk()
+        return data
 
     @classmethod
     def tree_from_queryset(cls, queryset, with_flagging=False,
