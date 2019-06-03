@@ -57,8 +57,6 @@ class.
 import datetime
 
 from django import VERSION
-from django.conf import settings
-from django.core.mail import send_mail
 from django.db.models.base import ModelBase
 from django.utils import timezone
 from django.utils.translation import ugettext as _

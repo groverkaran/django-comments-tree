@@ -10,6 +10,7 @@ from django_comments_tree import get_model
 from django_comments_tree.views.utils import next_redirect, confirmation_view
 from django_comments_tree.models import TreeCommentFlag
 
+
 @csrf_protect
 @login_required
 def flag(request, comment_id, next=None):
@@ -151,6 +152,7 @@ def perform_approve(request, comment):
     )
 
 # Confirmation views.
+
 
 flag_done = confirmation_view(
     template="comments/flagged.html",

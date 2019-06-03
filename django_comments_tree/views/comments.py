@@ -85,13 +85,13 @@ def _create_comment(tmp_comment):
     """
     Creates a TreeComment from a TmpTreeComment.
     """
-    content_type = tmp_comment.pop('content_type')
+    tmp_comment.pop('content_type')
     content_object = tmp_comment.pop('content_object')
-    object_pk = tmp_comment.pop('object_pk')
-    site_id = tmp_comment.pop('site_id')
+    tmp_comment.pop('object_pk')
+    tmp_comment.pop('site_id')
     root = TreeComment.objects.get_or_create_root(content_object)
     comment = root.add_child(**tmp_comment)
-    #comment = TreeComment(**tmp_comment)
+    # comment = TreeComment(**tmp_comment)
     # comment.is_public = True
     comment.save()
     return comment
@@ -370,26 +370,30 @@ class CommentView(View):
         # Check security information
         if form.security_errors():
             return CommentPostBadRequest(
-                "The comment form failed security verification: %s" % escape(str(form.security_errors())))
+                f"The comment form failed security verification:"
+                f" {escape(str(form.security_errors()))}")
 
         # If there are errors or if we requested a preview show the comment
         if form.errors or preview:
+            app_lbl = model._meta.app_label
+            nm = model._meta.model_name
             template_list = [
                 # These first two exist for purely historical reasons.
                 # Django v1.0 and v1.1 allowed the underscore format for
                 # preview templates, so we have to preserve that format.
-                "comments/%s_%s_preview.html" % (model._meta.app_label, model._meta.model_name),
-                "comments/%s_preview.html" % model._meta.app_label,
+                f"comments/{app_lbl}_{nm}_preview.html",
+                f"comments/{app_lbl}_preview.html",
                 # Now the usual directory based template hierarchy.
-                "comments/%s/%s/preview.html" % (model._meta.app_label, model._meta.model_name),
-                "comments/%s/preview.html" % model._meta.app_label,
+                f"comments/{app_lbl}/{nm}/preview.html",
+                f"comments/{app_lbl}/preview.html",
                 "comments/preview.html",
             ]
-            return render(request, template_list, {
-                "comment": form.data.get("comment", ""),
-                "form": form,
-                "next": data.get("next", next),
-            },
+            return render(request, template_list,
+                          {
+                              "comment": form.data.get("comment", ""),
+                              "form": form,
+                              "next": data.get("next", next),
+                          },
                           )
 
         # Otherwise create the comment
