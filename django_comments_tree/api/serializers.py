@@ -13,11 +13,12 @@ from django.utils.html import escape
 from django.utils.translation import ugettext as _, activate, get_language
 
 from django_comments import get_form
-from django_comments.models import CommentFlag
-from django_comments.signals import comment_will_be_posted, comment_was_posted
+from django_comments_tree.models import TreeCommentFlag
+from django_comments_tree.signals import comment_will_be_posted, comment_was_posted
 from rest_framework import serializers
 
-from django_comments_tree import signed, views
+from django_comments_tree import signed
+from django_comments_tree.views import comments as views
 from django_comments_tree.conf import settings
 from django_comments_tree.models import (TmpTreeComment, TreeComment,
                                          LIKEDIT_FLAG, DISLIKEDIT_FLAG)
@@ -42,7 +43,7 @@ class WriteCommentSerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs['context']['request']
-        super(WriteCommentSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def validate_name(self, value):
         if not len(value):
@@ -130,7 +131,7 @@ class WriteCommentSerializer(serializers.Serializer):
                 resp['code'] = 403  # Rejected.
                 return resp
 
-        # Replicate logic from django_comments_tree.views.on_comment_was_posted.
+        # Replicate logic from django_comments_tree.views.comments.on_comment_was_posted.
         if (
                 not settings.COMMENTS_TREE_CONFIRM_EMAIL or
                 self.request.user.is_authenticated
@@ -180,7 +181,7 @@ class ReadCommentSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs['context']['request']
-        super(ReadCommentSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_submit_date(self, obj):
         activate(get_language())
@@ -211,7 +212,7 @@ class ReadCommentSerializer(serializers.ModelSerializer):
         users_likedit, users_dislikedit = None, None
 
         if has_app_model_option(obj)['allow_flagging']:
-            users_flagging = obj.users_flagging(CommentFlag.SUGGEST_REMOVAL)
+            users_flagging = obj.users_flagging(TreeCommentFlag.SUGGEST_REMOVAL)
             if self.request.user in users_flagging:
                 flags['removal']['active'] = True
             if self.request.user.has_perm("django_comments.can_moderate"):
@@ -253,10 +254,10 @@ class ReadCommentSerializer(serializers.ModelSerializer):
 class FlagSerializer(serializers.ModelSerializer):
     flag_choices = {'like': LIKEDIT_FLAG,
                     'dislike': DISLIKEDIT_FLAG,
-                    'report': CommentFlag.SUGGEST_REMOVAL}
+                    'report': TreeCommentFlag.SUGGEST_REMOVAL}
 
     class Meta:
-        model = CommentFlag
+        model = TreeCommentFlag
         fields = ('comment', 'flag',)
 
     def validate(self, data):

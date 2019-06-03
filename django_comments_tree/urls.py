@@ -2,22 +2,23 @@ from django.conf.urls import include, url
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from django_comments_tree import api, views
+from django_comments_tree import api
+from django_comments_tree.views import comments
 
 urlpatterns = [
-    url(r'^sent/$', views.sent, name='comments-tree-sent'),
-    url(r'^confirm/(?P<key>[^/]+)/$', views.confirm,
+    url(r'^sent/$', comments.sent, name='comments-tree-sent'),
+    url(r'^confirm/(?P<key>[^/]+)/$', comments.confirm,
         name='comments-tree-confirm'),
-    url(r'^mute/(?P<key>[^/]+)/$', views.mute, name='comments-tree-mute'),
-    url(r'^reply/(?P<cid>[\d]+)/$', views.reply, name='comments-tree-reply'),
+    url(r'^mute/(?P<key>[^/]+)/$', comments.mute, name='comments-tree-mute'),
+    url(r'^reply/(?P<cid>[\d]+)/$', comments.reply, name='comments-tree-reply'),
 
     # Remap comments-flag to check allow-flagging is enabled.
-    url(r'^flag/(\d+)/$', views.flag, name='comments-flag'),
+    url(r'^flag/(\d+)/$', comments.flag, name='comments-flag'),
     # New flags in addition to those provided by django-contrib-comments.
-    url(r'^like/(\d+)/$', views.like, name='comments-tree-like'),
-    url(r'^liked/$', views.like_done, name='comments-tree-like-done'),
-    url(r'^dislike/(\d+)/$', views.dislike, name='comments-tree-dislike'),
-    url(r'^disliked/$', views.dislike_done, name='comments-tree-dislike-done'),
+    url(r'^like/(\d+)/$', comments.like, name='comments-tree-like'),
+    url(r'^liked/$', comments.like_done, name='comments-tree-like-done'),
+    url(r'^dislike/(\d+)/$', comments.dislike, name='comments-tree-dislike'),
+    url(r'^disliked/$', comments.dislike_done, name='comments-tree-dislike-done'),
 
     # API handlers.
     url(r'^api/comment/$', api.CommentCreate.as_view(),

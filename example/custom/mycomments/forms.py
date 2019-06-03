@@ -12,6 +12,6 @@ class MyCommentForm(TreeCommentForm):
                                        'class': 'form-control'}))
     
     def get_comment_create_data(self, site_id=None):
-        data = super(MyCommentForm, self).get_comment_create_data()
+        data = super().get_comment_create_data()
         data.update({'title': self.cleaned_data['title']})
         return data

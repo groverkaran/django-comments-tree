@@ -11,7 +11,7 @@ else:
 from django.views.i18n import JavaScriptCatalog
     
 from django_comments_tree import LatestCommentFeed
-from django_comments_tree.views import TreeCommentListView
+from django_comments_tree.views.comments import TreeCommentListView
 
 from comp import views
 

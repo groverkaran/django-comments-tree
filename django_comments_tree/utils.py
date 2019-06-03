@@ -58,7 +58,8 @@ def has_app_model_option(comment):
         'allow_feedback': False,
         'show_feedback': False
     }
-    content_type = ContentType.objects.get_for_model(comment.content_object)
+    #content_type = ContentType.objects.get_for_model(comment.content_object)
+    content_type = comment.content_type
     key = "%s.%s" % (content_type.app_label, content_type.model)
     try:
         return settings.COMMENTS_TREE_APP_MODEL_OPTIONS[key]

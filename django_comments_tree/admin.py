@@ -4,8 +4,7 @@ from django.contrib import admin
 
 from django_comments import get_model
 from django_comments.admin import CommentsAdmin
-from django_comments.models import CommentFlag
-from django_comments_tree.models import TreeComment, BlackListedDomain
+from django_comments_tree.models import TreeComment, BlackListedDomain, TreeCommentFlag
 
 
 class TreeCommentsAdmin(CommentsAdmin):
@@ -45,5 +44,5 @@ class BlackListedDomainAdmin(admin.ModelAdmin):
 
 if get_model() is TreeComment:
     admin.site.register(TreeComment, TreeCommentsAdmin)
-    admin.site.register(CommentFlag)
+    admin.site.register(TreeCommentFlag)
     admin.site.register(BlackListedDomain, BlackListedDomainAdmin)

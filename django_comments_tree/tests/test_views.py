@@ -17,9 +17,10 @@ from django.http.response import Http404
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
-from django_comments.views import comments
+from django_comments_tree.views.comments import CommentView
     
-from django_comments_tree import django_comments, signals, signed, views
+from django_comments_tree import signals, signed, get_form
+from django_comments_tree.views import comments as views
 from django_comments_tree.conf import settings
 from django_comments_tree.models import TreeComment
 from django_comments_tree.tests.models import Article, Diary
@@ -40,7 +41,7 @@ def post_article_comment(data, article, auth_user=None):
     else:
         request.user = AnonymousUser()
     request._dont_enforce_csrf_checks = True
-    return comments.post_comment(request)
+    return CommentView.as_view()(request)
 
 
 def post_diary_comment(data, diary_entry, auth_user=None):
@@ -54,7 +55,7 @@ def post_diary_comment(data, diary_entry, auth_user=None):
     else:
         request.user = AnonymousUser()
     request._dont_enforce_csrf_checks = True
-    return comments.post_comment(request)
+    return CommentView.as_view()(request)
 
 
 def confirm_comment_url(key, follow=True):
@@ -67,11 +68,11 @@ def confirm_comment_url(key, follow=True):
 
 class OnCommentWasPostedTestCase(TestCase):
     def setUp(self):
-        patcher = patch('django_comments_tree.views.send_mail')
+        patcher = patch('django_comments_tree.views.comments.send_mail')
         self.mock_mailer = patcher.start()
         self.article = Article.objects.create(
             title="October", slug="october", body="What I did on October...")
-        self.form = django_comments.get_form()(self.article)
+        self.form = get_form()(self.article)
         self.factory = RequestFactory()
         self.user = AnonymousUser()
 
@@ -100,14 +101,14 @@ class OnCommentWasPostedTestCase(TestCase):
 
 class ConfirmCommentTestCase(TestCase):
     def setUp(self):
-        patcher = patch('django_comments_tree.views.send_mail')
+        patcher = patch('django_comments_tree.views.comments.send_mail')
         self.mock_mailer = patcher.start()
         # Create random string so that it's harder for zlib to compress
         content = ''.join(random.choice(string.printable) for _ in range(6096))
         self.article = Article.objects.create(title="September",
                                               slug="september",
                                               body="In September..." + content)
-        self.form = django_comments.get_form()(self.article)
+        self.form = get_form()(self.article)
         data = {"name": "Bob", "email": "bob@example.com", "followup": True,
                 "reply_to": 0, "level": 1, "order": 1,
                 "comment": "Es war einmal iene kleine..."}
@@ -176,7 +177,7 @@ class ConfirmCommentTestCase(TestCase):
         # no comment followers yet:
         self.assertEqual(self.mock_mailer.call_count, 1)
         # send 2nd comment
-        self.form = django_comments.get_form()(self.article)
+        self.form = get_form()(self.article)
         data = {"name": "Alice", "email": "alice@example.com",
                 "followup": True, "reply_to": 0, "level": 1, "order": 1,
                 "comment": "Es war einmal eine kleine..."}
@@ -204,7 +205,7 @@ class ConfirmCommentTestCase(TestCase):
         )
         self.assertEqual(diary.pk, self.article.pk)
 
-        self.form = django_comments.get_form()(diary)
+        self.form = get_form()(diary)
         data = {"name": "Charlie", "email": "charlie@example.com",
                 "followup": True, "reply_to": 0, "level": 1, "order": 1,
                 "comment": "Es war einmal eine kleine..."}
@@ -222,7 +223,7 @@ class ConfirmCommentTestCase(TestCase):
         self.assertTrue(response.url.startswith('/comments/cr/'))
         self.assertEqual(self.mock_mailer.call_count, 2)
 
-        self.form = django_comments.get_form()(self.article)
+        self.form = get_form()(self.article)
         data = {"name": "Alice", "email": "alice@example.com",
                 "followup": True, "reply_to": 0, "level": 1, "order": 1,
                 "comment": "Es war einmal iene kleine..."}
@@ -247,7 +248,7 @@ class ConfirmCommentTestCase(TestCase):
         # no comment followers yet:
         self.assertEqual(self.mock_mailer.call_count, 1)
         # send Bob's 2nd comment
-        self.form = django_comments.get_form()(self.article)
+        self.form = get_form()(self.article)
         data = {"name": "Alice", "email": "bob@example.com", "followup": True,
                 "reply_to": 0, "level": 1, "order": 1,
                 "comment": "Bob's comment he shouldn't get notified about"}
@@ -283,32 +284,6 @@ class ReplyCommentTestCase(TestCase):
 
         self.deep_reply = rr1
 
-        # # post Comment 1 to article, level 0
-        # TreeComment.objects.create(content_type=article_ct,
-        #                           object_pk=article.id,
-        #                           content_object=article,
-        #                           site=site,
-        #                           comment="comment 1 to article",
-        #                           submit_date=datetime.now())
-        #
-        # # post Comment 2 to article, level 1
-        # TreeComment.objects.create(content_type=article_ct,
-        #                           object_pk=article.id,
-        #                           content_object=article,
-        #                           site=site,
-        #                           comment="comment 1 to comment 1",
-        #                           submit_date=datetime.now(),
-        #                           parent_id=1)
-        #
-        # # post Comment 3 to article, level 2 (max according to test settings)
-        # TreeComment.objects.create(content_type=article_ct,
-        #                           object_pk=article.id,
-        #                           content_object=article,
-        #                           site=site,
-        #                           comment="comment 1 to comment 1",
-        #                           submit_date=datetime.now(),
-        #                           parent_id=2)
-
     def test_not_allow_threaded_reply_raises_403(self):
         response = self.client.get(reverse("comments-tree-reply",
                                            kwargs={"cid": self.deep_reply.id}))
@@ -322,11 +297,11 @@ class MuteFollowUpsTestCase(TestCase):
         # notifications. First comment doesn't have to send any notification.
         # Second comment has to send one notification (to Bob).
         self.factory = RequestFactory()
-        patcher = patch('django_comments_tree.views.send_mail')
+        patcher = patch('django_comments_tree.views.comments.send_mail')
         self.mock_mailer = patcher.start()
         self.article = Article.objects.create(
             title="September", slug="september", body="John's September")
-        self.form = django_comments.get_form()(self.article)
+        self.form = get_form()(self.article)
 
         # Bob sends 1st comment to the article with follow-up
         data = {"name": "Bob", "email": "bob@example.com", "followup": True,
@@ -397,11 +372,11 @@ class HTMLDisabledMailTestCase(TestCase):
     def setUp(self):
         # Create an article and send a comment. Test method will chech headers
         # to see wheter messages has multiparts or not.
-        patcher = patch('django_comments_tree.views.send_mail')
+        patcher = patch('django_comments_tree.views.comments.send_mail')
         self.mock_mailer = patcher.start()
         self.article = Article.objects.create(
             title="September", slug="september", body="John's September")
-        self.form = django_comments.get_form()(self.article)
+        self.form = get_form()(self.article)
 
         # Bob sends 1st comment to the article with follow-up
         self.data = {"name": "Bob", "email": "bob@example.com",

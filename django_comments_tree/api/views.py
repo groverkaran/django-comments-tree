@@ -6,7 +6,7 @@ from django_comments.views.moderation import perform_flag
 from rest_framework import generics, mixins, permissions, status
 from rest_framework.response import Response
 
-from django_comments_tree import views
+from django_comments_tree.views import comments as views
 from django_comments_tree.api import serializers
 from django_comments_tree.conf import settings
 from django_comments_tree.models import TreeComment
@@ -19,7 +19,7 @@ class CommentCreate(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            response = super(CommentCreate, self).post(request, *args, **kwargs)
+            response = super().post(request, *args, **kwargs)
         else:
             return Response([k for k in six.iterkeys(serializer.errors)],
                             status=400)
@@ -78,7 +78,7 @@ class ToggleFeedbackFlag(generics.CreateAPIView, mixins.DestroyModelMixin):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def post(self, request, *args, **kwargs):
-        response = super(ToggleFeedbackFlag, self).post(request, *args,
+        response = super().post(request, *args,
                                                         **kwargs)
         if self.created:
             return response
@@ -97,7 +97,7 @@ class CreateReportFlag(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def post(self, request, *args, **kwargs):
-        return super(CreateReportFlag, self).post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         perform_flag(self.request, serializer.validated_data['comment'])

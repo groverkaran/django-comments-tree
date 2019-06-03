@@ -30,7 +30,7 @@ def post_comment(data, auth_user=None):
 
 class CommentCreateTestCase(TestCase):
     def setUp(self):
-        patcher = patch('django_comments_tree.views.send_mail')
+        patcher = patch('django_comments_tree.views.comments.send_mail')
         self.mock_mailer = patcher.start()
         self.article = Article.objects.create(
             title="October", slug="october", body="What I did on October...")

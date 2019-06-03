@@ -23,7 +23,7 @@ class TreeCommentForm(CommentForm):
             followup_suffix = ('_%d' % comment.pk)
         else:
             followup_suffix = ''
-        super(CommentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['name'] = forms.CharField(
             label=_("Name"),
             widget=forms.TextInput(attrs={'placeholder': _('name'),
@@ -51,7 +51,7 @@ class TreeCommentForm(CommentForm):
         return TmpTreeComment
 
     def get_comment_create_data(self, site_id=None):
-        data = super(CommentForm, self).get_comment_create_data(site_id=site_id)
+        data = super().get_comment_create_data(site_id=site_id)
         ctype = data.get('content_type')
         object_pk = data.get('object_pk')
         model = apps.get_model(ctype.app_label, ctype.model)

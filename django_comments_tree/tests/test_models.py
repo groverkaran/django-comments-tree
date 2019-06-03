@@ -20,7 +20,7 @@ class ArticleBaseTestCase(DjangoTestCase):
 
 class TreeCommentManagerTestCase(ArticleBaseTestCase):
     def setUp(self):
-        super(TreeCommentManagerTestCase, self).setUp()
+        super().setUp()
         self.article_ct = ContentType.objects.get(app_label="tests",
                                                   model="article")
 
@@ -225,7 +225,7 @@ def thread_test_step_5(article):
 
 class BaseThreadStep1TestCase(ArticleBaseTestCase):
     def setUp(self):
-        super(BaseThreadStep1TestCase, self).setUp()
+        super().setUp()
         thread_test_step_1(self.article_1)
 
     def test_threaded_comments_step_1_level_0(self):
@@ -237,7 +237,7 @@ class BaseThreadStep1TestCase(ArticleBaseTestCase):
 
 class ThreadStep2TestCase(ArticleBaseTestCase):
     def setUp(self):
-        super(ThreadStep2TestCase, self).setUp()
+        super().setUp()
         thread_test_step_1(self.article_1)
         thread_test_step_2(self.article_1)
 
@@ -255,7 +255,7 @@ class ThreadStep2TestCase(ArticleBaseTestCase):
 
 class ThreadStep3TestCase(ArticleBaseTestCase):
     def setUp(self):
-        super(ThreadStep3TestCase, self).setUp()
+        super().setUp()
         thread_test_step_1(self.article_1)
         thread_test_step_2(self.article_1)
         thread_test_step_3(self.article_1)
@@ -283,7 +283,7 @@ class ThreadStep3TestCase(ArticleBaseTestCase):
 
 class ThreadStep4TestCase(ArticleBaseTestCase):
     def setUp(self):
-        super(ThreadStep4TestCase, self).setUp()
+        super().setUp()
         thread_test_step_1(self.article_1)
         thread_test_step_2(self.article_1)
         thread_test_step_3(self.article_1)
@@ -318,7 +318,7 @@ class ThreadStep4TestCase(ArticleBaseTestCase):
 
 class ThreadStep5TestCase(ArticleBaseTestCase):
     def setUp(self):
-        super(ThreadStep5TestCase, self).setUp()
+        super().setUp()
         thread_test_step_1(self.article_1)
         thread_test_step_2(self.article_1)
         thread_test_step_3(self.article_1)
