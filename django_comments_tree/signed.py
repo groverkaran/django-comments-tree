@@ -79,9 +79,7 @@ def loads(s, key=None, extra_key=b''):
     if isinstance(s, six.text_type):
         s = s.encode('utf8')  # base64 works on bytestrings
     try:
-        base64d = unsign(s,
-                         (key or settings.SECRET_KEY.encode('ascii')) +
-                         extra_key)
+        base64d = unsign(s, (key or settings.SECRET_KEY.encode('ascii')) + extra_key)
     except ValueError:
         raise
     decompress = False

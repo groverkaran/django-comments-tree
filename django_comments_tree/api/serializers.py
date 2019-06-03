@@ -47,10 +47,8 @@ class WriteCommentSerializer(serializers.Serializer):
 
     def validate_name(self, value):
         if not len(value):
-            if (
-                    not len(self.request.user.get_full_name()) or
-                    not self.request.user.is_authenticated
-            ):
+            fnl = len(self.request.user.get_full_name())
+            if not fnl or not self.request.user.is_authenticated:
                 raise serializers.ValidationError("This field is required")
             else:
                 return (self.request.user.get_full_name() or
@@ -59,10 +57,8 @@ class WriteCommentSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         if not len(value):
-            if (
-                    not len(self.request.user.email) or
-                    not self.request.user.is_authenticated
-            ):
+            eml = len(self.request.user.email)
+            if not eml or not self.request.user.is_authenticated:
                 raise serializers.ValidationError("This field is required")
             else:
                 return self.request.user.email
@@ -218,10 +214,8 @@ class ReadCommentSerializer(serializers.ModelSerializer):
             if self.request.user.has_perm("django_comments.can_moderate"):
                 flags['removal']['count'] = len(users_flagging)
 
-        if (
-                has_app_model_option(obj)['allow_feedback'] or
-                has_app_model_option(obj)['show_feedback']
-        ):
+        opt = has_app_model_option(obj)
+        if opt['allow_feedback'] or opt['show_feedback']:
             users_likedit = obj.users_flagging(LIKEDIT_FLAG)
             users_dislikedit = obj.users_flagging(DISLIKEDIT_FLAG)
 

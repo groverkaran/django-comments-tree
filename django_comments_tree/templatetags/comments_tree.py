@@ -250,8 +250,7 @@ class RenderTreeCommentTreeNode(Node):
     def render(self, context):
         context_dict = context.flatten()
         for attr in ['allow_flagging', 'allow_feedback', 'show_feedback']:
-            context_dict[attr] = (getattr(self, attr, False) or
-                                  context.get(attr, False))
+            context_dict[attr] = (getattr(self, attr, False) or context.get(attr, False))
         if self.obj:
             obj = self.obj.resolve(context)
             ctype = ContentType.objects.get_for_model(obj)

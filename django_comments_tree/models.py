@@ -1,5 +1,6 @@
 from typing import Optional, List
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -73,7 +74,7 @@ class CommentManager(MP_NodeManager):
             ct = ContentType.objects.get_for_model(obj)
             assoc = CommentAssociation.objects.get(content_type=ct, object_pk=obj.id)
             return assoc.root
-        except:
+        except ObjectDoesNotExist:
             return None
 
     def get_or_create_root(self, obj, site=None):
@@ -86,7 +87,7 @@ class CommentManager(MP_NodeManager):
             assoc = CommentAssociation.objects.get(content_type=ct,
                                                    object_pk=obj.id,
                                                    site=site)
-        except CommentAssociation.DoesNotExist as e:
+        except ObjectDoesNotExist:
             root = TreeComment.add_root()
             assoc = CommentAssociation.objects.create(content_type=ct,
                                                       object_pk=obj.id,
@@ -133,7 +134,7 @@ class CommentManager(MP_NodeManager):
 
     def for_content_types(self,
                           content_types: List[str],
-                          site: int=None) -> Optional[models.QuerySet]:
+                          site: int = None) -> Optional[models.QuerySet]:
         """
         Return all descendants of the content type.
         :param content_types:
@@ -157,9 +158,9 @@ class CommentManager(MP_NodeManager):
         qs = TreeComment.objects.filter(depth__gte=2).filter(myQ)
         return qs
 
-    def count_for_content_types(self, content_Types: List[str], site: int=None) -> int:
+    def count_for_content_types(self, content_types: List[str], site: int = None) -> int:
         count = 0
-        filter_fields = {'content_type__in': content_Types}
+        filter_fields = {'content_type__in': content_types}
         if site is not None:
             filter_fields['site'] = site
         associations = CommentAssociation.objects.filter(**filter_fields)
@@ -203,7 +204,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
                     max_level = max_thread_level_for_content_type(assoc.content_type)
                     if max_level and self.get_depth() > max_level:
                         raise MaxThreadLevelExceededException(self)
-                except Exception as e:
+                except Exception:
                     pass
             kwargs["force_insert"] = False
             super().save(*args, **kwargs)
@@ -325,7 +326,7 @@ class TmpTreeComment(dict):
                     return getattr(self.get('tree_comment'), key)
                 except KeyError:
                     pass
-                except Exception as e:
+                except Exception:
                     pass
             return None
 

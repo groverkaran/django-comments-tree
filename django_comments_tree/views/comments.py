@@ -146,10 +146,7 @@ def sent(request, using=None):
                         "comments/posted.html"]
         return render(request, template_arg, {'target': target})
     else:
-        if (
-                request.is_ajax() and comment.user and
-                comment.user.is_authenticated
-        ):
+        if request.is_ajax() and comment.user and comment.user.is_authenticated:
             if comment.is_public:
                 template_arg = [
                     "django_comments_tree/%s/%s/comment.html" % (
