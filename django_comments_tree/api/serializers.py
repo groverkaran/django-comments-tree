@@ -51,8 +51,7 @@ class WriteCommentSerializer(serializers.Serializer):
             if not fnl or not self.request.user.is_authenticated:
                 raise serializers.ValidationError("This field is required")
             else:
-                return (self.request.user.get_full_name() or
-                        self.request.user.get_username())
+                return self.request.user.get_full_name() or self.request.user.get_username()
         return value
 
     def validate_email(self, value):
@@ -128,10 +127,7 @@ class WriteCommentSerializer(serializers.Serializer):
                 return resp
 
         # Replicate logic from django_comments_tree.views.comments.on_comment_was_posted.
-        if (
-                not settings.COMMENTS_TREE_CONFIRM_EMAIL or
-                self.request.user.is_authenticated
-        ):
+        if not settings.COMMENTS_TREE_CONFIRM_EMAIL or self.request.user.is_authenticated:
             if not views._comment_exists(resp['comment']):
                 new_comment = views._create_comment(resp['comment'])
                 resp['comment'].tree_comment = new_comment
