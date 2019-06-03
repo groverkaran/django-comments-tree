@@ -483,7 +483,7 @@ class TreeModerator(Moderator):
         if flag.flag != TreeCommentFlag.SUGGEST_REMOVAL:
             return
         self._registry[model].notify_removal_suggestion(comment,
-                                                        comment.content_object,
+                                                        comment.association.content_object,
                                                         request)
 
 

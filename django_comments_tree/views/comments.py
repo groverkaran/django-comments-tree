@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django import http
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.shortcuts import get_current_site
 from django.core import signing
@@ -433,37 +434,36 @@ comment_done = confirmation_view(
     doc="""Display a "comment was posted" success page."""
 )
 
-@csrf_protect
-@login_required
-def flag(request, comment_id, next=None):
-    """
-    Flags a comment. Confirmation on GET, action on POST.
 
-    Templates: :template:`comments/flag.html`,
-    Context:
-        comment
-            the flagged `comments.comment` object
-    """
-    comment = get_object_or_404(get_comment_model(),
-                                pk=comment_id)
-    if not has_app_model_option(comment)['allow_flagging']:
-        ctype = ContentType.objects.get_for_model(comment.content_object)
-        raise Http404("Comments posted to instances of '%s.%s' are not "
-                      "explicitly allowed to receive 'removal suggestion' "
-                      "flags. Check the COMMENTS_TREE_APP_MODEL_OPTIONS "
-                      "setting." % (ctype.app_label, ctype.model))
-    # Flag on POST
-    if request.method == 'POST':
-        perform_flag(request, comment)
-        return next_redirect(request, fallback=next or 'comments-flag-done',
-                             c=comment.pk)
+@method_decorator(login_required, name='dispatch')
+class FlagView(View):
+    http_method_names = ['get', 'post']
 
-    # Render a form on GET
-    else:
+    def get_comment(self, comment_id):
+
+        comment = get_object_or_404(get_comment_model(),
+                                    pk=comment_id)
+        if not has_app_model_option(comment)['allow_flagging']:
+            ctype = ContentType.objects.get_for_model(comment.content_object)
+            raise Http404("Comments posted to instances of '%s.%s' are not "
+                          "explicitly allowed to receive 'removal suggestion' "
+                          "flags. Check the COMMENTS_TREE_APP_MODEL_OPTIONS "
+                          "setting." % (ctype.app_label, ctype.model))
+
+        return comment
+
+    def get(self, request, comment_id,  next=None):
+        comment = self.get_comment(comment_id)
         return render(request, 'comments/flag.html',
                       {'comment': comment,
                        'next': next})
 
+    def post(self, request, comment_id, next=None):
+        comment = self.get_comment(comment_id)
+
+        perform_flag(request, comment)
+        return next_redirect(request, fallback=next or 'comments-flag-done',
+                             c=comment.pk)
 
 @csrf_protect
 @login_required
@@ -476,8 +476,7 @@ def like(request, comment_id, next=None):
         comment
             the flagged `comments.comment` object
     """
-    comment = get_object_or_404(get_comment_model(), pk=comment_id,
-                                site__pk=settings.SITE_ID)
+    comment = get_object_or_404(get_comment_model(), pk=comment_id)
     if not has_app_model_option(comment)['allow_feedback']:
         ctype = ContentType.objects.get_for_model(comment.content_object)
         raise Http404("Comments posted to instances of '%s.%s' are not "
@@ -510,8 +509,8 @@ def dislike(request, comment_id, next=None):
         comment
             the flagged `comments.comment` object
     """
-    comment = get_object_or_404(get_comment_model(), pk=comment_id,
-                                site__pk=settings.SITE_ID)
+    comment = get_object_or_404(get_comment_model(), pk=comment_id)
+
     if not has_app_model_option(comment)['allow_feedback']:
         ctype = ContentType.objects.get_for_model(comment.content_object)
         raise Http404("Comments posted to instances of '%s.%s' are not "
