@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 from django.db import models
-from django.db.models import F, Max, Min, Q
+from django.db.models import Q
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
@@ -131,7 +131,9 @@ class CommentManager(MP_NodeManager):
                                                          model=model))
         return self.for_content_types(content_types, **kwargs)
 
-    def for_content_types(self, content_types: List[str], site: int=None) -> Optional[models.QuerySet]:
+    def for_content_types(self,
+                          content_types: List[str],
+                          site: int=None) -> Optional[models.QuerySet]:
         """
         Return all descendants of the content type.
         :param content_types:
@@ -144,7 +146,6 @@ class CommentManager(MP_NodeManager):
         associations = CommentAssociation.objects.filter(**filter_fields)
         parent_paths = []
 
-        n_assoc = associations.count()
         for assoc in associations:
             parent_paths.append(assoc.root.path)
 
@@ -161,7 +162,6 @@ class CommentManager(MP_NodeManager):
         filter_fields = {'content_type__in': content_Types}
         if site is not None:
             filter_fields['site'] = site
-        qs = TreeComment.objects.none()
         associations = CommentAssociation.objects.filter(**filter_fields)
         for assoc in associations:
             count += assoc.root.get_descendants().count()
@@ -285,74 +285,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
 
         root = TreeComment.objects.get_or_create_root(obj)
         data = cls.tree_from_comment(root)
-        children = root.get_children().filter(is_public=True)
-        alist = root.get_annotated_list()
-        bulk = root.dump_bulk()
         return data
-
-    @classmethod
-    def tree_from_queryset(cls, queryset, with_flagging=False,
-                           with_feedback=False, user=None):
-        """Converts a TreeComment queryset into a list of nested dictionaries.
-        The queryset has to be ordered by date and depth.
-        Each dictionary contains two attributes::
-            {
-                'comment': the comment object itself,
-                'children': [list of child comment dictionaries]
-            }
-        """
-
-        def get_user_feedback(comment, user):
-            d = {'likedit_users': comment.users_flagging(LIKEDIT_FLAG),
-                 'dislikedit_users': comment.users_flagging(DISLIKEDIT_FLAG)}
-            if user is not None:
-                if user in d['likedit_users']:
-                    d['likedit'] = True
-                if user in d['dislikedit_users']:
-                    d['dislikedit'] = True
-            return d
-
-        def add_children(children, obj, user):
-            for item in children:
-                if item['comment'].pk == obj.parent_id:
-                    child_dict = {'comment': obj, 'children': []}
-                    if with_feedback:
-                        child_dict.update(get_user_feedback(obj, user))
-                    item['children'].append(child_dict)
-                    return True
-                elif item['children']:
-                    if add_children(item['children'], obj, user):
-                        return True
-            return False
-
-        def get_new_dict(obj):
-            new_dict = {'comment': obj, 'children': []}
-            if with_feedback:
-                new_dict.update(get_user_feedback(obj, user))
-            if with_flagging:
-                users_flagging = obj.users_flagging(TreeCommentFlag.SUGGEST_REMOVAL)
-                if user.has_perm('django_comments.can_moderate'):
-                    new_dict.update({'flagged_count': len(users_flagging)})
-                new_dict.update({'flagged': user in users_flagging})
-            return new_dict
-
-        dic_list = []
-        cur_dict = None
-        for obj in queryset:
-            if cur_dict and obj.depth == cur_dict['comment'].depth:
-                dic_list.append(cur_dict)
-                cur_dict = None
-            if not cur_dict:
-                cur_dict = get_new_dict(obj)
-                continue
-            if obj.get_parent().id == cur_dict['comment'].pk:
-                child_dict = get_new_dict(obj)
-                cur_dict['children'].append(child_dict)
-            else:
-                add_children(cur_dict['children'], obj, user)
-        if cur_dict:
-            dic_list.append(cur_dict)
-        return dic_list
 
     def users_flagging(self, flag):
         return [obj.user for obj in self.flags.filter(flag=flag)]
@@ -478,7 +411,6 @@ class TreeCommentFlag(models.Model):
     MODERATOR_APPROVAL = "moderator approval"
 
     class Meta:
-        #db_table = 'django_comment_flags'
         unique_together = [('user', 'comment', 'flag')]
         verbose_name = _('comment flag')
         verbose_name_plural = _('comment flags')

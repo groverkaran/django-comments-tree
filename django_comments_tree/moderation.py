@@ -56,16 +56,12 @@ class.
 
 import datetime
 
-from django.db.models.base import ModelBase
+from django import VERSION
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.db.models.base import ModelBase
-from django.template import loader
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-
-from django import VERSION
 
 try:
     from django.contrib.sites.shortcuts import get_current_site
@@ -214,7 +210,9 @@ class CommentModerator(object):
             now = datetime.date(now.year, now.month, now.day)
             then = datetime.date(then.year, then.month, then.day)
         if now < then:
-            raise ValueError("Cannot determine moderation rules because date field is set to a value in the future")
+            raise ValueError(f"Cannot determine moderation rules "
+                             f" because date field is set to a value"
+                             f" in the future")
         return now - then
 
     def allow(self, comment, content_object, request):
@@ -232,7 +230,8 @@ class CommentModerator(object):
         if self.auto_close_field and self.close_after is not None:
             close_after_date = getattr(content_object, self.auto_close_field)
             if close_after_date is not None and self._get_delta(timezone.now(),
-                                                                close_after_date).days >= self.close_after:
+                                                                close_after_date
+                                                                ).days >= self.close_after:
                 return False
         return True
 
@@ -248,8 +247,8 @@ class CommentModerator(object):
         """
         if self.auto_moderate_field and self.moderate_after is not None:
             moderate_after_date = getattr(content_object, self.auto_moderate_field)
-            if moderate_after_date is not None and self._get_delta(timezone.now(),
-                                                                   moderate_after_date).days >= self.moderate_after:
+            if moderate_after_date is not None and self._get_delta(
+                    timezone.now(), moderate_after_date).days >= self.moderate_after:
                 return True
         return False
 
@@ -333,7 +332,8 @@ class Moderator(object):
             model_or_iterable = [model_or_iterable]
         for model in model_or_iterable:
             if model in self._registry:
-                raise AlreadyModerated("The model '%s' is already being moderated" % model._meta.model_name)
+                raise AlreadyModerated(f"The model '{model._meta.model_name}' "
+                                       f" is already being moderated")
             self._registry[model] = moderation_class(model)
 
     def unregister(self, model_or_iterable):
@@ -349,7 +349,9 @@ class Moderator(object):
             model_or_iterable = [model_or_iterable]
         for model in model_or_iterable:
             if model not in self._registry:
-                raise NotModerated("The model '%s' is not currently being moderated" % model._meta.model_name)
+                raise NotModerated(
+                    f"The model '{model._meta.model_name}'"
+                    f" is not currently being moderated")
             del self._registry[model]
 
     def pre_save_moderation(self, sender, comment, request, **kwargs):

@@ -52,9 +52,9 @@ def commentbox_props(obj, user, request=None):
     form = CommentSecurityForm(obj)
     ctype = ContentType.objects.get_for_model(obj)
     queryset = TreeComment.objects.filter(content_type=ctype,
-                                         object_pk=obj.pk,
-                                         site__pk=settings.SITE_ID,
-                                         is_public=True)
+                                          object_pk=obj.pk,
+                                          site__pk=settings.SITE_ID,
+                                          is_public=True)
     ctype_slug = "%s-%s" % (ctype.app_label, ctype.model)
     d = {
         "comment_count": queryset.count(),

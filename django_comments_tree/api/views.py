@@ -47,9 +47,9 @@ class CommentList(generics.ListAPIView):
             qs = TreeComment.objects.none()
         else:
             qs = TreeComment.objects.filter(content_type=content_type,
-                                           object_pk=object_pk_arg,
-                                           site__pk=settings.SITE_ID,
-                                           is_public=True)
+                                            object_pk=object_pk_arg,
+                                            site__pk=settings.SITE_ID,
+                                            is_public=True)
         return qs
 
 
@@ -63,8 +63,8 @@ class CommentCount(generics.GenericAPIView):
         app_label, model = content_type_arg.split("-")
         content_type = ContentType.objects.get_by_natural_key(app_label, model)
         qs = TreeComment.objects.filter(content_type=content_type,
-                                       object_pk=object_pk_arg,
-                                       is_public=True)
+                                        object_pk=object_pk_arg,
+                                        is_public=True)
         return qs
 
     def get(self, request, *args, **kwargs):
@@ -78,8 +78,7 @@ class ToggleFeedbackFlag(generics.CreateAPIView, mixins.DestroyModelMixin):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args,
-                                                        **kwargs)
+        response = super().post(request, *args, **kwargs)
         if self.created:
             return response
         else:

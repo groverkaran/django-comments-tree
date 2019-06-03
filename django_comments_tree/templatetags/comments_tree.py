@@ -130,7 +130,7 @@ class GetLastTreeCommentsNode(BaseLastTreeCommentsNode):
         self.qs = TreeComment.objects.for_content_types(
             self.content_types,
             site=settings.SITE_ID)
-        
+
         self.qs = self.qs.order_by('submit_date')[:self.count]
         context[self.as_varname] = self.qs
         return ''
@@ -255,8 +255,7 @@ class RenderTreeCommentTreeNode(Node):
         if self.obj:
             obj = self.obj.resolve(context)
             ctype = ContentType.objects.get_for_model(obj)
-            root = TreeComment.objects.get_or_create_root(obj, site=settings.SITE_ID)
-            queryset = root.get_descendants()
+            # queryset = root.get_descendants()
             # queryset = TreeComment.objects.filter(content_type=ctype,
             #                                       object_pk=obj.pk,
             #                                       site__pk=settings.SITE_ID,
@@ -268,12 +267,6 @@ class RenderTreeCommentTreeNode(Node):
                                                            user=context['user']
                                                            )
 
-            # comments = TreeComment.tree_from_queryset(
-            #     queryset,
-            #     with_flagging=self.allow_flagging,
-            #     with_feedback=self.allow_feedback,
-            #     user=context['user']
-            # )
             context_dict['comments'] = ctree
         if self.cvars:
             for vname, vobj in self.cvars:
@@ -309,17 +302,15 @@ class GetTreeCommentTreeNode(Node):
 
     def render(self, context):
         obj = self.obj.resolve(context)
-        ctype = ContentType.objects.get_for_model(obj)
-        queryset = TreeComment.objects.filter(content_type=ctype,
-                                              object_pk=obj.pk,
-                                              site__pk=settings.SITE_ID,
-                                              is_public=True)
-        dic_list = TreeComment.tree_from_queryset(
-            queryset,
-            with_feedback=self.with_feedback,
-            user=context['user']
-        )
-        context[self.var_name] = dic_list
+
+        # ToDo: Add support for "with_feedback" to the tree list
+        # dic_list = TreeComment.tree_from_queryset(
+        #     queryset,
+        #     with_feedback=self.with_feedback,
+        #     user=context['user']
+        # )
+        data = TreeComment.objects.tree_from_associated_object(obj)
+        context[self.var_name] = data
         return ''
 
 

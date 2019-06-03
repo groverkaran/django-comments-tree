@@ -1,36 +1,35 @@
 from __future__ import unicode_literals
-import six
 
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+import six
 from django import http
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.shortcuts import get_current_site
 from django.core import signing
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
+from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, View
-from django.template.loader import render_to_string
-from django.utils.html import escape
 
-from django_comments_tree.models import TreeCommentFlag
-from django_comments_tree.views.moderation import perform_flag
-from django_comments_tree.views.utils import next_redirect, confirmation_view
-
-from django_comments_tree import (get_form, comment_was_posted, signals, signed,
-                                  get_model as get_comment_model)
+from django_comments_tree import (comment_was_posted, get_form,
+                                  get_model as get_comment_model,
+                                  signals, signed)
 from django_comments_tree.conf import settings
-from django_comments_tree.models import (TmpTreeComment,
+from django_comments_tree.models import (DISLIKEDIT_FLAG, LIKEDIT_FLAG,
                                          MaxThreadLevelExceededException,
-                                         LIKEDIT_FLAG, DISLIKEDIT_FLAG)
-from django_comments_tree.utils import send_mail, has_app_model_option
+                                         TmpTreeComment, TreeCommentFlag)
+from django_comments_tree.utils import has_app_model_option, send_mail
+from django_comments_tree.views.moderation import perform_flag
+from django_comments_tree.views.utils import confirmation_view, next_redirect
 
 TreeComment = get_comment_model()
 
@@ -202,11 +201,11 @@ def confirm(request, key,
 def notify_comment_followers(comment):
     """
     Updated to use MP_Nodes
-    :param comment: 
-    :return: 
+    :param comment:
+    :return:
     """
     root = comment.get_root()
-    
+
     followers = {}
     kwargs = {'is_public': True,
               'followup': True}
@@ -288,8 +287,8 @@ def mute(request, key):
                                       request=request)
 
     unmuted = comment.get_root().get_descendants().filter(
-        is_public=True, 
-        followup=True, 
+        is_public=True,
+        followup=True,
         user_email=comment.user_email)
     unmuted.update(followup=False)
 
@@ -440,7 +439,6 @@ class FlagView(View):
     http_method_names = ['get', 'post']
 
     def get_comment(self, comment_id):
-
         comment = get_object_or_404(get_comment_model(),
                                     pk=comment_id)
         if not has_app_model_option(comment)['allow_flagging']:
@@ -452,7 +450,7 @@ class FlagView(View):
 
         return comment
 
-    def get(self, request, comment_id,  next=None):
+    def get(self, request, comment_id, next=None):
         comment = self.get_comment(comment_id)
         return render(request, 'comments/flag.html',
                       {'comment': comment,
@@ -464,6 +462,7 @@ class FlagView(View):
         perform_flag(request, comment)
         return next_redirect(request, fallback=next or 'comments-flag-done',
                              c=comment.pk)
+
 
 @csrf_protect
 @login_required
@@ -535,12 +534,12 @@ def dislike(request, comment_id, next=None):
 def perform_like(request, comment):
     """Actually set the 'Likedit' flag on a comment from a request."""
     flag, created = TreeCommentFlag.objects.get_or_create(comment=comment,
-                                                      user=request.user,
-                                                      flag=LIKEDIT_FLAG)
+                                                          user=request.user,
+                                                          flag=LIKEDIT_FLAG)
     if created:
         TreeCommentFlag.objects.filter(comment=comment,
-                                   user=request.user,
-                                   flag=DISLIKEDIT_FLAG).delete()
+                                       user=request.user,
+                                       flag=DISLIKEDIT_FLAG).delete()
     else:
         flag.delete()
     return created
@@ -549,12 +548,12 @@ def perform_like(request, comment):
 def perform_dislike(request, comment):
     """Actually set the 'Dislikedit' flag on a comment from a request."""
     flag, created = TreeCommentFlag.objects.get_or_create(comment=comment,
-                                                      user=request.user,
-                                                      flag=DISLIKEDIT_FLAG)
+                                                          user=request.user,
+                                                          flag=DISLIKEDIT_FLAG)
     if created:
         TreeCommentFlag.objects.filter(comment=comment,
-                                   user=request.user,
-                                   flag=LIKEDIT_FLAG).delete()
+                                       user=request.user,
+                                       flag=LIKEDIT_FLAG).delete()
     else:
         flag.delete()
     return created

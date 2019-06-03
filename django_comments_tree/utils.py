@@ -9,7 +9,6 @@ except ImportError:
 import threading
 
 from django.core.mail import EmailMultiAlternatives
-from django.contrib.contenttypes.models import ContentType
 
 from django_comments_tree.conf import settings
 
@@ -58,7 +57,7 @@ def has_app_model_option(comment):
         'allow_feedback': False,
         'show_feedback': False
     }
-    #content_type = ContentType.objects.get_for_model(comment.content_object)
+    # content_type = ContentType.objects.get_for_model(comment.content_object)
     content_type = comment.content_type
     key = "%s.%s" % (content_type.app_label, content_type.model)
     try:
