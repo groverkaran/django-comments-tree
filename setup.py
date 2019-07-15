@@ -3,6 +3,8 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test
 
+from django_comments_tree import get_version
+
 
 def run_tests(*args):
     from django_comments_tree.tests import run_tests
@@ -18,7 +20,7 @@ test.run_tests = run_tests
 
 setup(
     name="django-comments-tree",
-    version="0.1.0a5",
+    version=get_version(),
     packages=find_packages(),
     scripts=[],
     include_package_data=True,

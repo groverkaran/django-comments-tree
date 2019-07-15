@@ -25,7 +25,30 @@ from django_comments_tree.models import (TmpTreeComment, TreeComment,
 from django_comments_tree.signals import confirmation_received
 from django_comments_tree.utils import has_app_model_option
 
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 3000)
+
+
+class APICommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TreeComment
+        fields = ['id', 'user',
+                  'user_name', 'user_email', 'user_url',
+                  'comment',
+                  'submit_date', 'updated_on',
+                  'ip_address', 'is_public', 'is_removed',
+                  'followup',
+                  # MP_Node
+                  'path', 'depth', 'numchild',
+                  ]
+
+    def to_representation(self, instance):
+        obj = super().to_representation(instance)
+        obj['submit_date'] = instance.submit_date.strftime(DATETIME_FORMAT)
+        return obj
+
+    def save(self, **kwargs):
+        return super().save(**kwargs)
 
 
 class WriteCommentSerializer(serializers.Serializer):
@@ -43,6 +66,7 @@ class WriteCommentSerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs['context']['request']
+        self.form = None
         super().__init__(*args, **kwargs)
 
     def validate_name(self, value):
@@ -235,7 +259,7 @@ class ReadCommentSerializer(serializers.ModelSerializer):
     def get_user_avatar(self, obj):
         path = hashlib.md5(obj.user_email.lower().encode('utf-8')).hexdigest()
         param = urlencode({'s': 48})
-        return "http://www.gravatar.com/avatar/%s?%s&d=mm" % (path, param)
+        return "https://www.gravatar.com/avatar/%s?%s&d=mm" % (path, param)
 
     def get_permalink(self, obj):
         return obj.get_absolute_url()

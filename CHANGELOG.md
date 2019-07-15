@@ -1,18 +1,23 @@
 # Change Log
 
+## [0.1.0a6] - 2019-07-15
+
+    * No code changes
+    * Update how the versions are determined
+
 ## [0.1.0a5] - 2019-07-14
 
-   * Fixed build error caused by flake8 issue
+    * Fixed build error caused by flake8 issue
 
 ## [0.1.0a2] - 2019-07-14
 
-   * Change development status to 3 - Alpha
+    * Change development status to 3 - Alpha
 
 ## [0.1.0a1] - 2019-07-14
 
-   * Resolve issue in models.py `add_child` to support adding from a form.
-   * Add `updated_on` field to `TreeComment` model
-   * Added an `init_form_data` method to TreeCommentForm that is currently unused and may be removed.
+    * Resolve issue in models.py `add_child` to support adding from a form.
+    * Add `updated_on` field to `TreeComment` model
+    * Added an `init_form_data` method to TreeCommentForm that is currently unused and may be removed.
    
     
 ## [0.1.0] - 2019-04-11

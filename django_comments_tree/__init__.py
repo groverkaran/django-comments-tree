@@ -18,7 +18,7 @@ def get_form():
     return import_string(settings.COMMENTS_TREE_FORM_CLASS)
 
 
-VERSION = (2, 4, 0, 'f', 0) # following PEP 440
+VERSION = (0, 1, 0, 'a', 6) # following PEP 440
 
 
 def get_version():
