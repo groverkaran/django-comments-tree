@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.0a5] - 2019-07-14
+
+   * Fixed build error caused by flake8 issue
+
 ## [0.1.0a2] - 2019-07-14
 
    * Change development status to 3 - Alpha
