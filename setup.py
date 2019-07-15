@@ -18,7 +18,7 @@ test.run_tests = run_tests
 
 setup(
     name="django-comments-tree",
-    version="0.1.0a2",
+    version="0.1.0a3",
     packages=find_packages(),
     scripts=[],
     include_package_data=True,
@@ -33,8 +33,8 @@ setup(
                       "notifications and comments that only hits the "
                       "database after users confirm them by email."
                       "Real-time comment updates are also available using "
-                      "firebase as a notification mechanism of comment updates. "
-                      "Clients can connect to firebase for updates, and then query "
+                      "Django channels as a notification mechanism of comment updates. "
+                      "Clients can connect to channels for updates, and then query "
                       "the backend for the actual changes, so that all data is "
                       "located in the backend database."
                       ),
@@ -42,11 +42,12 @@ setup(
     author_email="ed@sharpertool.com",
     maintainer="Ed Henderson",
     maintainer_email="ed@sharpertool.com",
-    keywords="django comments treebeard threaded firebase",
-    url="http://pypi.python.org/pypi/django-comments-tree",
+    keywords="django comments treebeard threaded django-channels websockets",
+    url="https://github.com/sharpertool/django-comments-tree",
     project_urls={
-
+        'Original Package': 'https://github.com/danirus/django-comments-xtd',
     },
+    python_requires='>=3.5',
     install_requires=[
         'Django>=2.0',
         'django-treebeard>=4.1.0',
@@ -58,8 +59,6 @@ setup(
         'six',
     ],
     extras_requires=[
-        'firebase-admin>=2.16.0',
-        'python-firebase>=1.2',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -67,8 +66,10 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Framework :: Django',
         'Natural Language :: English',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary',
