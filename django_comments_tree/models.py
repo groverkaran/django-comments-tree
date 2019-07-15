@@ -190,7 +190,10 @@ class TreeComment(MP_Node, CommentAbstractModel):
         if depth > settings.COMMENTS_TREE_MAX_THREAD_LEVEL:
             raise MaxThreadLevelExceededException(comment)
 
-        child = super().add_child(*args, comment=comment, **kwargs)
+        if 'instance' in kwargs:
+            child = super().add_child(*args, **kwargs)
+        else:
+            child = super().add_child(*args, comment=comment, **kwargs)
         return child
 
     def save(self, *args, **kwargs):
@@ -261,7 +264,8 @@ class TreeComment(MP_Node, CommentAbstractModel):
         return None
 
     @classmethod
-    def tree_from_comment(cls, root, filter_public=True):
+    def tree_from_comment(cls, root,
+                          filter_public=True,):
         """
         Return a recursive structure with comments and their children,
         starting at the given root.
@@ -273,7 +277,10 @@ class TreeComment(MP_Node, CommentAbstractModel):
         for child in children:
             data = {
                 "comment": child,
-                "children": cls.tree_from_comment(child)
+                "children": cls.tree_from_comment(
+                    child,
+                    filter_public=filter_public
+                )
             }
             retval.append(data)
         return retval
