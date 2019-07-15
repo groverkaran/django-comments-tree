@@ -6,13 +6,12 @@ from custom.mycomments.models import MyComment
 
 
 class MyCommentAdmin(TreeCommentsAdmin):
-    list_display = ('thread_level', 'title', 'cid', 'name', 'content_type',
-                    'object_pk', 'submit_date', 'followup', 'is_public',
+    list_display = ('title', 'name',
+                    'object_pi', 'submit_date', 'followup', 'is_public',
                     'is_removed')
     list_display_links = ('cid', 'title')
     fieldsets = (
-        (None,          {'fields': ('content_type', 'object_pk', 'site')}),
-        (_('Content'),  {'fields': ('title', 'user', 'user_name', 'user_email', 
+        (_('Content'),  {'fields': ('title', 'user', 'user_name', 'user_email',
                                     'user_url', 'comment', 'followup')}),
         (_('Metadata'), {'fields': ('submit_date', 'ip_address',
                                     'is_public', 'is_removed')}),

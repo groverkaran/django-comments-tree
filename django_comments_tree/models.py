@@ -59,11 +59,19 @@ class CommentAssociation(models.Model):
     content_object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
     # Retained a legacy. Remove once I determine it is not needed
-    object_pk = models.TextField(_('object ID'))
+    #object_pk = models.TextField(_('object ID'))
 
     # Metadata about the comment
     # ToDo: Why do I need this?
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
+
+    @property
+    def object_pk(self):
+        return str(self.object_id)
+
+    def save(self, **kwargs):
+        #self.object_pk = str(self.object_id)
+        super().save(**kwargs)
 
 
 class CommentManager(MP_NodeManager):
@@ -72,7 +80,7 @@ class CommentManager(MP_NodeManager):
         """ Return the root for the given object """
         try:
             ct = ContentType.objects.get_for_model(obj)
-            assoc = CommentAssociation.objects.get(content_type=ct, object_pk=obj.id)
+            assoc = CommentAssociation.objects.get(content_type=ct, object_id=obj.id)
             return assoc.root
         except ObjectDoesNotExist:
             return None
@@ -85,12 +93,12 @@ class CommentManager(MP_NodeManager):
 
         try:
             assoc = CommentAssociation.objects.get(content_type=ct,
-                                                   object_pk=obj.id,
+                                                   object_id=obj.id,
                                                    site=site)
         except ObjectDoesNotExist:
             root = TreeComment.add_root()
             assoc = CommentAssociation.objects.create(content_type=ct,
-                                                      object_pk=obj.id,
+                                                      object_id=obj.id,
                                                       content_object=obj,
                                                       site=site,
                                                       root=root)
@@ -120,7 +128,7 @@ class CommentManager(MP_NodeManager):
 
         qs = self.get_queryset().filter(content_type=ct)
         if isinstance(model, models.Model):
-            qs = qs.filter(object_pk=model._get_pk_val())
+            qs = qs.filter(object_id=model._get_pk_val())
         return qs
 
     def for_app_models(self, *args, **kwargs) -> Optional[models.QuerySet]:
@@ -250,7 +258,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
         """ Accessor added for compatibility with django_contrib.comments """
         assoc = self.association
         if assoc:
-            return assoc.object_pk
+            return assoc.object_id
 
         return None
 
@@ -348,7 +356,7 @@ class TmpTreeComment(dict):
             return self.tree_comment._get_pk_val()
         else:
             content_type = "%s.%s" % self.content_type.natural_key()
-            return signing.dumps("%s:%s" % (content_type, self.object_pk))
+            return signing.dumps("%s:%s" % (content_type, self.object_id))
 
     def __setstate__(self, state):
         ct_key = state.pop('content_type_key')

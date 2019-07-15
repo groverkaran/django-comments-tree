@@ -88,13 +88,12 @@ The admin module provides a new class MyCommentAdmin that inherits from TreeComm
 
 
   class MyCommentAdmin(TreeCommentsAdmin):
-      list_display = ('thread_level', 'title', 'cid', 'name', 'content_type',
-                      'object_pk', 'submit_date', 'followup', 'is_public',
+      list_display = ('title', 'name',
+                      'object_id', 'submit_date', 'followup', 'is_public',
                       'is_removed')
       list_display_links = ('cid', 'title')
       fieldsets = (
-          (None,          {'fields': ('content_type', 'object_pk', 'site')}),
-          (_('Content'),  {'fields': ('title', 'user', 'user_name', 'user_email', 
+          (_('Content'),  {'fields': ('title', 'user', 'user_name', 'user_email',
                                     'user_url', 'comment', 'followup')}),
           (_('Metadata'), {'fields': ('submit_date', 'ip_address',
                                       'is_public', 'is_removed')}),
@@ -127,5 +126,5 @@ Here's an example of how to access the underlying model storing your comments::
         content_type = ContentType.objects.get_for_model(model_instance)
 
         TreeComment.objects\
-            .filter(content_type=content_type, object_pk=model_instance.pk)\
+            .filter(content_type=content_type, object_id=model_instance.pk)\
             .update(followup=False)

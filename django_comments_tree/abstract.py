@@ -136,7 +136,7 @@ class CommentAbstractModel(models.Model):
         """
         return reverse(
             "comments-url-redirect",
-            args=(self.content_type.id, self.association.object_pk)
+            args=(self.content_type.id, self.association.object_id)
         )
 
     def get_as_text(self):

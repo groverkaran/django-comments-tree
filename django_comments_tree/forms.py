@@ -91,9 +91,9 @@ class TreeCommentForm(CommentForm):
     def get_comment_create_data(self, site_id=None):
         data = super().get_comment_create_data(site_id=site_id)
         ctype = data.get('content_type')
-        object_pk = data.get('object_pk')
+        object_id = data.get('object_pk')
         model = apps.get_model(ctype.app_label, ctype.model)
-        target = model._default_manager.get(pk=object_pk)
+        target = model._default_manager.get(pk=object_id)
         data.update({'followup': self.cleaned_data['followup'],
                      'content_object': target})
         return data

@@ -485,7 +485,7 @@ def comments_tree_api_list_url(obj):
     ctype = ContentType.objects.get_for_model(obj)
     ctype_slug = "%s-%s" % (ctype.app_label, ctype.model)
     return reverse('comments-tree-api-list', kwargs={'content_type': ctype_slug,
-                                                     'object_pk': obj.id})
+                                                     'object_id': obj.id})
 
 
 # ----------------------------------------------------------------------
