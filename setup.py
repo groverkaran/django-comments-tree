@@ -18,7 +18,7 @@ test.run_tests = run_tests
 
 setup(
     name="django-comments-tree",
-    version="0.1.0a1",
+    version="0.1.0a2",
     packages=find_packages(),
     scripts=[],
     include_package_data=True,
@@ -62,7 +62,7 @@ setup(
         'python-firebase>=1.2',
     ],
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
