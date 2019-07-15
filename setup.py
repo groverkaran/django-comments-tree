@@ -18,7 +18,7 @@ test.run_tests = run_tests
 
 setup(
     name="django-comments-tree",
-    version="0.1.0a3",
+    version="0.1.0a4",
     packages=find_packages(),
     scripts=[],
     include_package_data=True,
@@ -45,6 +45,8 @@ setup(
     keywords="django comments treebeard threaded django-channels websockets",
     url="https://github.com/sharpertool/django-comments-tree",
     project_urls={
+        'Documentation': 'https://django-comments-tree.readthedocs.io/en/latest/',
+        'Github': 'https://github.com/sharpertool/django-comments-tree',
         'Original Package': 'https://github.com/danirus/django-comments-xtd',
     },
     python_requires='>=3.5',
