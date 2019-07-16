@@ -3,7 +3,7 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test
 
-from .version import __version__
+from version import __version__
 
 
 def run_tests(*args):
