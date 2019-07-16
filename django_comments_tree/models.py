@@ -59,7 +59,7 @@ class CommentAssociation(models.Model):
     content_object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
     # Retained a legacy. Remove once I determine it is not needed
-    #object_pk = models.TextField(_('object ID'))
+    # object_pk = models.TextField(_('object ID'))
 
     # Metadata about the comment
     # ToDo: Why do I need this?
@@ -68,10 +68,6 @@ class CommentAssociation(models.Model):
     @property
     def object_pk(self):
         return str(self.object_id)
-
-    def save(self, **kwargs):
-        #self.object_pk = str(self.object_id)
-        super().save(**kwargs)
 
 
 class CommentManager(MP_NodeManager):
