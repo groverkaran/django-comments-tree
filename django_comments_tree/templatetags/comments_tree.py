@@ -256,7 +256,7 @@ class RenderTreeCommentTreeNode(Node):
             ctype = ContentType.objects.get_for_model(obj)
             # queryset = root.get_descendants()
             # queryset = TreeComment.objects.filter(content_type=ctype,
-            #                                       object_pk=obj.pk,
+            #                                       object_id=obj.id,
             #                                       site__pk=settings.SITE_ID,
             #                                       is_public=True)
 

@@ -21,7 +21,7 @@ class CommentSecurityForm(forms.Form):
     Handles the security aspects (anti-spoofing) for comment forms.
     """
     content_type = forms.CharField(widget=forms.HiddenInput)
-    object_pk = forms.CharField(widget=forms.HiddenInput)
+    object_id = forms.CharField(widget=forms.HiddenInput)
     timestamp = forms.IntegerField(widget=forms.HiddenInput)
     security_hash = forms.CharField(min_length=40, max_length=40, widget=forms.HiddenInput)
 
@@ -44,7 +44,7 @@ class CommentSecurityForm(forms.Form):
         """Check the security hash."""
         security_hash_dict = {
             'content_type': self.data.get("content_type", ""),
-            'object_pk': self.data.get("object_pk", ""),
+            'object_id': self.data.get("object_id", ""),
             'timestamp': self.data.get("timestamp", ""),
         }
         expected_hash = self.generate_security_hash(**security_hash_dict)
@@ -65,7 +65,7 @@ class CommentSecurityForm(forms.Form):
         timestamp = int(time.time())
         security_dict = {
             'content_type': str(self.target_object._meta),
-            'object_pk': str(self.target_object._get_pk_val()),
+            'object_id': str(self.target_object._get_pk_val()),
             'timestamp': str(timestamp),
             'security_hash': self.initial_security_hash(timestamp),
         }
@@ -79,16 +79,16 @@ class CommentSecurityForm(forms.Form):
 
         initial_security_dict = {
             'content_type': str(self.target_object._meta),
-            'object_pk': str(self.target_object._get_pk_val()),
+            'object_id': str(self.target_object._get_pk_val()),
             'timestamp': str(timestamp),
         }
         return self.generate_security_hash(**initial_security_dict)
 
-    def generate_security_hash(self, content_type, object_pk, timestamp):
+    def generate_security_hash(self, content_type, object_id, timestamp):
         """
         Generate a HMAC security hash from the provided info.
         """
-        info = (content_type, object_pk, timestamp)
+        info = (content_type, object_id, timestamp)
         key_salt = "django.contrib.forms.CommentSecurityForm"
         value = "-".join(info)
         return salted_hmac(key_salt, value).hexdigest()
@@ -139,7 +139,7 @@ class CommentDetailsForm(CommentSecurityForm):
         """
         return dict(
             content_type=ContentType.objects.get_for_model(self.target_object),
-            object_pk=force_text(self.target_object._get_pk_val()),
+            object_id=force_text(self.target_object._get_pk_val()),
             user_name=self.cleaned_data["name"],
             user_email=self.cleaned_data["email"],
             user_url=self.cleaned_data["url"],
@@ -159,7 +159,7 @@ class CommentDetailsForm(CommentSecurityForm):
             self.target_object._state.db
         ).filter(
             content_type=new.content_type,
-            object_pk=new.object_pk,
+            object_id=new.object_id,
             user_name=new.user_name,
             user_email=new.user_email,
             user_url=new.user_url,

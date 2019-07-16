@@ -87,7 +87,7 @@ def _create_comment(tmp_comment):
     """
     tmp_comment.pop('content_type')
     content_object = tmp_comment.pop('content_object')
-    tmp_comment.pop('object_pk')
+    tmp_comment.pop('object_id')
     tmp_comment.pop('site_id')
     root = TreeComment.objects.get_or_create_root(content_object)
     comment = root.add_child(**tmp_comment)
@@ -139,9 +139,9 @@ def sent(request, using=None):
         comment = TreeComment.objects.get(pk=comment_pk)
     except (TypeError, ValueError, TreeComment.DoesNotExist):
         value = signing.loads(comment_pk)
-        ctype, object_pk = value.split(":")
+        ctype, object_id = value.split(":")
         model = apps.get_model(*ctype.split(".", 1))
-        target = model._default_manager.using(using).get(pk=object_pk)
+        target = model._default_manager.using(using).get(pk=object_id)
         template_arg = ["django_comments_tree/posted.html",
                         "comments/posted.html"]
         return render(request, template_arg, {'target': target})
@@ -219,7 +219,7 @@ def notify_comment_followers(comment):
 
     # model = apps.get_model(comment.content_type.app_label,
     #                        comment.content_type.model)
-    # target = model._default_manager.get(pk=comment.object_pk)
+    # target = model._default_manager.get(pk=comment.object_id)
     subject = _("new comment posted")
     text_message_template = loader.get_template(
         "django_comments_tree/email_followup_comment.txt")
@@ -291,7 +291,7 @@ def mute(request, key):
 
     model = apps.get_model(comment.content_type.app_label,
                            comment.content_type.model)
-    target = model._default_manager.get(pk=comment.object_pk)
+    target = model._default_manager.get(pk=comment.object_id)
 
     template_arg = [
         "django_comments_tree/%s/%s/muted.html" % (
@@ -337,12 +337,12 @@ class CommentView(View):
 
         # Look up the object we're trying to comment about
         ctype = data.get("content_type")
-        object_pk = data.get("object_pk")
-        if ctype is None or object_pk is None:
-            return CommentPostBadRequest("Missing content_type or object_pk field.")
+        object_id = data.get("object_id")
+        if ctype is None or object_id is None:
+            return CommentPostBadRequest("Missing content_type or object_id field.")
         try:
             model = apps.get_model(*ctype.split(".", 1))
-            target = model._default_manager.using(using).get(pk=object_pk)
+            target = model._default_manager.using(using).get(pk=object_id)
         except TypeError:
             return CommentPostBadRequest(
                 "Invalid content_type value: %r" % escape(ctype))
@@ -352,11 +352,11 @@ class CommentView(View):
         except ObjectDoesNotExist:
             return CommentPostBadRequest(
                 "No object matching content-type %r and object PK %r exists." % (
-                    escape(ctype), escape(object_pk)))
+                    escape(ctype), escape(object_id)))
         except (ValueError, ValidationError) as e:
             return CommentPostBadRequest(
                 "Attempting go get content-type %r and object PK %r exists raised %s" % (
-                    escape(ctype), escape(object_pk), e.__class__.__name__))
+                    escape(ctype), escape(object_id), e.__class__.__name__))
 
         # Do we want to preview the comment?
         preview = "preview" in data

@@ -250,7 +250,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
         return None
 
     @property
-    def object_pk(self):
+    def object_id(self):
         """ Accessor added for compatibility with django_contrib.comments """
         assoc = self.association
         if assoc:
@@ -361,7 +361,7 @@ class TmpTreeComment(dict):
             state,
             content_type=ctype,
             content_object=ctype.get_object_for_this_type(
-                pk=state['object_pk']
+                pk=state['object_id']
             )
         )
 

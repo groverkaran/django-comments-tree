@@ -53,7 +53,7 @@ class APICommentSerializer(serializers.ModelSerializer):
 
 class WriteCommentSerializer(serializers.Serializer):
     content_type = serializers.CharField()
-    object_pk = serializers.CharField()
+    object_id = serializers.CharField()
     timestamp = serializers.CharField()
     security_hash = serializers.CharField()
     honeypot = serializers.CharField(allow_blank=True)
@@ -89,13 +89,13 @@ class WriteCommentSerializer(serializers.Serializer):
 
     def validate(self, data):
         ctype = data.get("content_type")
-        object_pk = data.get("object_pk")
-        if ctype is None or object_pk is None:
+        object_id = data.get("object_id")
+        if ctype is None or object_id is None:
             return serializers.ValidationError("Missing content_type or "
-                                               "object_pk field.")
+                                               "object_id field.")
         try:
             model = apps.get_model(*ctype.split(".", 1))
-            target = model._default_manager.get(pk=object_pk)
+            target = model._default_manager.get(pk=object_id)
         except TypeError:
             return serializers.ValidationError("Invalid content_type value: %r"
                                                % escape(ctype))
@@ -105,12 +105,12 @@ class WriteCommentSerializer(serializers.Serializer):
                                                % escape(ctype))
         except model.ObjectDoesNotExist:
             return serializers.ValidationError(
-                "No object matching content-type %r and object PK %r exists."
-                % (escape(ctype), escape(object_pk)))
+                "No object matching content-type %r and object ID %r exists."
+                % (escape(ctype), escape(object_id)))
         except (ValueError, serializers.ValidationError) as e:
             return serializers.ValidationError(
-                "Attempting go get content-type %r and object PK %r exists "
-                "raised %s" % (escape(ctype), escape(object_pk),
+                "Attempting go get content-type %r and object ID %r exists "
+                "raised %s" % (escape(ctype), escape(object_id),
                                e.__class__.__name__))
 
         self.form = get_form()(target, data=data)
