@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.1.0a7] - 2019-07-15
+
+    * Migrate all object_pk to object_id
+    * Move django_comments.forms into app
+    * Modify `CommentForm` to match new models
+    * Add initial `APICommentSerializer
+    * Remove object_id field from TreeComment and create migration
+    * Migrate `CommentsAdmin` into this project
+    * Update local CommentsAdmin to match fields for this project
+
 ## [0.1.0a6] - 2019-07-15
 
     * No code changes

@@ -7,7 +7,7 @@ from custom.mycomments.models import MyComment
 
 class MyCommentAdmin(TreeCommentsAdmin):
     list_display = ('title', 'name',
-                    'object_pi', 'submit_date', 'followup', 'is_public',
+                    'object_id', 'submit_date', 'followup', 'is_public',
                     'is_removed')
     list_display_links = ('cid', 'title')
     fieldsets = (
