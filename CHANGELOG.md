@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.1.0b6-1] - 2019-07-16
+
+    Yet Another fix for pip import issue
+
+## [0.1.0b6] - 2019-07-16
+
+    Another fix for pip import issue
+
 ## [0.1.0b5] - 2019-07-16
 
     Another fix for pip import issue

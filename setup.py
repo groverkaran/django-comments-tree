@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test
 
 version = {}
-with open("version.py") as fp:
+with open("django_comments_tree/version.py") as fp:
     exec(fp.read(), version)
 
 
