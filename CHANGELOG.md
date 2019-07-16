@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.0b5] - 2019-07-16
+
+    Another fix for pip import issue
+
 ## [0.1.0b4] - 2019-07-16
 
     Fix build error from b3
