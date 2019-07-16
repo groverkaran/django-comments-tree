@@ -2,7 +2,7 @@ from django import forms
 from django.apps import apps
 from django.utils.translation import ugettext_lazy as _
 
-from django_comments.forms import CommentForm
+from .base import CommentForm
 
 from django_comments_tree.conf import settings
 from django_comments_tree.models import TmpTreeComment
@@ -91,7 +91,7 @@ class TreeCommentForm(CommentForm):
     def get_comment_create_data(self, site_id=None):
         data = super().get_comment_create_data(site_id=site_id)
         ctype = data.get('content_type')
-        object_id = data.get('object_pk')
+        object_id = data.get('object_id') or data.get('object_pk')
         model = apps.get_model(ctype.app_label, ctype.model)
         target = model._default_manager.get(pk=object_id)
         data.update({'followup': self.cleaned_data['followup'],
