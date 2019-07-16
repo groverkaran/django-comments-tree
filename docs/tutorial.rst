@@ -215,7 +215,7 @@ Finally, before completing this first set of changes, we could show the number o
    .. code-block:: html+django
 
        {% extends "base.html" %}
-       {% load comments %}
+       {% load comments_tree %}
 
        ...
            {% for object in object_list %}
@@ -439,7 +439,6 @@ Edit ``blog/post_detail.html`` to make it look like follows:
    .. code-block:: html+django
 
        {% extends "base.html" %}
-       {% load comments %}
        {% load comments_tree %}
 
        {% block title %}{{ object.title }}{% endblock %}
@@ -803,7 +802,6 @@ Now let's edit ``blog/post_detail.html`` and make it look as follows:
 
     {% extends "base.html" %}
     {% load static %}
-    {% load comments %}
     {% load comments_tree %}
     
     {% block title %}{{ object.title }}{% endblock %}

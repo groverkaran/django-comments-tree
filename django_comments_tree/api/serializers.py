@@ -12,7 +12,7 @@ from django.utils import formats
 from django.utils.html import escape
 from django.utils.translation import ugettext as _, activate, get_language
 
-from django_comments import get_form
+from django_comments_tree import get_form
 from django_comments_tree.models import TreeCommentFlag
 from django_comments_tree.signals import comment_will_be_posted, comment_was_posted
 from rest_framework import serializers
