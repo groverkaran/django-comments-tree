@@ -102,6 +102,9 @@ class CommentManager(MP_NodeManager):
             return assoc.root
         return None
 
+    def get_or_create_root_type_and_id(self, ct, object_id):
+        return None
+
     def create_for_object(self, obj, comment=''):
         root = self.get_or_create_root(obj)
         return root.add_child(comment=comment)

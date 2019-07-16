@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.1.0a9] - 2019-07-16
+
+    * Resolve test issues on APICommentSerializer. 
+    * Resolve flake8 errors on travis build
+
 ## [0.1.0a8] - 2019-07-16
 
     Removed remaining dependencies on django_comments. 
