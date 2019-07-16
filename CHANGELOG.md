@@ -1,21 +1,34 @@
 # Change Log
 
+## [0.1.0b4] - 2019-07-16
+
+    Fix build error from b3
+
+## [0.1.0b3] - 2019-07-16
+
+    Migrate methods from __init__.py of django-contrib-comments.
+    These had been missed from previous migrations.
+
+    * change method used for version, since previous one failed on install.
+
+    ** This version had a build error
+
 ## [0.1.0b1] - 2019-07-16
 
     Fully removed django-contrib-comments dependency.
-    
+
     Removed the module from the list of requrements, and made
-    additional changes to get the tox tests passing. 
-    
-    
+    additional changes to get the tox tests passing.
+
+
 ## [0.1.0a9] - 2019-07-16
 
-    * Resolve test issues on APICommentSerializer. 
+    * Resolve test issues on APICommentSerializer.
     * Resolve flake8 errors on travis build
 
 ## [0.1.0a8] - 2019-07-16
 
-    Removed remaining dependencies on django_comments. 
+    Removed remaining dependencies on django_comments.
     * Copied in a few remaining templates from django_comment
     * Migrated django_comments templatetags into this module
 
@@ -47,16 +60,16 @@
     * Resolve issue in models.py `add_child` to support adding from a form.
     * Add `updated_on` field to `TreeComment` model
     * Added an `init_form_data` method to TreeCommentForm that is currently unused and may be removed.
-   
-    
+
+
 ## [0.1.0] - 2019-04-11
 
     Revert the changes back to a pre-release version since I've forked the repo,
     changed the name, and will be replacing the core models with a new approach.
-    
+
     * Renamed all django-comments-xtd (etc.) to django-comments-tree
     * Changed Author to Ed Henderson, moved @danirus to lead contributor
-     
+
 
 ## [2.4.0] - 2019-02-19
 
