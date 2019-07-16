@@ -38,14 +38,25 @@ class APICommentSerializer(serializers.ModelSerializer):
                   'submit_date', 'updated_on',
                   'ip_address', 'is_public', 'is_removed',
                   'followup',
-                  # MP_Node
-                  'path', 'depth', 'numchild',
+                  # Needed to add to system
+                  'content_type', 'object_id',
                   ]
 
     def to_representation(self, instance):
         obj = super().to_representation(instance)
         obj['submit_date'] = instance.submit_date.strftime(DATETIME_FORMAT)
         return obj
+
+    def create(self, validated_data):
+        if 'parent' in validated_data:
+            p = validated_data.pop('parent')
+            instance = p.add_child(**validated_data)
+            return instance
+
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)
 
     def save(self, **kwargs):
         return super().save(**kwargs)
