@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django_comments.forms import CommentSecurityForm
+from django_comments_tree.forms import CommentSecurityForm
 from django_comments_tree import get_model as get_comment_model
 from django_comments_tree.conf import settings
 from rest_framework.response import Response

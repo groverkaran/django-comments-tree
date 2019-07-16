@@ -1,12 +1,13 @@
-from django.conf.urls import include, url
-
+from django.conf.urls import url
+from django.contrib.contenttypes.views import shortcut
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from django_comments_tree import api
-from django_comments_tree.views.comments import (
-    sent, confirm, mute, reply, FlagView, like, like_done,
-    dislike, dislike_done
-)
+from .views.comments import (comment_done, confirm, dislike, dislike_done,
+                             FlagView, like, like_done, mute, post_comment,
+                             reply, sent)
+from .views.moderation import (approve, approve_done, delete, delete_done,
+                               flag, flag_done)
 
 urlpatterns = [
     url(r'^sent/$', sent, name='comments-tree-sent'),
@@ -34,9 +35,20 @@ urlpatterns = [
         name='comments-tree-api-feedback'),
     url(r'^api/flag/$', api.CreateReportFlag.as_view(),
         name='comments-tree-api-flag'),
-
-    url(r'', include("django_comments.urls")),
 ]
 
+# Migrated from original django-contrib-comments
+urlpatterns += [
+    url(r'^post/$', post_comment, name='comments-post-comment'),
+    url(r'^posted/$', comment_done, name='comments-comment-done'),
+    url(r'^flag/(\d+)/$', flag, name='comments-flag'),
+    url(r'^flagged/$', flag_done, name='comments-flag-done'),
+    url(r'^delete/(\d+)/$', delete, name='comments-delete'),
+    url(r'^deleted/$', delete_done, name='comments-delete-done'),
+    url(r'^approve/(\d+)/$', approve, name='comments-approve'),
+    url(r'^approved/$', approve_done, name='comments-approve-done'),
+
+    url(r'^cr/(\d+)/(.+)/$', shortcut, name='comments-url-redirect'),
+]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

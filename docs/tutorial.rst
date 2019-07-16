@@ -270,8 +270,7 @@ Let's add those changes to the ``blog/model.py`` file:
 
        ...
        # Append these imports below the current ones.
-       from django_comments.moderation import CommentModerator
-       from django_comments_tree.moderation import moderator
+       from django_comments_tree.moderation import CommentModerator, moderator
 
        ...
 

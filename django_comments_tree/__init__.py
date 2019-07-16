@@ -1,8 +1,7 @@
 from django.utils.module_loading import import_string
-    
-import django_comments
-from django_comments.feeds import LatestCommentFeed
-from .signals import comment_was_posted
+
+from .feeds import LatestCommentFeed  # noqa
+from .signals import comment_was_posted  # noqa
 
 
 default_app_config = 'django_comments_tree.apps.Config'
@@ -18,7 +17,7 @@ def get_form():
     return import_string(settings.COMMENTS_TREE_FORM_CLASS)
 
 
-VERSION = (0, 1, 0, 'a', 9)  # following PEP 440
+VERSION = (0, 1, 0, 'b', 1)  # following PEP 440
 
 
 def get_version():

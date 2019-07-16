@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.1.0b1] - 2019-07-16
+
+    Fully removed django-contrib-comments dependency.
+    
+    Removed the module from the list of requrements, and made
+    additional changes to get the tox tests passing. 
+    
+    
 ## [0.1.0a9] - 2019-07-16
 
     * Resolve test issues on APICommentSerializer. 

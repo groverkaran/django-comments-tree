@@ -15,7 +15,7 @@ from django.urls import reverse
 
 from django_comments_tree.models import TreeCommentFlag
 
-from django_comments_tree import django_comments
+import django_comments_tree
 from django_comments_tree.views import comments as views
 from django_comments_tree.models import LIKEDIT_FLAG, DISLIKEDIT_FLAG
 from django_comments_tree.tests.models import Diary
@@ -46,7 +46,7 @@ class ModeratorApprovesComment(TestCase):
             body="What I did on October...",
             allow_comments=True,
             publish=datetime.now())
-        self.form = django_comments.get_form()(self.diary_entry)
+        self.form = django_comments_tree.get_form()(self.diary_entry)
 
     def post_valid_data(self, auth_user=None):
         data = {"name": "Bob", "email": "bob@example.com", "followup": True,
@@ -66,7 +66,7 @@ class ModeratorApprovesComment(TestCase):
         # django_comments_tree.tests.models.DiaryCommentModerator
         # must trigger an email once comment has passed moderation.
         self.assertEqual(self.mailer_app1.call_count, 1)
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         self.assertTrue(comment.is_public)
 
@@ -80,7 +80,7 @@ class ModeratorApprovesComment(TestCase):
         confirm_comment_url(key)
         self.assertEqual(self.mailer_app1.call_count, 1)
         self.assertEqual(self.mailer_app2.call_count, 1)
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         self.assertTrue(comment.is_public)
 
@@ -95,7 +95,7 @@ class ModeratorHoldsComment(TestCase):
             body="What I did Yesterday...",
             allow_comments=True,
             publish=datetime.now() - timedelta(days=5))
-        self.form = django_comments.get_form()(self.diary_entry)
+        self.form = django_comments_tree.get_form()(self.diary_entry)
 
     def post_valid_data(self, auth_user=None):
         data = {"name": "Bob", "email": "bob@example.com", "followup": True,
@@ -114,7 +114,7 @@ class ModeratorHoldsComment(TestCase):
         # django_comments_tree.tests.models.DiaryCommentModerator
         # must trigger an email once comment has passed moderation.
         self.assertEqual(self.mailer_app1.call_count, 1, f"Expected value to be {1}")
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         self.assertFalse(comment.is_public)
 
@@ -128,7 +128,7 @@ class ModeratorHoldsComment(TestCase):
         confirm_comment_url(key)
         self.assertEqual(self.mailer_app1.call_count, 1, f"Expected value to be 1")
         self.assertEqual(self.mailer_app2.call_count, 1, f"Expected value to be 1")
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         self.assertFalse(comment.is_public)
 
@@ -143,7 +143,7 @@ class FlaggingRemovalSuggestion(TestCase):
             body="What I did on October...",
             allow_comments=True,
             publish=datetime.now())
-        form = django_comments.get_form()(diary_entry)
+        form = django_comments_tree.get_form()(diary_entry)
         self.user = User.objects.create_user("bob", "bob@example.com", "pwd")
         data = {"name": "Bob", "email": "bob@example.com", "followup": True,
                 "reply_to": 0, "level": 1, "order": 1,
@@ -152,7 +152,7 @@ class FlaggingRemovalSuggestion(TestCase):
         post_diary_comment(data, diary_entry, auth_user=self.user)
 
     def test_anonymous_user_redirected_when_flagging(self):
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         flag_url = reverse("comments-flag", args=[comment.id])
         request = request_factory.get(flag_url)
@@ -163,7 +163,7 @@ class FlaggingRemovalSuggestion(TestCase):
         self.assertEqual(response.url, dest_url)
 
     def test_loggedin_user_can_flag_comment(self):
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         flag_url = reverse("comments-flag", args=[comment.id])
         request = request_factory.get(flag_url)
@@ -201,7 +201,7 @@ class FlaggingLikedItAndDislikedIt(TestCase):
             body="What I did on October...",
             allow_comments=True,
             publish=datetime.now())
-        form = django_comments.get_form()(diary_entry)
+        form = django_comments_tree.get_form()(diary_entry)
         self.user = User.objects.create_user("bob", "bob@example.com", "pwd")
         data = {"name": "Bob", "email": "bob@example.com", "followup": True,
                 "reply_to": 0, "level": 1, "order": 1,
@@ -210,7 +210,7 @@ class FlaggingLikedItAndDislikedIt(TestCase):
         post_diary_comment(data, diary_entry, auth_user=self.user)
 
     def test_anonymous_user_is_redirected(self):
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         # Like it.
         like_url = reverse("comments-tree-like", args=[comment.id])
@@ -232,7 +232,7 @@ class FlaggingLikedItAndDislikedIt(TestCase):
     def test_loggedin_user_can_like(self):
         if django.VERSION < (1, 5):
             return
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         like_url = reverse("comments-tree-like", args=[comment.id])
         request = request_factory.get(like_url)
@@ -255,7 +255,7 @@ class FlaggingLikedItAndDislikedIt(TestCase):
     def test_loggedin_user_can_dislike(self):
         if django.VERSION < (1, 5):
             return
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         dislike_url = reverse("comments-tree-dislike", args=[comment.id])
         request = request_factory.get(dislike_url)
@@ -278,7 +278,7 @@ class FlaggingLikedItAndDislikedIt(TestCase):
     def test_likedit_can_be_cancelled(self):
         if django.VERSION < (1, 5):
             return
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         like_url = reverse("comments-tree-like", args=[comment.id])
         request = request_factory.post(like_url)
@@ -299,7 +299,7 @@ class FlaggingLikedItAndDislikedIt(TestCase):
     def test_dislikedit_can_be_cancelled(self):
         if django.VERSION < (1, 5):
             return
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         dislike_url = reverse("comments-tree-dislike", args=[comment.id])
         request = request_factory.post(dislike_url)
@@ -320,7 +320,7 @@ class FlaggingLikedItAndDislikedIt(TestCase):
     def test_likedit_cancels_dislikedit(self):
         if django.VERSION < (1, 5):
             return
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         dislike_url = reverse("comments-tree-dislike", args=[comment.id])
         request = request_factory.post(dislike_url)
@@ -349,7 +349,7 @@ class FlaggingLikedItAndDislikedIt(TestCase):
     def test_dislikedit_cancels_likedit(self):
         if django.VERSION < (1, 5):
             return
-        comment = django_comments.get_model()\
+        comment = django_comments_tree.get_model()\
                                  .objects.for_app_models('tests.diary')[0]
         like_url = reverse("comments-tree-like", args=[comment.id])
         request = request_factory.post(like_url)

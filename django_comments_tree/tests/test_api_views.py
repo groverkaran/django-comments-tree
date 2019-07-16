@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from django_comments_tree import django_comments
+import django_comments_tree
 from django_comments_tree.api.views import CommentCreate
 from django_comments_tree.tests.models import Article, Diary
 
@@ -34,7 +34,7 @@ class CommentCreateTestCase(TestCase):
         self.mock_mailer = patcher.start()
         self.article = Article.objects.create(
             title="October", slug="october", body="What I did on October...")
-        self.form = django_comments.get_form()(self.article)
+        self.form = django_comments_tree.get_form()(self.article)
 
     def test_post_returns_2xx_response(self):
         data = {"name": "Bob", "email": "fulanito@detal.com",

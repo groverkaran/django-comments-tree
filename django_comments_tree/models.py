@@ -40,36 +40,6 @@ class MaxThreadLevelExceededException(Exception):
         return "Max thread level reached for comment %d" % self.comment.id
 
 
-class CommentAssociation(models.Model):
-    """
-    Associate a tree node with a particular model by GenericForeignKey
-
-    ToDo: Review the proper way to use GFK's. Do I need all of the other parts?
-    """
-
-    # Root of comments for the associated model
-    root = models.ForeignKey('TreeComment', on_delete=models.CASCADE, null=True)
-
-    # Content-object field
-    content_type = models.ForeignKey(ContentType,
-                                     verbose_name=_('content type'),
-                                     related_name="content_type_set_for_%(class)s",
-                                     on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
-
-    # Retained a legacy. Remove once I determine it is not needed
-    # object_pk = models.TextField(_('object ID'))
-
-    # Metadata about the comment
-    # ToDo: Why do I need this?
-    site = models.ForeignKey(Site, on_delete=models.CASCADE)
-
-    @property
-    def object_pk(self):
-        return str(self.object_id)
-
-
 class CommentManager(MP_NodeManager):
 
     def get_root(self, obj):
@@ -178,6 +148,36 @@ class CommentManager(MP_NodeManager):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs
+
+
+class CommentAssociation(models.Model):
+    """
+    Associate a tree node with a particular model by GenericForeignKey
+
+    ToDo: Review the proper way to use GFK's. Do I need all of the other parts?
+    """
+
+    # Root of comments for the associated model
+    root = models.ForeignKey('TreeComment', on_delete=models.CASCADE, null=True)
+
+    # Content-object field
+    content_type = models.ForeignKey(ContentType,
+                                     verbose_name=_('content type'),
+                                     related_name="content_type_set_for_%(class)s",
+                                     on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey(ct_field="content_type", fk_field="object_id")
+
+    # Retained a legacy. Remove once I determine it is not needed
+    # object_pk = models.TextField(_('object ID'))
+
+    # Metadata about the comment
+    # ToDo: Why do I need this?
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+
+    @property
+    def object_pk(self):
+        return str(self.object_id)
 
 
 class TreeComment(MP_Node, CommentAbstractModel):

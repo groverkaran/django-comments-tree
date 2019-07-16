@@ -11,7 +11,7 @@ __all__ = ['Command']
 
 
 class Command(BaseCommand):
-    help = "Load the treecomment table with valid data from django_comments."
+    help = "Load the treecomment table with valid data from django_comments_tree."
 
     def add_arguments(self, parser):
         parser.add_argument('using', nargs='*', type=str)

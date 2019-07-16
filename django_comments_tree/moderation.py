@@ -29,7 +29,7 @@ a Weblog::
 Then we create a ``CommentModerator`` subclass specifying some
 moderation options::
 
-    from django_comments.moderation import CommentModerator, moderator
+    from django_comments_tree.moderation import CommentModerator, moderator
 
     class EntryModerator(CommentModerator):
         email_notification = True

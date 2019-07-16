@@ -2,7 +2,7 @@ import six
 
 from django.contrib.contenttypes.models import ContentType
 
-from django_comments.views.moderation import perform_flag
+from django_comments_tree.views.moderation import perform_flag
 from rest_framework import generics, mixins, permissions, status
 from rest_framework.response import Response
 

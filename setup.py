@@ -55,7 +55,6 @@ setup(
     install_requires=[
         'Django>=2.0',
         'django-treebeard>=4.1.0',
-        'django-contrib-comments>=1.8',
         'djangorestframework>=3.6',
         'django-markupfield>=1.5.1',
         'markdown>=3.1.1',
