@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.1.0a8] - 2019-07-16
+
+    Removed remaining dependencies on django_comments. 
+    * Copied in a few remaining templates from django_comment
+    * Migrated django_comments templatetags into this module
+
 ## [0.1.0a7] - 2019-07-15
 
     * Migrate all object_pk to object_id
