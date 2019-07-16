@@ -240,5 +240,3 @@ class RenderCommentListNode(CommentListNode):
             return liststr
         else:
             return ''
-
-

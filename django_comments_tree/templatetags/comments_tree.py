@@ -2,6 +2,11 @@ import hashlib
 import json
 import re
 
+import django_comments_tree
+
+from .comments import (RenderCommentFormNode, CommentFormNode,
+                       RenderCommentListNode, CommentListNode, CommentCountNode)
+
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -16,10 +21,8 @@ from django.utils.safestring import mark_safe
 from django_comments_tree import get_model as get_comment_model
 from django_comments_tree.conf import settings
 from django_comments_tree.api import frontend
-
 TreeComment = get_comment_model()
-import django_comments_tree
-from .comments import RenderCommentFormNode, CommentFormNode, RenderCommentListNode, CommentListNode, CommentCountNode
+
 
 register = Library()
 
@@ -505,6 +508,7 @@ def has_permission(user_obj, str_permission):
 # We could just register each classmethod directly, but then we'd lose out on
 # the automagic docstrings-into-admin-docs tricks. So each node gets a cute
 # wrapper function that just exists to hold the docstring.
+
 
 @register.tag
 def get_comment_count(parser, token):
