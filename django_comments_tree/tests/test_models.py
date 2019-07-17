@@ -266,19 +266,18 @@ class ThreadStep3TestCase(ArticleBaseTestCase):
         self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
         self.assertEqual(root.get_descendant_count(), 5, "Expected to have 5 total comments and replices")
 
-
     def test_threaded_comments_step_3_level_1(self):
         root = TreeComment.objects.get_root(self.article_1)
 
         self.assertEqual(root.get_children_count(), 2, "Expected to have 2 comments")
-        self.assertEqual(root.get_descendant_count(), 5, "Expected to have 5 total comments and replices")
+        self.assertEqual(root.get_descendant_count(), 5, "Expected to have 5 total comments and replies")
 
         c1, c2 = root.get_children()
 
         # comment 1
         self.assertEqual(c1.get_children_count(), 2, "Expected comment 1 to have 2 replies")
         # comment 2
-        self.assertEqual(c2.get_children_count(), 1, "Expected comment 2 to have 1 replie")
+        self.assertEqual(c2.get_children_count(), 1, "Expected comment 2 to have 1 reply")
 
 
 class ThreadStep4TestCase(ArticleBaseTestCase):

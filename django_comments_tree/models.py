@@ -90,7 +90,8 @@ class CommentManager(MP_NodeManager):
         QuerySet for all comments for a particular model (either an instance or
         a class).
 
-        Updated: this can't return a queryset, since MP_Node are queriable that way
+        Updated: this can't return a queryset, since MP_Node
+        can not be queried that way
 
         """
         ct = ContentType.objects.get_for_model(model)
@@ -272,23 +273,42 @@ class TreeComment(MP_Node, CommentAbstractModel):
 
     @classmethod
     def tree_from_comment(cls, root,
-                          filter_public=True,):
+                          filter_public=True,
+                          start=None,
+                          end=None,
+                          max_depth=None):
         """
         Return a recursive structure with comments and their children,
         starting at the given root.
         """
+        print(f"Current Depth: {root.depth}")
         retval = []
         children = root.get_children().order_by('submit_date')
         if filter_public:
             children = children.filter(is_public=True)
+
+        if start:
+            time_range = Q(updated_on__gt=start)
+            if end:
+                time_range = time_range & Q(updated_on__lt=end)
+            children = children.filter(time_range)
         for child in children:
+            if (child.numchild > 0
+                    and (max_depth is None or root.depth > max_depth)):
+                my_children = cls.tree_from_comment(
+                    child,
+                    filter_public=filter_public,
+                    start=start,
+                    end=end,
+                    max_depth=max_depth
+                )
+            else:
+                my_children = []
             data = {
                 "comment": child,
-                "children": cls.tree_from_comment(
-                    child,
-                    filter_public=filter_public
-                )
+                "children": my_children
             }
+
             retval.append(data)
         return retval
 
