@@ -272,6 +272,75 @@ class TreeComment(MP_Node, CommentAbstractModel):
         return None
 
     @classmethod
+    def structured_tree_data(cls, root,
+                          filter_public=True,
+                          start=None,
+                          end=None,
+                          max_depth=None):
+        """
+        Return a recursive structure with comments and their children,
+        starting at the given root.
+        """
+        print(f"Current Depth: {root.depth}")
+        retval = []
+        nodes = root.get_descendants().order_by('path')
+        if filter_public:
+            nodes = nodes.filter(is_public=True)
+
+        if start:
+            time_range = Q(updated_on__gt=start)
+            if end:
+                time_range = time_range & Q(updated_on__lt=end)
+            nodes = nodes.filter(time_range)
+
+        # Build a path lookup table
+        # Faster than using node.get_parent(), which causes another query
+        path_to_node = {c.path: c for c in nodes}
+
+        def parent_id_for(cnode):
+            basepath = cnode._get_basepath(cnode.path, cnode.depth - 1)
+            if basepath in path_to_node:
+                return path_to_node.get(basepath).id
+            return None
+
+        # Now I can build the data structure directly
+        flat_data = [{
+            'id': c.id,
+            'comment': c.comment,
+            'parent_id': parent_id_for(c)
+        } for c in nodes]
+
+        # Now, build the tree structure... a bit trickier
+        steplen = nodes[0].steplen
+
+        # Get depth=1 comments
+        # Need a nice recursive function for this
+        def build_tree(path=None, depth=1):
+            keys = [k for k in path_to_node.keys()
+                    if (not path or k.startswith(path))
+                    and len(k)/steplen == depth+1]
+
+            tree = []
+            for k in keys:
+                n = path_to_node[k]
+                tree.append({
+                    'id': n.id,
+                    'children': build_tree(k, depth=depth+1)
+                })
+            return tree
+
+        comments = [k for k in path_to_node.keys() if len(k)/steplen == 1]
+        tree = build_tree()
+        for c in comments:
+            comment = path_to_node[c]
+            tree.append({
+                'id': comment.id,
+                'children': []
+            })
+
+        return flat_data, tree
+
+    @classmethod
     def tree_from_comment(cls, root,
                           filter_public=True,
                           start=None,

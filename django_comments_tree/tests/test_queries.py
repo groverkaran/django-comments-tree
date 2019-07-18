@@ -1,8 +1,10 @@
+import math
+from typing import List
 from unittest import skip
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-from django.test import TestCase as DjangoTestCase
+from django.test import TestCase as DjangoTestCase, override_settings
 from django.utils import timezone
 
 from django_comments_tree.models import (TreeComment)
@@ -17,6 +19,47 @@ class ArticleBaseTestCase(DjangoTestCase):
             title="September", slug="september", body="During September...")
         self.article_2 = Article.objects.create(
             title="October", slug="october", body="What I did on October...")
+
+
+def calc_count(n, x):
+    return pow(math.ceil(pow(n, 1 / x)), x)
+
+
+def parent_for(node, path_to_node):
+    basepath = node._get_basepath(node.path, node.depth-1)
+    if basepath in path_to_node:
+        return path_to_node.get(basepath).id
+    return None
+
+
+def make_lots_of_comments(root: TreeComment,
+                          count: int = None,
+                          depth: int = 5,
+                          prefix: str = "C"):
+    """ Make comments algorithmically and optionally randomly
+        This can be called recursively, so that we can create
+        a hierarchy of comments, for deep testing, and performance
+        testing.
+
+        root: node to attach comments to.
+        count: int
+    """
+    count = count if count is not None else 2 ** depth
+    total_comments = 0
+    children = []
+    for x in range(count):
+        comment = f"{prefix}{x}"
+        child = root.add_child(comment=comment)
+        print(f"Created comment {comment}")
+        total_comments += 1
+        children.append(child)
+        if depth > 1:
+            n = make_lots_of_comments(child,
+                                      count=count // 2,
+                                      depth=depth - 1,
+                                      prefix=comment + "-R")
+            total_comments += n
+    return total_comments
 
 
 def make_comments(root, spec, default_kwargs=None):
@@ -173,3 +216,38 @@ class TestTreeCommentQueries(ArticleBaseTestCase):
                          "Expected 2 replies to first comment")
         self.assertEqual(len(tree[0]['children'][0]['children']), 1,
                          "Expected no replies to first comment reply")
+
+
+class TestTreeCommentPerformance(ArticleBaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.article_ct = ContentType.objects.get(app_label="tests",
+                                                  model="article")
+
+        self.site1 = Site.objects.get(pk=1)
+        self.site2 = Site.objects.create(domain='site2.com', name='site2.com')
+
+        self.root_1 = TreeComment.objects.get_or_create_root(self.article_1)
+        self.root_1_pk = self.root_1.pk
+        self.root_2 = TreeComment.objects.get_or_create_root(
+            self.article_1, site=self.site2)
+        self.root_2_pk = self.root_2.pk
+
+        r1 = TreeComment.objects.get(pk=self.root_1_pk)
+        old = utime(10)
+        new = utime(1)
+
+        make_lots_of_comments(r1, count=4, depth=4)
+
+    @override_settings(DEBUG=True)
+    def test_unfiltered_tree(self):
+        # there is no comment posted yet to article_1 nor article_2
+        self.root_1.refresh_from_db()
+        print(self.root_1.get_descendant_count())
+
+        data, tree = TreeComment.structured_tree_data(self.root_1)
+        print(f"Data: {data}")
+        print(f"Tree: {tree}")
+
+

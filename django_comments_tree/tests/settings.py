@@ -110,7 +110,7 @@ DEFAULT_FROM_EMAIL = "Alice Bloggs <alice@example.com>"
 
 COMMENTS_TREE_CONFIRM_EMAIL = True
 COMMENTS_TREE_SALT = b"es-war-einmal-una-bella-princesa-in-a-beautiful-castle"
-COMMENTS_TREE_MAX_THREAD_LEVEL = 4
+COMMENTS_TREE_MAX_THREAD_LEVEL = 5
 COMMENTS_TREE_MAX_THREAD_LEVEL_BY_APP_MODEL = {'tests.diary': 0}
 
 COMMENTS_TREE_APP_MODEL_OPTIONS = {
