@@ -278,11 +278,13 @@ class ReplyCommentTestCase(TestCase):
 
         root = TreeComment.objects.get_or_create_root(article)
 
-        c1 = root.add_child(comment="comment 1 to article")
-        r1 = c1.add_child(comment="comment 1 to comment 1")
-        rr1 = r1.add_child(comment="comment 1 to comment 1")
+        level_max = settings.COMMENTS_TREE_MAX_THREAD_LEVEL
 
-        self.deep_reply = rr1
+        c = root
+        while c.thread_level < level_max:
+            c = c.add_child(comment=f"Comment at level {c.thread_level+1}")
+
+        self.deep_reply = c
 
     def test_not_allow_threaded_reply_raises_403(self):
         response = self.client.get(reverse("comments-tree-reply",

@@ -1,5 +1,21 @@
 # Change Log
 
+## [0.1.0b7] - 2019-07-18
+
+    Add method to compute and return structured data that is tailored
+    for React and redux. Added a test_queries file with some tests on
+    this data.
+    
+    * Change default MAX_THREAD_LEVEL to 5
+    * fixed test issues with change to thread level
+        * Tests now adapt to setting, instead of being hard-coded
+    * add tests to test_models to increase test coverage on models file
+    
+    Changes to models.py:
+        * add property .thread_level that computes level from depth
+        * add propety .content_object to retrieve content object for thread
+        * Improved filtering on tree data return values.
+
 ## [0.1.0b6-1] - 2019-07-16
 
     Yet Another fix for pip import issue

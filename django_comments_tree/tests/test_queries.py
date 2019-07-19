@@ -26,7 +26,7 @@ def calc_count(n, x):
 
 
 def parent_for(node, path_to_node):
-    basepath = node._get_basepath(node.path, node.depth-1)
+    basepath = node._get_basepath(node.path, node.depth - 1)
     if basepath in path_to_node:
         return path_to_node.get(basepath).id
     return None
@@ -50,7 +50,7 @@ def make_lots_of_comments(root: TreeComment,
     for x in range(count):
         comment = f"{prefix}{x}"
         child = root.add_child(comment=comment)
-        print(f"Created comment {comment}")
+        #print(f"Created comment {comment}")
         total_comments += 1
         children.append(child)
         if depth > 1:
@@ -235,19 +235,21 @@ class TestTreeCommentPerformance(ArticleBaseTestCase):
         self.root_2_pk = self.root_2.pk
 
         r1 = TreeComment.objects.get(pk=self.root_1_pk)
-        old = utime(10)
-        new = utime(1)
 
         make_lots_of_comments(r1, count=4, depth=4)
 
-    @override_settings(DEBUG=True)
     def test_unfiltered_tree(self):
         # there is no comment posted yet to article_1 nor article_2
         self.root_1.refresh_from_db()
-        print(self.root_1.get_descendant_count())
+        cnt = self.root_1.get_descendant_count()
 
-        data, tree = TreeComment.structured_tree_data(self.root_1)
-        print(f"Data: {data}")
-        print(f"Tree: {tree}")
+        data = TreeComment.structured_tree_data(self.root_1)
+        print(f"Comment: {data.get('comment')}")
+        print(f"Tree: {data.get('hierarchy')}")
+        tree = data.get('hierarchy')
 
-
+        self.assertEqual(cnt, len(data.get('comments')),
+                         "Expected count to match")
+        n_children = self.root_1.get_children_count()
+        self.assertEqual(n_children, len(tree),
+                         "Expected tree to have matching children")

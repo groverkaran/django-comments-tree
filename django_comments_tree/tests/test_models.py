@@ -75,6 +75,24 @@ class TreeCommentManagerTestCase(ArticleBaseTestCase):
                                                          site=self.site2).count()
         self.assertEqual(count_site2, 1)
 
+    def test_get_root_on_invalid_obj(self):
+        """ get_root should return None with invalid obj"""
+
+        r = TreeComment.objects.get_root(self.article_2)
+        self.assertIsNone(r, 'Expected no root to be found')
+
+    def test_create_comment_for_obj(self):
+        """ Test out the custom manager method """
+        comment = 'Test Value'
+        c = TreeComment.objects.create_for_object(
+            self.article_2, comment=comment
+        )
+        self.assertEqual(c._comment_rendered, comment,
+                         "Expected to create new comment here")
+
+    # ToDo: in_moderation, for_model, count_for_content_types
+    # ToDo: CommentAssociation: object_pk
+
 
 # In order to test methods 'save' and '_calculate_thread_data', simulate the
 # following threads, in order of arrival:
@@ -189,6 +207,7 @@ def thread_test_step_4(article):
 
 def thread_test_step_5(article):
     """
+    Adds comments out to level 4
 
     root -
       comment 1
@@ -355,10 +374,13 @@ class ThreadStep5TestCase(ArticleBaseTestCase):
 
     def test_exceed_max_thread_level_raises_exception(self):
         root = TreeComment.objects.get_or_create_root(self.article_1)
+        LIMIT = settings.COMMENTS_TREE_MAX_THREAD_LEVEL
         with self.assertRaises(MaxThreadLevelExceededException):
-            comments = root.get_descendants()
-            max_depth = [c for c in comments if c.depth > settings.COMMENTS_TREE_MAX_THREAD_LEVEL]
-            max_depth[0].add_child(comment="Should cause an exception here")
+            comment = root.get_descendants().order_by('-depth').first()
+            print(f"Max Depth is {comment.thread_level}")
+            while comment.thread_level < LIMIT:
+                comment = comment.add_child(comment="Extending the level by one")
+            comment.add_child(comment='This one should cause error')
 
 
 def add_comment_to_diary_entry(diary):

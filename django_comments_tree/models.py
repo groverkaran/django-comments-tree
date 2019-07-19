@@ -68,12 +68,7 @@ class CommentManager(MP_NodeManager):
                                                       content_object=obj,
                                                       site=site,
                                                       root=root)
-        if assoc:
-            return assoc.root
-        return None
-
-    def get_or_create_root_type_and_id(self, ct, object_id):
-        return None
+        return assoc.root
 
     def create_for_object(self, obj, comment=''):
         root = self.get_or_create_root(obj)
@@ -230,6 +225,14 @@ class TreeComment(MP_Node, CommentAbstractModel):
             return False
 
     @property
+    def thread_level(self):
+        """ Calculate thread level from depth
+
+        The root object has a depth of 1, so thread_level is depth -1
+        """
+        return self.depth - 1
+
+    @property
     def association(self):
         """
         Return the content type for this comment. We have to search from the root for this.
@@ -263,6 +266,20 @@ class TreeComment(MP_Node, CommentAbstractModel):
         return None
 
     @property
+    def content_object(self):
+        """ Get and return the object associated with this comment stream """
+        assoc = self.association
+        if assoc:
+            ct = assoc.content_type
+            try:
+                return ct.get_object_for_this_type(
+                    pk=assoc.object_id)
+            except ObjectDoesNotExist:
+                pass
+
+        return None
+
+    @property
     def site(self):
         """ Accessor added for compatibility with django_contrib.comments """
         assoc = self.association
@@ -273,28 +290,28 @@ class TreeComment(MP_Node, CommentAbstractModel):
 
     @classmethod
     def structured_tree_data(cls, root,
-                          filter_public=True,
-                          start=None,
-                          end=None,
-                          max_depth=None):
+                             filter_public=True,
+                             start=None,
+                             end=None,
+                             max_depth=None):
         """
         Return a recursive structure with comments and their children,
         starting at the given root.
         """
-        print(f"Current Depth: {root.depth}")
-        retval = []
-        nodes = root.get_descendants().order_by('path')
+        nodes = root.get_descendants().order_by('submit_date')
         if filter_public:
             nodes = nodes.filter(is_public=True)
 
+        flt = Q()
         if start:
-            time_range = Q(updated_on__gt=start)
-            if end:
-                time_range = time_range & Q(updated_on__lt=end)
-            nodes = nodes.filter(time_range)
+            flt = flt & Q(updated_on__gt=start)
+        if end:
+            flt = flt & Q(updated_on__lt=end)
+
+        nodes = nodes.filter(flt)
 
         # Build a path lookup table
-        # Faster than using node.get_parent(), which causes another query
+        # Faster than using node.get_parent(), which can cause another query
         path_to_node = {c.path: c for c in nodes}
 
         def parent_id_for(cnode):
@@ -307,6 +324,9 @@ class TreeComment(MP_Node, CommentAbstractModel):
         flat_data = [{
             'id': c.id,
             'comment': c.comment,
+            'comment_rendered': c._comment_rendered,
+            'user': c.user,
+            'likes': 0,
             'parent_id': parent_id_for(c)
         } for c in nodes]
 
@@ -318,27 +338,20 @@ class TreeComment(MP_Node, CommentAbstractModel):
         def build_tree(path=None, depth=1):
             keys = [k for k in path_to_node.keys()
                     if (not path or k.startswith(path))
-                    and len(k)/steplen == depth+1]
+                    and len(k) / steplen == depth + 1]
 
             tree = []
             for k in keys:
                 n = path_to_node[k]
                 tree.append({
                     'id': n.id,
-                    'children': build_tree(k, depth=depth+1)
+                    'children': build_tree(k, depth=depth + 1)
                 })
             return tree
 
-        comments = [k for k in path_to_node.keys() if len(k)/steplen == 1]
-        tree = build_tree()
-        for c in comments:
-            comment = path_to_node[c]
-            tree.append({
-                'id': comment.id,
-                'children': []
-            })
+        comment_hierarchy = build_tree()
 
-        return flat_data, tree
+        return {'comments': flat_data, 'hierarchy': comment_hierarchy}
 
     @classmethod
     def tree_from_comment(cls, root,
@@ -498,12 +511,17 @@ class TreeCommentFlag(models.Model):
     if you want rating look elsewhere.
     """
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_('user'), related_name="treecomment_flags",
+        settings.AUTH_USER_MODEL,
+        verbose_name=_('user'),
+        related_name="treecomment_flags",
         on_delete=models.CASCADE,
     )
     comment = models.ForeignKey(
         # Translators: 'comment' is a noun here.
-        TreeComment, verbose_name=_('comment'), related_name="flags", on_delete=models.CASCADE,
+        TreeComment,
+        verbose_name=_('comment'),
+        related_name="flags",
+        on_delete=models.CASCADE,
     )
     # Translators: 'flag' is a noun here.
     flag = models.CharField(_('flag'), max_length=30, db_index=True)
