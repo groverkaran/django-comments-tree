@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.1.0b8] - 2019-07-28
+
+    Resolve issue with apps loading in the 
+    __init__.py file. the 'django apps' import
+    was conflicting with the .apps.py file, and causing an error on initialization.
+    
 ## [0.1.0b7] - 2019-07-18
 
     Add method to compute and return structured data that is tailored

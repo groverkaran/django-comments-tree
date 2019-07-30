@@ -29,7 +29,7 @@ class CommentAbstractModel(models.Model):
 
     comment = MarkupField(_('comment'),
                           default_markup_type='Draft.js')
-
+    
     # Metadata about the comment
     submit_date = models.DateTimeField(_('date/time submitted'),
                                        db_index=True,

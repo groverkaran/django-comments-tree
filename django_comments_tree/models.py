@@ -321,14 +321,14 @@ class TreeComment(MP_Node, CommentAbstractModel):
             return None
 
         # Now I can build the data structure directly
-        flat_data = [{
+        flat_data = {c.id: {
             'id': c.id,
             'comment': c.comment,
             'comment_rendered': c._comment_rendered,
             'user': c.user,
             'likes': 0,
             'parent_id': parent_id_for(c)
-        } for c in nodes]
+        } for c in nodes}
 
         # Now, build the tree structure... a bit trickier
         steplen = nodes[0].steplen
