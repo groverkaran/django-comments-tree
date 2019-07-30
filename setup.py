@@ -23,7 +23,7 @@ test.run_tests = run_tests
 setup(
     name="django-comments-tree",
     version=version['__version__'],
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     scripts=[],
     include_package_data=True,
     license="MIT",
