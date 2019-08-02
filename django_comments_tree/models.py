@@ -307,14 +307,21 @@ class TreeComment(MP_Node, CommentAbstractModel):
             return None
 
         # Now I can build the data structure directly
-        flat_data = [{
-            'id': c.id,
-            'comment': c.comment.raw,
-            'comment_rendered': c._comment_rendered,
-            'user': c.user,
-            'likes': 0,
-            'parent_id': parent_id_for(c)
-        } for c in queryset]
+        flat_data = []
+        for c in queryset:
+            data = {
+                'id': c.id,
+                'comment': c.comment.raw,
+                'comment_rendered': c._comment_rendered,
+                #'user': c.user,
+                'likes': 0,
+                'parent_id': parent_id_for(c),
+                'timestamp': c.updated_on
+            }
+            if c.user:
+                data['avatarUrl'] = c.user.profile.avatar.url
+                data['author'] = c.user.username
+            flat_data.append(data)
 
         if queryset.count() == 0:
             return {'comments': [], 'hierarchy': []}
@@ -352,7 +359,10 @@ class TreeComment(MP_Node, CommentAbstractModel):
         Return a recursive structure with comments and their children,
         starting at the given root.
         """
-        nodes = root.get_descendants().order_by('submit_date')
+        nodes = root.get_descendants() \
+            .order_by('submit_date') \
+            .select_related('user__profile')
+
         if filter_public:
             nodes = nodes.filter(is_public=True)
 
