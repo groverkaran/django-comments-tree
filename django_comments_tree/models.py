@@ -289,6 +289,60 @@ class TreeComment(MP_Node, CommentAbstractModel):
         return None
 
     @classmethod
+    def structured_tree_data_for_queryset(cls, queryset):
+        """
+        Take an existing queryset of descendants, and convert to a json structure
+        :param queryset:
+        :return:
+        """
+
+        # Build a path lookup table
+        # Faster than using node.get_parent(), which can cause another query
+        path_to_node = {c.path: c for c in queryset}
+
+        def parent_id_for(cnode):
+            basepath = cnode._get_basepath(cnode.path, cnode.depth - 1)
+            if basepath in path_to_node:
+                return path_to_node.get(basepath).id
+            return None
+
+        # Now I can build the data structure directly
+        flat_data = [{
+            'id': c.id,
+            'comment': c.comment.raw,
+            'comment_rendered': c._comment_rendered,
+            'user': c.user,
+            'likes': 0,
+            'parent_id': parent_id_for(c)
+        } for c in queryset]
+
+        if queryset.count() == 0:
+            return {'comments': [], 'hierarchy': []}
+
+        # Now, build the tree structure... a bit trickier
+        steplen = queryset[0].steplen
+
+        # Get depth=1 comments
+        # Need a nice recursive function for this
+        def build_tree(path=None, depth=1):
+            keys = [k for k in path_to_node.keys()
+                    if (not path or k.startswith(path))
+                    and len(k) / steplen == depth + 1]
+
+            tree = []
+            for k in keys:
+                n = path_to_node[k]
+                tree.append({
+                    'id': n.id,
+                    'children': build_tree(k, depth=depth + 1)
+                })
+            return tree
+
+        comment_hierarchy = build_tree()
+
+        return {'comments': flat_data, 'hierarchy': comment_hierarchy}
+
+    @classmethod
     def structured_tree_data(cls, root,
                              filter_public=True,
                              start=None,
@@ -310,48 +364,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
 
         nodes = nodes.filter(flt)
 
-        # Build a path lookup table
-        # Faster than using node.get_parent(), which can cause another query
-        path_to_node = {c.path: c for c in nodes}
-
-        def parent_id_for(cnode):
-            basepath = cnode._get_basepath(cnode.path, cnode.depth - 1)
-            if basepath in path_to_node:
-                return path_to_node.get(basepath).id
-            return None
-
-        # Now I can build the data structure directly
-        flat_data = {c.id: {
-            'id': c.id,
-            'comment': c.comment,
-            'comment_rendered': c._comment_rendered,
-            'user': c.user,
-            'likes': 0,
-            'parent_id': parent_id_for(c)
-        } for c in nodes}
-
-        # Now, build the tree structure... a bit trickier
-        steplen = nodes[0].steplen
-
-        # Get depth=1 comments
-        # Need a nice recursive function for this
-        def build_tree(path=None, depth=1):
-            keys = [k for k in path_to_node.keys()
-                    if (not path or k.startswith(path))
-                    and len(k) / steplen == depth + 1]
-
-            tree = []
-            for k in keys:
-                n = path_to_node[k]
-                tree.append({
-                    'id': n.id,
-                    'children': build_tree(k, depth=depth + 1)
-                })
-            return tree
-
-        comment_hierarchy = build_tree()
-
-        return {'comments': flat_data, 'hierarchy': comment_hierarchy}
+        return TreeComment.structured_tree_data_for_queryset(nodes)
 
     @classmethod
     def tree_from_comment(cls, root,

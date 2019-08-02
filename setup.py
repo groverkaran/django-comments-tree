@@ -53,7 +53,7 @@ setup(
         'Github': 'https://github.com/sharpertool/django-comments-tree',
         'Original Package': 'https://github.com/danirus/django-comments-xtd',
     },
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     install_requires=[
         'Django>=2.0',
         'django-treebeard>=4.1.0',
