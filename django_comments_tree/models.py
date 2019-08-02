@@ -313,7 +313,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
                 'id': c.id,
                 'comment': c.comment.raw,
                 'comment_rendered': c._comment_rendered,
-                #'user': c.user,
+                # 'user': c.user,
                 'likes': 0,
                 'parent_id': parent_id_for(c),
                 'timestamp': c.updated_on
