@@ -289,7 +289,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
         return None
 
     @classmethod
-    def structured_tree_data_for_queryset(cls, queryset):
+    def structured_tree_data_for_queryset(cls, queryset, annotate_cb=None):
         """
         Take an existing queryset of descendants, and convert to a json structure
         :param queryset:
@@ -313,14 +313,12 @@ class TreeComment(MP_Node, CommentAbstractModel):
                 'id': c.id,
                 'comment': c.comment.raw,
                 'comment_rendered': c._comment_rendered,
-                # 'user': c.user,
                 'likes': 0,
                 'parent_id': parent_id_for(c),
                 'timestamp': c.updated_on
             }
-            if c.user:
-                data['avatarUrl'] = c.user.profile.avatar.url
-                data['author'] = c.user.username
+            if annotate_cb:
+                data = annotate_cb(c, data)
             flat_data.append(data)
 
         if queryset.count() == 0:
@@ -359,9 +357,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
         Return a recursive structure with comments and their children,
         starting at the given root.
         """
-        nodes = root.get_descendants() \
-            .order_by('submit_date') \
-            .select_related('user__profile')
+        nodes = root.get_descendants().order_by('submit_date')
 
         if filter_public:
             nodes = nodes.filter(is_public=True)
