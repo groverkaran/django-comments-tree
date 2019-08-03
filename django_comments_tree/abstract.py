@@ -28,7 +28,7 @@ class CommentAbstractModel(models.Model):
     user_url = models.URLField(_("user's URL"), blank=True)
 
     comment = MarkupField(_('comment'),
-                          default_markup_type='Draft.js')
+                          default_markup_type='plain')
 
     # Metadata about the comment
     submit_date = models.DateTimeField(_('date/time submitted'),

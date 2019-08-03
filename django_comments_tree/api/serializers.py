@@ -34,7 +34,7 @@ class APICommentSerializer(serializers.ModelSerializer):
         model = TreeComment
         fields = ['id', 'user',
                   'user_name', 'user_email', 'user_url',
-                  'comment',
+                  'comment', 'comment_markup_type',
                   'submit_date', 'updated_on',
                   'ip_address', 'is_public', 'is_removed',
                   'followup',

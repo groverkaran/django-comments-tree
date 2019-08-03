@@ -4,7 +4,7 @@ import os
 import imp
 import django
 import markdown
-from django_comments_tree.render import render_draftjs
+from django_comments_tree.render import render_draftjs, render_plain
 
 
 PRJ_PATH = os.path.abspath(os.path.curdir)
@@ -126,6 +126,7 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Default types we can use for comments
 MARKUP_FIELD_TYPES = (
+    ('plain', render_plain),
     ('markdown', markdown.markdown),
-    ('Draft.js', render_draftjs),
+    ('draftjs', render_draftjs),
 )

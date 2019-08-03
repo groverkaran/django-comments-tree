@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.1.0b12] - 2019-08-03
+
+    I've changed the default comment markup type to plan
+    Added the plain type
+    Migrated draftjs render to the project
+    Improved make scripts
+    Fixed tox issues with py36
+    Improved the structure data code
+    
+
 ## [0.1.0b8] - 2019-07-28
 
     Resolve issue with apps loading in the 

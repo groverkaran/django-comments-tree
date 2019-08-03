@@ -1,4 +1,6 @@
 from datetime import datetime
+from textwrap import dedent
+from os.path import join, dirname
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
@@ -31,6 +33,9 @@ class TreeCommentManagerTestCase(ArticleBaseTestCase):
         self.root_1_pk = self.root_1.pk
         self.root_2 = TreeComment.objects.get_or_create_root(self.article_1, site=self.site2)
         self.root_2_pk = self.root_2.pk
+
+        with open(join(dirname(__file__), 'data/draftjs_raw.json'), 'r') as fp:
+            self.draft_raw = fp.read()
 
     def post_comment_1(self):
         r = TreeComment.objects.get(pk=self.root_1_pk)
@@ -87,8 +92,43 @@ class TreeCommentManagerTestCase(ArticleBaseTestCase):
         c = TreeComment.objects.create_for_object(
             self.article_2, comment=comment
         )
-        self.assertEqual(c._comment_rendered, comment,
+        self.assertEqual(c.comment.raw, comment,
                          "Expected to create new comment here")
+
+    def test_create_markdown_comment(self):
+        """ Validate a very basic markdown render """
+        comment = dedent('''
+        #Heading
+        Body Text
+        ''').strip()
+        comment_rendered = dedent('''
+        <h1>Heading</h1>
+        <p>Body Text</p>
+        ''').strip()
+
+        c = TreeComment.objects.create_for_object(
+            self.article_2, comment=comment,
+            comment_markup_type='markdown'
+        )
+        self.assertEqual(c.comment.raw, comment,
+                         "Expected raw comment to match original")
+        self.assertEqual(c.comment.rendered, comment_rendered,
+                         "Expected rendered to match markdown output")
+
+    def test_create_draftail_comment(self):
+        """ Validate a very basic draftjs render """
+        comment_rendered = dedent('''
+        <p>Text 1.</p><p>Test 2.</p>
+        ''').strip()
+
+        c = TreeComment.objects.create_for_object(
+            self.article_2, comment=self.draft_raw,
+            comment_markup_type='draftjs'
+        )
+        self.assertEqual(c.comment.raw, self.draft_raw,
+                         "Expected raw comment to match original")
+        self.assertEqual(c.comment.rendered, comment_rendered,
+                         "Expected rendered to match markdown output")
 
     # ToDo: in_moderation, for_model, count_for_content_types
     # ToDo: CommentAssociation: object_pk

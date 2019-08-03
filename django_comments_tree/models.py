@@ -70,9 +70,9 @@ class CommentManager(MP_NodeManager):
                                                       root=root)
         return assoc.root
 
-    def create_for_object(self, obj, comment=''):
+    def create_for_object(self, obj, comment='', **kwargs):
         root = self.get_or_create_root(obj)
-        return root.add_child(comment=comment)
+        return root.add_child(comment=comment, **kwargs)
 
     def in_moderation(self):
         """
@@ -293,6 +293,9 @@ class TreeComment(MP_Node, CommentAbstractModel):
         """
         Take an existing queryset of descendants, and convert to a json structure
         :param queryset:
+        :param annotate_cb: Function - receives the comment and data, so that the calling
+        code can add additional values to the data. For example, accessing the user.profile.
+        This code cannot do that since it does not have visibility to the profile (if it exists)
         :return:
         """
 
