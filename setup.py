@@ -58,7 +58,7 @@ setup(
         'Django>=2.0',
         'django-treebeard>=4.1.0',
         'djangorestframework>=3.6',
-        'drafjs_exporter>=2.1.6',
+        'draftjs_exporter>=2.1.6',
         'django-markupfield>=1.5.1',
         'markdown>=3.1.1',
         'docutils',

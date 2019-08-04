@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.0b13] - 2019-08-04
+
+    Fix a typo on dependecies
+    
 ## [0.1.0b12] - 2019-08-03
 
     I've changed the default comment markup type to plan

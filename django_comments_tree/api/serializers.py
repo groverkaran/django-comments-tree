@@ -42,6 +42,10 @@ class APICommentSerializer(serializers.ModelSerializer):
                   'content_type', 'object_id',
                   ]
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs['context']['request']
+        super().__init__(*args, **kwargs)
+        
     def to_representation(self, instance):
         obj = super().to_representation(instance)
         obj['submit_date'] = instance.submit_date.strftime(DATETIME_FORMAT)
