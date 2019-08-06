@@ -1,4 +1,5 @@
 from typing import Optional, List
+from dataclasses import dataclass, field
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -13,6 +14,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from django_comments_tree.signals import comment_was_flagged
+from django_comments_tree import get_structured_data_class
 
 from django_comments_tree.conf import settings
 from treebeard.mp_tree import MP_Node, MP_NodeManager
@@ -176,6 +178,18 @@ class CommentAssociation(models.Model):
         return str(self.object_id)
 
 
+@dataclass
+class CommentData:
+    id: int
+    comment: str = ''
+    comment_rendered: str = ''
+    likes: int = 0
+    parent_id: int = -1
+    timestamp: str = ''
+    depth: int = 1
+    children: list = field(default_factory=list)
+
+
 class TreeComment(MP_Node, CommentAbstractModel):
     node_order_by = ['submit_date']
 
@@ -311,44 +325,46 @@ class TreeComment(MP_Node, CommentAbstractModel):
 
         # Now I can build the data structure directly
         flat_data = []
+        by_id = {}
+        details_by_id = {}  # Store data that I don't want to send to client
         for c in queryset:
-            data = {
-                'id': c.id,
-                'comment': c.comment.raw,
-                'comment_rendered': c._comment_rendered,
-                'likes': 0,
-                'parent_id': parent_id_for(c),
-                'timestamp': c.updated_on
-            }
+            data = get_structured_data_class()(
+                id=c.id,
+                comment=c.comment.raw,
+                comment_rendered=c.comment.rendered,
+                parent_id=parent_id_for(c),
+                depth=c.depth - 1,
+            )
+
             if annotate_cb:
                 data = annotate_cb(c, data)
             flat_data.append(data)
+            by_id[c.id] = data
+            details_by_id[c.id] = {
+                'path': c.path,
+                'depth': c.depth,
+            }
 
         if queryset.count() == 0:
-            return {'comments': [], 'hierarchy': []}
+            return {'comments': []}
 
         # Now, build the tree structure... a bit trickier
         steplen = queryset[0].steplen
 
-        # Get depth=1 comments
-        # Need a nice recursive function for this
-        def build_tree(path=None, depth=1):
+        def get_child_ids(node):
+            details = details_by_id.get(node.id)
+            path = details.get("path")
+            depth = details.get("depth")
             keys = [k for k in path_to_node.keys()
                     if (not path or k.startswith(path))
                     and len(k) / steplen == depth + 1]
 
-            tree = []
-            for k in keys:
-                n = path_to_node[k]
-                tree.append({
-                    'id': n.id,
-                    'children': build_tree(k, depth=depth + 1)
-                })
-            return tree
+            return [path_to_node[k].id for k in keys]
 
-        comment_hierarchy = build_tree()
+        for node in flat_data:
+            node.children = get_child_ids(node)
 
-        return {'comments': flat_data, 'hierarchy': comment_hierarchy}
+        return {'comments': flat_data}
 
     @classmethod
     def structured_tree_data(cls, root,

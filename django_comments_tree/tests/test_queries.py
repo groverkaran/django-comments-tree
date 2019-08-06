@@ -50,7 +50,7 @@ def make_lots_of_comments(root: TreeComment,
     for x in range(count):
         comment = f"{prefix}{x}"
         child = root.add_child(comment=comment)
-        #print(f"Created comment {comment}")
+        # print(f"Created comment {comment}")
         total_comments += 1
         children.append(child)
         if depth > 1:
@@ -245,11 +245,11 @@ class TestTreeCommentPerformance(ArticleBaseTestCase):
 
         data = TreeComment.structured_tree_data(self.root_1)
         print(f"Comment: {data.get('comment')}")
-        print(f"Tree: {data.get('hierarchy')}")
-        tree = data.get('hierarchy')
 
         self.assertEqual(cnt, len(data.get('comments')),
                          "Expected count to match")
         n_children = self.root_1.get_children_count()
-        self.assertEqual(n_children, len(tree),
+        child_comments = [n for n in data.get('comments')
+                          if n.depth == 1]
+        self.assertEqual(n_children, len(child_comments),
                          "Expected tree to have matching children")

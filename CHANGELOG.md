@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.1.0rc1] - 2019-08-04
+
+    This is the first release candidate, since I am getting
+    close to putting it into producion.
+    
+    * Added a new dataclass for the comments data
+    * Add mechanism to override the dataclass used
+        * Provides client ability to extend and annotate
+    * Added additional testing
+    * Remove python 3.6 compatibility due to dataclasses
+    
 ## [0.1.0b13] - 2019-08-04
 
     Fix a typo on dependecies

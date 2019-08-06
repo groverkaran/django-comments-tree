@@ -66,6 +66,18 @@ def get_form():
         return import_string(settings.COMMENTS_TREE_FORM_CLASS)
 
 
+def get_structured_data_class():
+    """
+    Returns the comment model structured data class.
+    """
+    if get_comment_app_name() != DEFAULT_COMMENTS_APP \
+            and hasattr(get_comment_app(), "get_structured_data_class"):
+        return get_comment_app().get_structured_data_class()
+    else:
+        from django_comments_tree.conf import settings
+        return import_string(settings.COMMENTS_TREE_STRUCTURED_DATA_CLASS)
+
+
 def get_form_target():
     """
     Returns the target URL for the comment form submission view.

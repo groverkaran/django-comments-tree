@@ -29,6 +29,9 @@ COMMENTS_TREE_LIST_ORDER = ('submit_date',)
 # Form class to use.
 COMMENTS_TREE_FORM_CLASS = "django_comments_tree.forms.TreeCommentForm"
 
+# Structured Data.
+COMMENTS_TREE_STRUCTURED_DATA_CLASS = "django_comments_tree.models.CommentData"
+
 # Model to use.
 COMMENTS_TREE_MODEL = "django_comments_tree.models.TreeComment"
 
