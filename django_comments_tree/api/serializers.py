@@ -49,6 +49,8 @@ class APICommentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         obj = super().to_representation(instance)
         obj['submit_date'] = instance.submit_date.strftime(DATETIME_FORMAT)
+        content_type = instance.content_type
+        obj['content_type'] = f'{content_type.app_label}.{content_type.model}' if content_type else None
         return obj
 
     def create(self, validated_data):
