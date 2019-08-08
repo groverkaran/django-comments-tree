@@ -4,7 +4,6 @@ language: python
 
 python:
   - 3.7
-  - 3.8
 
 cache:
   pip:
@@ -13,7 +12,6 @@ cache:
     - .tox
 
 env:
- - DJANGO="2.0"
  - DJANGO="2.1"
  - DJANGO="2.2"
 
