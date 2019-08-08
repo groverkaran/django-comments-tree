@@ -30,6 +30,7 @@ COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 3000)
 
 
 class APICommentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = TreeComment
         fields = ['id', 'user',
@@ -38,12 +39,11 @@ class APICommentSerializer(serializers.ModelSerializer):
                   'submit_date', 'updated_on',
                   'ip_address', 'is_public', 'is_removed',
                   'followup',
-                  # Needed to add to system
-                  'content_type', 'object_id',
                   ]
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs['context']['request']
+        if kwargs.get('context'):
+            self.request = kwargs.get('context').get('request')
         super().__init__(*args, **kwargs)
 
     def to_representation(self, instance):
