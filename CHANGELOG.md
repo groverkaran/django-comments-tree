@@ -1,20 +1,24 @@
 # Change Log
 
+## [0.1.0rc2] - 2019-08-07
+
+    Remove the content_type from the fields of the api serializer_
+
 ## [0.1.0rc1] - 2019-08-04
 
     This is the first release candidate, since I am getting
     close to putting it into producion.
-    
+
     * Added a new dataclass for the comments data
     * Add mechanism to override the dataclass used
         * Provides client ability to extend and annotate
     * Added additional testing
     * Remove python 3.6 compatibility due to dataclasses
-    
+
 ## [0.1.0b13] - 2019-08-04
 
     Fix a typo on dependecies
-    
+
 ## [0.1.0b12] - 2019-08-03
 
     I've changed the default comment markup type to plan
@@ -23,25 +27,25 @@
     Improved make scripts
     Fixed tox issues with py36
     Improved the structure data code
-    
+
 
 ## [0.1.0b8] - 2019-07-28
 
-    Resolve issue with apps loading in the 
+    Resolve issue with apps loading in the
     __init__.py file. the 'django apps' import
     was conflicting with the .apps.py file, and causing an error on initialization.
-    
+
 ## [0.1.0b7] - 2019-07-18
 
     Add method to compute and return structured data that is tailored
     for React and redux. Added a test_queries file with some tests on
     this data.
-    
+
     * Change default MAX_THREAD_LEVEL to 5
     * fixed test issues with change to thread level
         * Tests now adapt to setting, instead of being hard-coded
     * add tests to test_models to increase test coverage on models file
-    
+
     Changes to models.py:
         * add property .thread_level that computes level from depth
         * add propety .content_object to retrieve content object for thread
