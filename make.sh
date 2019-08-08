@@ -14,7 +14,7 @@ then
     exit 2
 fi
 
-version=$(sed 's/__version__ = "\(.*\)"/\1/' version.py)
+version=$(sed 's/__version__ = "\(.*\)"/\1/' django_comments_tree/version.py)
 git tag --force $version && git push && git push --tags --force
 
 python setup.py sdist

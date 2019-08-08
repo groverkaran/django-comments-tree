@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.1.0rc3] - 2019-08-07
+
+    Officially remove python 3.6 from compatibiliy due to use of dataclasses
+    Update travis.yml to test against python 3.7 and 3.8 only.
+    Fix but in main.sh script
+
 ## [0.1.0rc2] - 2019-08-07
 
     Remove the content_type from the fields of the api serializer_
