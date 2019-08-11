@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.1.0rc4] - 2019-08-10
+
+    Notifiy signal when comments are updated.
+    
+
 ## [0.1.0rc3] - 2019-08-07
 
     Officially remove python 3.6 from compatibiliy due to use of dataclasses

@@ -32,7 +32,6 @@ COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 3000)
 class SerializerSaveMixin:
 
     def on_save(self, **kwargs):
-        site = get_current_site(self.request)
         resp = {
             'code': 200,
             'comment': self.instance,
