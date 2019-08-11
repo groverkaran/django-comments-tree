@@ -49,7 +49,6 @@ class SerializerSaveMixin:
 
 
 class APICommentSerializer(SerializerSaveMixin, serializers.ModelSerializer):
-
     class Meta:
         model = TreeComment
         fields = ['id', 'user',
@@ -82,6 +81,7 @@ class APICommentSerializer(SerializerSaveMixin, serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def save(self, **kwargs):
+        created = kwargs.pop('create', False)
         response = self.on_save(**kwargs)
         if response.get('code') != 200:
             return response.get('code')
@@ -89,7 +89,8 @@ class APICommentSerializer(SerializerSaveMixin, serializers.ModelSerializer):
 
         comment_was_posted.send(sender=self.instance.__class__,
                                 comment=self.instance,
-                                request=self.request)
+                                request=self.request,
+                                created=created)
 
         return result
 
