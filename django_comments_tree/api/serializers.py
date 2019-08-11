@@ -29,7 +29,27 @@ DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 3000)
 
 
-class APICommentSerializer(serializers.ModelSerializer):
+class SerializerSaveMixin:
+
+    def on_save(self, **kwargs):
+        site = get_current_site(self.request)
+        resp = {
+            'code': 200,
+            'comment': self.instance,
+        }
+        # Signal that the comment is about to be saved
+        responses = comment_will_be_posted.send(sender=self.instance,
+                                                comment=self.instance,
+                                                request=self.request)
+        for (receiver, response) in responses:
+            if response is False:
+                resp['code'] = 403  # Rejected.
+                return resp
+
+        return resp
+
+
+class APICommentSerializer(SerializerSaveMixin, serializers.ModelSerializer):
 
     class Meta:
         model = TreeComment
@@ -63,7 +83,16 @@ class APICommentSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def save(self, **kwargs):
-        return super().save(**kwargs)
+        response = self.on_save(**kwargs)
+        if response.get('code') != 200:
+            return response.get('code')
+        result = super().save(**kwargs)
+
+        comment_was_posted.send(sender=self.instance.__class__,
+                                comment=self.instance,
+                                request=self.request)
+
+        return result
 
 
 class WriteCommentSerializer(serializers.Serializer):
