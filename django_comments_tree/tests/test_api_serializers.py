@@ -57,10 +57,14 @@ class TestApiSerializer(TestSerializerBase):
         self.assertIsNotNone(rendered)
 
     def test_serializer_save(self):
+        url = reverse('comments-post-comment')
+        request = self.get_request(url, {})
         serializer = APICommentSerializer(self.comment,
                                           data={'comment': 'comment value',
-                                                'comment.rendered': '<p>value</p>'
-                                                })
+                                                'comment.rendered': '<p>value</p>',
+                                                },
+                                          context={'request': request}
+                                          )
         self.assertTrue(serializer.is_valid())
         serializer.save()
         self.comment.refresh_from_db()
