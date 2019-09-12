@@ -25,3 +25,6 @@ comment_was_posted = Signal(providing_args=["comment", "request"])
 # was a user requesting removal of a comment, a moderator approving/removing a
 # comment, or some other custom user flag.
 comment_was_flagged = Signal(providing_args=["comment", "flag", "created", "request"])
+
+# Sent after a comment is `Liked` or `Disliked`
+comment_feedback_toggled = Signal(providing_args=["flag", "comment", "created", "request"])

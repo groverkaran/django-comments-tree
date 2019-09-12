@@ -25,3 +25,5 @@ package-lock.json
 .venv3
 .envrc
 /pip-wheel-metadata
+*.iml
+.idea
