@@ -449,8 +449,7 @@ class TreeComment(MP_Node, CommentAbstractModel):
 @receiver(comment_was_flagged)
 def unpublish_nested_comments_on_removal_flag(sender, comment, flag, **kwargs):
     if flag.flag == TreeCommentFlag.MODERATOR_DELETION:
-        TreeComment.objects.filter(~(Q(pk=comment.id)), parent_id=comment.id) \
-            .update(is_public=False)
+        comment.get_descendants().update(is_public=False)
 
 
 class DummyDefaultManager:

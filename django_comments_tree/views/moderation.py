@@ -49,9 +49,7 @@ def delete(request, comment_id, next=None):
         comment
             the flagged `comments.comment` object
     """
-    comment = get_object_or_404(get_model(),
-                                pk=comment_id,
-                                site__pk=get_current_site(request).pk)
+    comment = get_object_or_404(get_model(), pk=comment_id,)
 
     # Delete on POST
     if request.method == 'POST':
@@ -77,9 +75,10 @@ def approve(request, comment_id, next=None):
         comment
             the `comments.comment` object for approval
     """
-    comment = get_object_or_404(get_model(),
-                                pk=comment_id,
-                                site__pk=get_current_site(request).pk)
+    comment = get_object_or_404(
+        get_model(),
+        pk=comment_id,
+    )
 
     # Delete on POST
     if request.method == 'POST':
