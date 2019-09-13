@@ -27,4 +27,6 @@ comment_was_posted = Signal(providing_args=["comment", "request"])
 comment_was_flagged = Signal(providing_args=["comment", "flag", "created", "request"])
 
 # Sent after a comment is `Liked` or `Disliked`
-comment_feedback_toggled = Signal(providing_args=["flag", "comment", "created", "request"])
+comment_feedback_toggled = Signal(
+    providing_args=["flag", "comment", "created", "request"]
+)
