@@ -35,6 +35,8 @@ urlpatterns = [
         name='comments-tree-api-feedback'),
     url(r'^api/flag/$', api.CreateReportFlag.as_view(),
         name='comments-tree-api-flag'),
+    url(r'^api/flag/(?P<pk>\d+)/$', api.RemoveReportFlag.as_view(),
+        name='comments-tree-api-remove-flag'),
 ]
 
 # Migrated from original django-contrib-comments

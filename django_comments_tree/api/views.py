@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from django_comments_tree.views import comments as views
 from django_comments_tree.api import serializers
 from django_comments_tree.conf import settings
-from django_comments_tree.models import TreeComment
+from django_comments_tree.models import TreeComment, TreeCommentFlag
+from django_comments_tree.permissions import IsOwner, IsModerator
 
 
 class CommentCreate(generics.CreateAPIView):
@@ -100,3 +101,8 @@ class CreateReportFlag(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         perform_flag(self.request, serializer.validated_data['comment'])
+
+
+class RemoveReportFlag(generics.DestroyAPIView):
+    queryset = TreeCommentFlag.objects.all()
+    permission_classes = (permissions.IsAuthenticated, IsOwner, IsModerator,)
