@@ -3,6 +3,9 @@ from django.conf import settings
 import markdown
 from django_comments_tree.render import render_draftjs, render_plain
 
+# Default application namespace
+COMMENT_URL_NAMESPACE = 'treecomments'
+
 COMMENT_MAX_LENGTH = 3000
 
 # Extra key to salt the TreeCommentForm.

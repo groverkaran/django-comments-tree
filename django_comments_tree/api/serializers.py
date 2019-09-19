@@ -37,7 +37,7 @@ class SerializerSaveMixin:
             'comment': self.instance,
         }
         # Signal that the comment is about to be saved
-        responses = comment_will_be_posted.send(sender=self.instance,
+        responses = comment_will_be_posted.send(sender=self.instance.__class__,
                                                 comment=self.instance,
                                                 request=self.request)
         for (receiver, response) in responses:
@@ -82,10 +82,12 @@ class APICommentSerializer(SerializerSaveMixin, serializers.ModelSerializer):
 
     def save(self, **kwargs):
         created = kwargs.pop('create', False)
+        result = super().save(**kwargs)
+
+        # Call after save, or instance won't be set
         response = self.on_save(**kwargs)
         if response.get('code') != 200:
             return response.get('code')
-        result = super().save(**kwargs)
 
         comment_was_posted.send(sender=self.instance.__class__,
                                 comment=self.instance,

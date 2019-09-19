@@ -1,10 +1,7 @@
 # Idea borrowed from Selwin Ong post:
 # http://ui.co.id/blog/asynchronous-send_mail-in-django
 
-try:
-    import Queue as queue  # python2
-except ImportError:
-    import queue as queue  # python3
+import queue as queue  # python3
 
 import threading
 

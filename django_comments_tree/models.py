@@ -54,6 +54,23 @@ class CommentManager(MP_NodeManager):
             return None
 
     def get_or_create_root(self, obj, site=None):
+        """
+        Retrieve the root for this object. Create if it does not exists.
+
+        TreeComents are associated with any object in the system using
+        GenericForeignKeys and a CommentAssociation object.
+
+        This object associates the `object commented upon` with the root
+        of the comments for that object. The root can then contain the TreeComments
+        for that object, to a very deeploy nested level if desired.
+
+        - Or not nested at all
+
+
+        :param obj:
+        :param site:
+        :return:
+        """
         ct = ContentType.objects.get_for_model(obj)
 
         if site is None:
