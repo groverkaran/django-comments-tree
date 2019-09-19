@@ -474,6 +474,7 @@ class TreeModerator(Moderator):
                                       sender=TmpTreeComment)
         comment_was_flagged.connect(self.comment_flagged,
                                     sender=get_model())
+        super().connect()
 
     def comment_flagged(self, sender, comment, flag, created, request,
                         **kwargs):
