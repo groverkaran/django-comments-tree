@@ -543,6 +543,14 @@ def perform_like(request, comment):
                                        flag=DISLIKEDIT_FLAG).delete()
     else:
         flag.delete()
+
+    signals.comment_feedback_toggled.send(
+        sender=flag.__class__,
+        flag=flag,
+        comment=comment,
+        created=created,
+        request=request,
+    )
     return created
 
 
@@ -557,6 +565,14 @@ def perform_dislike(request, comment):
                                        flag=LIKEDIT_FLAG).delete()
     else:
         flag.delete()
+
+    signals.comment_feedback_toggled.send(
+        sender=flag.__class__,
+        flag=flag,
+        comment=comment,
+        created=created,
+        request=request,
+    )
     return created
 
 
