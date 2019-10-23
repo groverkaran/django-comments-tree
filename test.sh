@@ -7,7 +7,7 @@ then
     exit 1
 fi
 
-tox -epy37-django210,py37-django220
+tox
 if [ $? -ne 0 ]
 then
     echo "tox failed"

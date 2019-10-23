@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.1.1] - 2019-10-23
+
+    Added a migrations that was missed in the previous version. The migration adds the 
+    Blank=True to the 'assoc' ForeignKey for TreeComments
+    
+    
 ## [0.1.0] - 2019-10-23
 
     Denormalized the CommentAssociation model by adding an 'assoc' into each TreeComment
