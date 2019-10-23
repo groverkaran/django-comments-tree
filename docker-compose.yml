@@ -1,0 +1,22 @@
+version: '3.7'
+
+volumes:
+  postgres_data_dev:
+
+
+services:
+  postgres:
+    container_name: ${NAME:-django_comments_tree}-postgres
+    build: ./compose/postgres
+    volumes:
+      # You can also modify this to point to your local Dropbox location where the shared
+      # backups are stored. For me this is:
+      - "${BACKUP_ROOT}:/backups"
+      - "${LOCAL_BACKUPS}:/local_backups"
+    environment:
+      - POSTGRES_USER=django_user
+      - POSTGRES_DB=comments_tree
+      - POSTGRES_PASSWORD
+    ports:
+      - "${PG_PORT:-5448}:5432"
+

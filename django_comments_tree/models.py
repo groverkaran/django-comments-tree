@@ -1,13 +1,20 @@
 from typing import Optional, List
 from dataclasses import dataclass, field
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
-from django.db.models import Q
+try:
+    from django.contrib.postgres.aggregates import ArrayAgg
+
+    postgres_available = True
+except ImportError:
+    postgres_available = False
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core import signing
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
@@ -16,6 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_comments_tree.signals import comment_was_flagged
 from django_comments_tree import get_structured_data_class
 
+from django.conf import settings as djsettings
 from django_comments_tree.conf import settings
 from treebeard.mp_tree import MP_Node, MP_NodeManager
 
@@ -118,18 +126,23 @@ class CommentManager(MP_NodeManager):
         """
         return self.get_queryset().filter(is_public=False, is_removed=False)
 
-    def for_model(self, model, site=None):
+    def for_model(self, model, content_type=None, site=None):
         """
         QuerySet for all comments for a particular model (either an instance or
         a class).
 
-        This returns just comments, not the roots
+        Optionally pass in content_type to avoid the query needed to get that for
+        the model
+
+        Returns a queryset for all comments associated with the given model.
 
 
         """
-        ct = ContentType.objects.get_for_model(model)
+        if content_type is None:
+            content_type = ContentType.objects.get_for_model(model)
 
-        qs = self.get_queryset().filter(assoc__content_type=ct).filter(depth__gt=1)
+        qs = self.get_queryset().filter(assoc__content_type=content_type)
+        qs = qs.filter(depth__gt=1)  # Exclude root objects
         if site is not None:
             qs = qs.filter(assoc__site=site)
         if isinstance(model, models.Model):
@@ -178,6 +191,74 @@ class CommentManager(MP_NodeManager):
         qs = qs.select_related(
             'commentassociation', 'commentassociation__content_type')
         return qs
+
+    def user_flags_for_model(self, user, model, content_type=None):
+        """
+        Retrieve a summary of flags for the given user and model
+
+        The return value is a dict with a list of comment id's that the user
+        has liked, disliked and reported.
+
+        The method returns a queryset, that should have 1 or 0 values
+
+        Use the result like this:
+
+
+        qs = user_flags_for_model(...)
+        if len(qs):
+            return Response(qs[0])
+
+
+        NOTE: qs.first() does not work the way you want.
+
+
+        """
+
+        result = {'user': user.id, 'liked': [], 'disliked': [], 'reported': []}
+
+        if content_type is None:
+            content_type = ContentType.objects.get_for_model(model)
+
+        qs = TreeCommentFlag.objects.filter(user=user)
+        qs = qs.filter(user=user)
+        qs = qs.filter(comment__assoc__content_type=content_type)
+        if isinstance(model, models.Model):
+            pk = model._get_pk_val()
+            qs = qs.filter(comment__assoc__object_id=pk)
+
+        if all([
+            postgres_available,
+            'postgres' in djsettings.DATABASES['default']['ENGINE']
+        ]):
+            # Okay to use postgres
+            qs = qs.values('user')  # This cause a crucial "group_by"
+
+            qs = qs.annotate(
+                liked=ArrayAgg(
+                    'comment__pk',
+                    filter=Q(flag=LIKEDIT_FLAG)))
+            qs = qs.annotate(
+                disliked=ArrayAgg(
+                    'comment__pk',
+                    filter=Q(flag=DISLIKEDIT_FLAG)))
+            qs = qs.annotate(
+                reported=ArrayAgg(
+                    'comment__pk',
+                    filter=Q(flag=TreeCommentFlag.SUGGEST_REMOVAL)))
+
+            if qs:
+                return qs[0]
+        else:
+            qs = qs.values('user', 'comment', 'flag')  # This cause a crucial "group_by"
+            result = {'user': user.id, 'liked': [], 'disliked': [], 'reported': []}
+            mm = {LIKEDIT_FLAG: 'liked',
+                  DISLIKEDIT_FLAG: 'disliked',
+                  TreeCommentFlag.SUGGEST_REMOVAL: 'reported'}
+            for q in qs.all():
+                key = mm[q['flag']]
+                result[key].append(q['comment'])
+
+        return result
 
 
 class CommentAssociation(models.Model):

@@ -10,3 +10,4 @@ django-markup
 django-markdown2
 docutils
 six
+psycopg2-binary==2.8.4
