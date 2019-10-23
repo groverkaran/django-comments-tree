@@ -440,3 +440,67 @@ class DiaryBaseTestCase(DjangoTestCase):
             c = c.add_child(comment=f"Comment level {x}")
         with self.assertRaises(MaxThreadLevelExceededException):
             c.add_child(comment="Comment should cause an exception now")
+
+
+class TestCommentsForModel(ArticleBaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        thread_test_step_1(self.article_1)
+        thread_test_step_1(self.article_2)
+
+    def test_get_comments_for_model_type(self):
+        comments = TreeComment.objects.for_model(Article)
+
+        self.assertEqual(len(comments), 4)
+
+    def test_get_comments_for_model_object(self):
+        comments = TreeComment.objects.for_model(Article())
+
+        self.assertEqual(len(comments), 0)
+
+    def test_get_comments_for_model_instance(self):
+        comments = TreeComment.objects.for_model(self.article_1)
+
+        self.assertEqual(len(comments), 2)
+
+
+class TestCommentsManager(ArticleBaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.root = TreeComment.objects.get_or_create_root(self.article_1)
+        thread_test_step_1(self.article_1)
+        thread_test_step_1(self.article_2)
+
+    def test_validate_association_on_root(self):
+        self.assertIsNotNone(self.root.assoc)
+        self.root.assoc = None
+        self.root.save()
+        self.assertIsNone(self.root.assoc)
+
+        self.root = TreeComment.objects.get_or_create_root(self.article_1)
+        self.assertIsNotNone(self.root.assoc)
+
+    def test_moderation(self):
+
+        moderated = TreeComment.objects.in_moderation()
+        self.assertEqual(len(moderated.all()), 0)
+        c1 = TreeComment.objects.first()
+        c1.is_public = False
+        c1.save()
+
+        moderated = TreeComment.objects.in_moderation()
+        self.assertEqual(len(moderated.all()), 1)
+
+    def test_count_for_model(self):
+        count1 = TreeComment.objects.count_for_model(Article)
+        count2 = TreeComment.objects.count_for_model(self.article_1)
+        count3 = TreeComment.objects.count_for_model(self.article_2)
+
+        self.assertEqual(4, count1)
+        self.assertEqual(2, count2)
+        self.assertEqual(2, count3)
+
+
+

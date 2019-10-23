@@ -7,7 +7,7 @@ then
     exit 1
 fi
 
-tox -epy37-django210,py37-django220
+tox -epy37-django210,py37-django220,py38-django210,py38-django220
 if [ $? -ne 0 ]
 then
     echo "Tox tests failed. Please review"

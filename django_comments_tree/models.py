@@ -44,11 +44,25 @@ class MaxThreadLevelExceededException(Exception):
 
 class CommentManager(MP_NodeManager):
 
-    def get_root(self, obj):
+    def _validate_assoc(self, root, association):
+        if root.assoc is None:
+            root.assoc = association
+            root.save()
+
+    def get_root(self, obj, site=None):
         """ Return the root for the given object """
+        if site is None:
+            site = Site.objects.get(pk=1)
+
         try:
             ct = ContentType.objects.get_for_model(obj)
-            assoc = CommentAssociation.objects.get(content_type=ct, object_id=obj.id)
+            qs = CommentAssociation.objects.select_related("root")
+            assoc = qs.get(
+                content_type=ct,
+                object_id=obj.id,
+                site=site)
+
+            self._validate_assoc(assoc.root, assoc)
             return assoc.root
         except ObjectDoesNotExist:
             return None
@@ -62,7 +76,7 @@ class CommentManager(MP_NodeManager):
 
         This object associates the `object commented upon` with the root
         of the comments for that object. The root can then contain the TreeComments
-        for that object, to a very deeploy nested level if desired.
+        for that object, to a very deeply nested level if desired.
 
         - Or not nested at all
 
@@ -77,9 +91,11 @@ class CommentManager(MP_NodeManager):
             site = Site.objects.get(pk=1)
 
         try:
-            assoc = CommentAssociation.objects.get(content_type=ct,
-                                                   object_id=obj.id,
-                                                   site=site)
+            assoc = CommentAssociation.objects.select_related("root").get(
+                content_type=ct,
+                object_id=obj.id,
+                site=site)
+            self._validate_assoc(assoc.root, assoc)
         except ObjectDoesNotExist:
             root = TreeComment.add_root()
             assoc = CommentAssociation.objects.create(content_type=ct,
@@ -87,11 +103,14 @@ class CommentManager(MP_NodeManager):
                                                       content_object=obj,
                                                       site=site,
                                                       root=root)
+            root.assoc = assoc
+            root.save()
+
         return assoc.root
 
-    def create_for_object(self, obj, comment='', **kwargs):
+    def create_for_object(self, obj, **kwargs):
         root = self.get_or_create_root(obj)
-        return root.add_child(comment=comment, **kwargs)
+        return root.add_child(**kwargs)
 
     def in_moderation(self):
         """
@@ -99,20 +118,23 @@ class CommentManager(MP_NodeManager):
         """
         return self.get_queryset().filter(is_public=False, is_removed=False)
 
-    def for_model(self, model):
+    def for_model(self, model, site=None):
         """
         QuerySet for all comments for a particular model (either an instance or
         a class).
 
-        Updated: this can't return a queryset, since MP_Node
-        can not be queried that way
+        This returns just comments, not the roots
+
 
         """
         ct = ContentType.objects.get_for_model(model)
 
-        qs = self.get_queryset().filter(content_type=ct)
+        qs = self.get_queryset().filter(assoc__content_type=ct).filter(depth__gt=1)
+        if site is not None:
+            qs = qs.filter(assoc__site=site)
         if isinstance(model, models.Model):
-            qs = qs.filter(object_id=model._get_pk_val())
+            pk = model._get_pk_val()
+            qs = qs.filter(assoc__object_id=pk)
         return qs
 
     def for_app_models(self, *args, **kwargs) -> Optional[models.QuerySet]:
@@ -133,35 +155,28 @@ class CommentManager(MP_NodeManager):
         :param site:
         :return:
         """
-        filter_fields = {'content_type__in': content_types}
+        qs = TreeComment.objects.filter(assoc__content_type__in=content_types)
+        qs = qs.filter(depth__gt=1)  # Exclude root nodes
         if site is not None:
-            filter_fields['site'] = site
-        associations = CommentAssociation.objects.filter(**filter_fields)
-        parent_paths = []
+            qs = qs.filter(assoc__site=site)
 
-        for assoc in associations:
-            parent_paths.append(assoc.root.path)
-
-        Qlist = [Q(path__startswith=path) for path in parent_paths]
-        myQ = Qlist.pop()
-        for Qitem in Qlist:
-            myQ |= Qitem
-
-        qs = TreeComment.objects.filter(depth__gte=2).filter(myQ)
         return qs
 
     def count_for_content_types(self, content_types: List[str], site: int = None) -> int:
-        count = 0
-        filter_fields = {'content_type__in': content_types}
-        if site is not None:
-            filter_fields['site'] = site
-        associations = CommentAssociation.objects.filter(**filter_fields)
-        for assoc in associations:
-            count += assoc.root.get_descendants().count()
-        return count
+        """ Retrieve a count of comments for the given list of content types """
+        qs = self.for_content_types(content_types=content_types, site=site)
+        return qs.count()
+
+    def count_for_model(self, model, site: int = None) -> int:
+        """ Retrieve a count of comments for the given list of content types """
+
+        qs = self.for_model(model=model, site=site)
+        return qs.count()
 
     def get_queryset(self):
         qs = super().get_queryset()
+        qs = qs.select_related(
+            'commentassociation', 'commentassociation__content_type')
         return qs
 
 
@@ -169,11 +184,18 @@ class CommentAssociation(models.Model):
     """
     Associate a tree node with a particular model by GenericForeignKey
 
-    ToDo: Review the proper way to use GFK's. Do I need all of the other parts?
     """
 
+    @classmethod
+    def from_db(cls, *args, **kwargs):
+        """ Save original value of root so we can """
+        new = super().from_db(*args, **kwargs)
+        return new
+
     # Root of comments for the associated model
-    root = models.ForeignKey('TreeComment', on_delete=models.CASCADE, null=True)
+    root = models.OneToOneField('TreeComment',
+                                on_delete=models.CASCADE,
+                                null=True)
 
     # Content-object field
     content_type = models.ForeignKey(ContentType,
@@ -187,12 +209,15 @@ class CommentAssociation(models.Model):
     # object_pk = models.TextField(_('object ID'))
 
     # Metadata about the comment
-    # ToDo: Why do I need this?
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
 
     @property
     def object_pk(self):
         return str(self.object_id)
+
+    def __str__(self):
+        return (f"CommentAssociation pk={self.pk} "
+                f"oid={self.object_id} ct_id={self.content_type_id} root_id={self.root_id}")
 
 
 @dataclass
@@ -208,7 +233,26 @@ class CommentData:
 
 
 class TreeComment(MP_Node, CommentAbstractModel):
+    """
+    TreeComment MP Node
+
+    The assoc field is an optimization that allows for database operations
+    to traverse a query from a comment object to the association object and
+    to the GenericForeign Key object. To query for comments for a given page,
+    given the page id:
+
+        commments = TreeComment.objects.filter(assoc__object_id=pk)
+
+    This might assume that there are only comments for a particular type.
+    If comments are associated with multiple types, you will need to query
+    or cache the comment
+    """
     node_order_by = ['submit_date']
+
+    assoc = models.ForeignKey('CommentAssociation',
+                              on_delete=models.SET_NULL,
+                              blank=True,
+                              null=True)
 
     def __init__(self, *args, **kwargs):
         self._association = None
@@ -219,32 +263,47 @@ class TreeComment(MP_Node, CommentAbstractModel):
     objects = CommentManager()
 
     def add_child(self, *args, comment=None, **kwargs):
-        """ Check for maximum depth before adding child """
+        """
+        Add a new comment.
+        This can be called on a root node, or anywhere in the comment hierarchy.
+
+        Checks for the "Global" maximum depth here. There is also a check for
+        an object-specific maximum depth in the
+        Check for maximum depth before adding child
+        """
         depth = self.depth
         if depth > settings.COMMENTS_TREE_MAX_THREAD_LEVEL:
-            raise MaxThreadLevelExceededException(comment)
+            raise MaxThreadLevelExceededException(self)
+
+        max_level = max_thread_level_for_content_type(
+            self.assoc.content_type)
+        if max_level and self.thread_level > max_level:
+            raise MaxThreadLevelExceededException(self)
 
         if 'instance' in kwargs:
             child = super().add_child(*args, **kwargs)
+            if child.assoc != self.assoc:
+                child.assoc = self.assoc
+                child.save()
         else:
+            if 'assoc' not in kwargs:
+                kwargs['assoc'] = self.assoc
             child = super().add_child(*args, comment=comment, **kwargs)
         return child
 
     def save(self, *args, **kwargs):
-        is_new = self.pk is None
+        """
+        Save a TreeComment
+        """
         super().save(*args, **kwargs)
-        if is_new:
-            if not self.is_root():
-                root = self.get_root()
-                try:
-                    assoc = CommentAssociation.objects.get(root=root)
-                    max_level = max_thread_level_for_content_type(assoc.content_type)
-                    if max_level and self.get_depth() > max_level:
-                        raise MaxThreadLevelExceededException(self)
-                except Exception:
-                    pass
-            kwargs["force_insert"] = False
-            super().save(*args, **kwargs)
+
+    def update_assoc(self):
+        """ Set or update the assoc value """
+        root = self.get_root()
+        a = CommentAssociation.objects.get(root=root)
+        if self.assoc != a:
+            self.assoc = a
+            self.save()
 
     def get_reply_url(self):
         return reverse("comments-tree-reply", kwargs={"cid": self.pk})
@@ -269,11 +328,12 @@ class TreeComment(MP_Node, CommentAbstractModel):
         Return the content type for this comment. We have to search from the root for this.
         Cache the value though.
         """
-        if self._association is None:
+        if self.assoc is None:
             root = self if self.is_root() else self.get_root()
-            self._association = CommentAssociation.objects.get(root=root)
+            qs = CommentAssociation.objects.select_related('content_type')
+            self.assoc = qs.get(root=root)
 
-        return self._association
+        return self.assoc
 
     @property
     def content_type(self):

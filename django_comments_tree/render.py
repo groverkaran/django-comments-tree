@@ -44,7 +44,7 @@ def blockquote(props):
 _config = {
     'block_map': dict(BLOCK_MAP, **{
         BLOCK_TYPES.BLOCKQUOTE: blockquote,
-        BLOCK_TYPES.ATOMIC: {'start': '', 'end': ''},
+        # BLOCK_TYPES.ATOMIC: {'start': '', 'end': ''},
     }),
     'entity_decorators': {
         # ENTITY_TYPES.LINK: 'link',
