@@ -1,5 +1,27 @@
 # Change Log
 
+## [0.1.0] - 2019-10-23
+
+    Denormalized the CommentAssociation model by adding an 'assoc' into each TreeComment
+    object. This is set to the association model connected to the root.
+    
+    Having this value on each comment enables more efficient queries when getting lists of
+    comments for a particular level, or for a particular page, user, or list of content types.
+    
+    Converted the CommentAssociation root = ForeignKey into a OneToOneField so that the
+    reverse relationship can be traversed. Now it is possible to use root.commentassociation
+    
+    Added select_related('commentassociation') to the main queryset so that the association
+    is always returned with the root. Generally the root will need this for subsequent 
+    queries, so it is best to select it whenever the root is selected.
+    
+    Added logic to insure that new TreeComment objects have the 'assoc' set upon creation.
+    
+    Added logic to update the root with the assoc value if not already set, this will insure
+    that all root values have this set when queried.
+    
+    Expanded the tests on the  models.
+    
 ## [0.1.0rc5] - 2019-08-11
 
     Add 'create' as a kw argument to save
