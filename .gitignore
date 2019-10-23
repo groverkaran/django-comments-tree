@@ -27,3 +27,4 @@ package-lock.json
 /pip-wheel-metadata
 *.iml
 .idea
+/.env
