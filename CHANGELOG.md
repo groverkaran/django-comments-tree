@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.1.2] = 2019-10-23
+
+    Added a Manager method: ```user_flags_for_model```
+    
+    This method uses the Postgres only ArrayAgg, if Postgres is available. 
+    This also required me to expand my checking so that the module can still work if postgres is
+    not used. This will require some more elaborate testing in the future, if I want to test with postgres
+    and without. I'll likely test locally with postgres
+    
 ## [0.1.1] - 2019-10-23
 
     Added a migrations that was missed in the previous version. The migration adds the 
