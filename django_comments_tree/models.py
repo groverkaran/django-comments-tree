@@ -219,7 +219,7 @@ class CommentManager(MP_NodeManager):
         if content_type is None:
             content_type = ContentType.objects.get_for_model(model)
 
-        qs = TreeCommentFlag.objects.filter(user=user)
+        qs = TreeCommentFlag.objects
         qs = qs.filter(user=user)
         qs = qs.filter(comment__assoc__content_type=content_type)
         if isinstance(model, models.Model):
@@ -725,6 +725,7 @@ class TreeCommentFlag(models.Model):
     # Constants for flag types
     SUGGEST_REMOVAL = "removal suggestion"
     MODERATOR_DELETION = "moderator deletion"
+
     MODERATOR_APPROVAL = "moderator approval"
 
     class Meta:

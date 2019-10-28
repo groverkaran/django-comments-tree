@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.3] = 2019-10-27
+
+    Add data migration to insure that the 'assoc' value is set in the TreeComments
+    
 ## [0.1.2] = 2019-10-23
 
     Added a Manager method: ```user_flags_for_model```
