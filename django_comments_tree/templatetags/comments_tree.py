@@ -5,7 +5,8 @@ import re
 import django_comments_tree
 
 from .comments import (RenderCommentFormNode, CommentFormNode,
-                       RenderCommentListNode, CommentListNode, CommentCountNode)
+                       RenderCommentListNode, CommentListNode,
+                       CommentCountNode as CountNode)
 
 try:
     from urllib.parse import urlencode
@@ -13,14 +14,18 @@ except ImportError:
     from urllib import urlencode
 
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.shortcuts import get_current_site
 from django.template import (Library, Node, TemplateSyntaxError,
                              Variable, loader)
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.encoding import smart_text
 
 from django_comments_tree import get_model as get_comment_model
 from django_comments_tree.conf import settings
 from django_comments_tree.api import frontend
+
+
 TreeComment = get_comment_model()
 
 
@@ -43,6 +48,40 @@ class TreeCommentCountNode(Node):
     def render(self, context):
         context[self.as_varname] = self.qs.count()
         return ''
+
+
+class CommentCountNode(CountNode):
+    def __init__(self, ctype=None,
+                 object_pk_expr=None, object_expr=None,
+                 as_varname=None, comment=None):
+        super().__init__(ctype, object_pk_expr, object_expr, as_varname, comment)
+
+    def get_queryset(self, context):
+        ctype, object_pk = self.get_target_ctype_pk(context)
+        if not object_pk:
+            return self.comment_model.objects.none()
+
+        # Explicit SITE_ID takes precedence over request. This is also how
+        # get_current_site operates.
+        site_id = getattr(settings, "SITE_ID", None)
+        if not site_id and ('request' in context):
+            site_id = get_current_site(context['request']).pk
+
+        # get comments for the given `object_pk`
+        qs = self.comment_model.objects.for_object(smart_text(object_pk), ctype, site=site_id)
+
+        # The is_public and is_removed fields are implementation details of the
+        # built-in comment model's spam filtering system, so they might not
+        # be present on a custom comment model subclass. If they exist, we
+        # should filter on them.
+        field_names = [f.name for f in self.comment_model._meta.fields]
+
+        if 'is_public' in field_names:
+            qs = qs.filter(is_public=True)
+        if getattr(settings, 'COMMENTS_HIDE_REMOVED', True) and 'is_removed' in field_names:
+            qs = qs.filter(is_removed=False)
+
+        return qs
 
 
 @register.tag

@@ -159,6 +159,13 @@ class CommentManager(MP_NodeManager):
                                                          model=model))
         return self.for_content_types(content_types, **kwargs)
 
+    def for_object(self, object_id, content_type, site):
+        """
+        :return: queryset of the given object
+        """
+        qs = self.for_content_types([content_type], site)
+        return qs.filter(assoc__object_id=object_id)
+
     def for_content_types(self,
                           content_types: List[str],
                           site: int = None) -> Optional[models.QuerySet]:
