@@ -19,6 +19,7 @@ env:
 before_install:
  - sudo apt-get update -qq
  - sudo apt-get install -qq $APT
+ - sudo apt-get install gdal-bin
 
 after_failure:
  - cat /home/travis/.pip/pip.log
