@@ -43,8 +43,8 @@ import hmac
 import pickle
 import hashlib
 
-from django.utils import six
 from django_comments_tree.conf import settings
+import six
 
 
 def dumps(obj, key=None, compress=False, extra_key=b''):

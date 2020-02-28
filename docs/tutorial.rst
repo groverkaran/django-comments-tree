@@ -846,8 +846,8 @@ Now let's edit ``blog/post_detail.html`` and make it look as follows:
     <script
       type="text/javascript"
       src="{% url 'javascript-catalog' %}"></script>
-    <script src="{% static 'django_comments_tree/js/vendor~plugin-2.4.0.js' %}"></script>
-    <script src="{% static 'django_comments_tree/js/plugin-2.4.0.js' %}"></script>
+    <script src="{% static 'django_comments_tree/js/vendor~plugin-1.4.0.js' %}"></script>
+    <script src="{% static 'django_comments_tree/js/plugin-1.4.0.js' %}"></script>
     <script>
     $(function() {
       $('[data-toggle="tooltip"]').tooltip({html: true});
