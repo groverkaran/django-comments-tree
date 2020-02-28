@@ -22,7 +22,7 @@ class GetCommentCountTestCase(DjangoTestCase):
         self.article_2 = Article.objects.create(
             title="October", slug="october", body="What I did on October...")
         self.day_in_diary = Diary.objects.create(body="About Today...")
-        
+
     def test_get_comment_count_for_one_model(self):
         thread_test_step_1(self.article_1)
         t = ("{% load comments_tree %}"
@@ -38,7 +38,22 @@ class GetCommentCountTestCase(DjangoTestCase):
              "   for tests.article tests.diary %}"
              "{{ varname }}")
         self.assertEqual(Template(t).render(Context()), '3')
-        
+
+    def test_get_comment_count(self):
+        """
+            {% get_comment_count for [object] as [varname]  %}
+            {% get_comment_count for [app].[model] [object_id] as [varname]  %}
+        """
+
+        t = ("{% load comments_tree %}"
+             "{% get_comment_count for article as varname %}"
+             "{{ varname }}")
+        thread_test_step_1(self.article_1)
+        self.assertEqual(Template(t).render(Context({'article': self.article_1})), '2')
+        thread_test_step_2(self.article_1)
+        self.assertEqual(Template(t).render(Context({'article': self.article_1})), '4')
+        thread_test_step_3(self.article_1)
+        self.assertEqual(Template(t).render(Context({'article': self.article_1})), '5')
 
 class LastCommentsTestCase(DjangoTestCase):
     def setUp(self):
