@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.1.4] = 2019-10-27
+
+    Update travis.yml to install gdal. Solves a build issue.
+    
+    Add a comment count template view.
+    
 ## [0.1.3] = 2019-10-27
 
     Add data migration to insure that the 'assoc' value is set in the TreeComments
